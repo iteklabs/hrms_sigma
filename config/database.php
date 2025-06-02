@@ -91,6 +91,19 @@ return [
             'prefix_indexes' => true,
         ],
 
+        'external_logs' => [
+        'driver' => 'mysql',
+        'host' => env('LOG_DB_HOST', '127.0.0.1'),
+        'port' => env('LOG_DB_PORT', '3306'),
+        'database' => env('LOG_DB_DATABASE', 'logs'),
+        'username' => env('LOG_DB_USERNAME', 'user'),
+        'password' => env('LOG_DB_PASSWORD', ''),
+        'charset' => 'utf8mb4',
+        'collation' => 'utf8mb4_unicode_ci',
+        'prefix' => '',
+        'strict' => true,
+        'engine' => null,
+    ],
     ],
 
     /*

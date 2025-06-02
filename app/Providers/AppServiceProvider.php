@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use Laravel\Cashier\Cashier;
+// use Laravel\Cashier\Cashier;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 
@@ -17,10 +17,10 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
 
-        Cashier::ignoreMigrations();
+        // Cashier::ignoreMigrations();
 
         if (app_type() == 'saas') {
-            Cashier::useSubscriptionModel(\App\SuperAdmin\Models\Subscription::class);
+            // Cashier::useSubscriptionModel(\App\SuperAdmin\Models\Subscription::class);
         }
     }
 

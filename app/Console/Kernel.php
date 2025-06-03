@@ -15,15 +15,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-
-        $schedule->command('app:get-logs-b-m-s')->everyMinute();
-
-        // $schedule->command('app:get-logs-b-m-s')->cron('0 5,10,19,22 * * *');
-
         if (app_type() == 'saas') {
             $schedule->command(\App\SuperAdmin\Commands\UpdateLicenseExpiry::class)->daily();
             $schedule->command(\App\SuperAdmin\Commands\NotifyLicenseExpiryPre::class)->daily();
-            
         }
     }
 

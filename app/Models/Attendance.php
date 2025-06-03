@@ -45,8 +45,8 @@ class Attendance extends BaseModel
         'leave_type_id' => Hash::class . ':hash',
         'holiday_id' => Hash::class . ':hash',
         'date' => 'date:Y-m-d',
-        // 'clock_in_date_time' => 'datetime',
-        // 'clock_out_date_time' => 'datetime',
+        'clock_in_date_time' => 'datetime',
+        'clock_out_date_time' => 'datetime',
         'is_paid' => 'boolean'
     ];
     protected $permissions = ['leaves_view'];

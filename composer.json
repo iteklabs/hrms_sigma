@@ -11,7 +11,7 @@
         "examyou/lara-installer": "12.0",
         "examyou/rest-api": "12.0",
         "guzzlehttp/guzzle": "^7.9",
-        "laravel/cashier": "*",
+        "laravel/cashier": "15.6.2",
         "laravel/framework": "^12.1",
         "laravel/sanctum": "4.0.8",
         "laravel/tinker": "^2.10.1",

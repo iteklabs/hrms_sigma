@@ -19,6 +19,7 @@ class Payrolls
     public static function updateUserSalary($userId, $annualCTC)
     {
         $user = StaffMember::find($userId);
+       
         $calculationType = $user->calculation_type;
         $ctcValue = (float)$user->ctc_value;
         if ($ctcValue == 0 || $annualCTC == 0) {
@@ -230,13 +231,14 @@ class Payrolls
                 ->where('status', 'active')
                 ->whereNotNull('ctc_value')
                 ->with('salaryGroup.salaryGroupComponents.salaryComponent')->get();
+            
             $userIds = [];
             if ($payrollGenerateRequest->has('users')) {
                 $userIds = Common::getIdArrayFromHash($payrollGenerateRequest->users);
 
                 $allUsers = $allUsers->whereIn('id', $userIds);
             }
-
+            
             foreach ($allUsers as $allUser) {
                 $payroll = Payroll::where('month', $month)
                     ->where('year', $year)
@@ -322,6 +324,7 @@ class Payrolls
                         $payrollComponent->amount = $salaryComponent->monthly;
 
                         $amount = 0.0;
+                       
                         switch ($payrollComponent->value_type) {
                             case 'fixed':
                                 $amount = (float) $payrollComponent->amount;
@@ -432,8 +435,11 @@ class Payrolls
 
                 $payroll->pre_payment_amount = $totalPrePaymentAmount;
                 $payroll->expense_amount = $totalExpenseAmount;
-                $payroll->net_salary =   $ctcAmountMonthly - $basicSalary - $totalPrePaymentAmount + $totalExpenseAmount
-                    + $earnings - $deductions + $specialAllowance - $unpaidDaysPayment;
+                // $payroll->net_salary =   $ctcAmountMonthly - $basicSalary - $totalPrePaymentAmount + $totalExpenseAmount
+                //     + $earnings - $deductions + $specialAllowance - $unpaidDaysPayment;
+                $payroll->net_salary = $basicSalary;
+
+                \Log::info($ctcAmountMonthly . " <-> " . $basicSalary . " <-> " . $totalPrePaymentAmount . " <+> " . $totalExpenseAmount . " <+> " . $earnings . " <-> " . $deductions . " <+> " . $specialAllowance . " <-> " . $unpaidDaysPayment);
                 $payroll->salary_amount
                     = $ctcAmountMonthly - $basicSalary - $totalPrePaymentAmount + $totalExpenseAmount
                     + $earnings - $deductions + $specialAllowance - $unpaidDaysPayment;

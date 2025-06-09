@@ -135,8 +135,8 @@
 </template>
 
 <script>
+import { LoadingOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons-vue";
 import { defineComponent } from "vue";
-import { PlusOutlined, LoadingOutlined, SaveOutlined } from "@ant-design/icons-vue";
 import apiAdmin from "../../../../common/composable/apiAdmin";
 import common from "../../../../common/composable/common";
 

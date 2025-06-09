@@ -15,6 +15,18 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        // $schedule->command('app:get-logs-b-m-s')->cron('* * * * *');
+        
+        /**
+         * Schedule the 'app:get-logs-b-m-s' command to run at the following times every day:
+         * - 05:00 AM
+         * - 10:00 AM
+         * - 07:00 PM
+         * - 10:00 PM
+         *
+         * Cron expression: '0 5,10,19,22 * * *'
+         */
+        $schedule->command('app:get-logs-b-m-s')->cron('0 5,10,19,22 * * *');
         if (app_type() == 'saas') {
             $schedule->command(\App\SuperAdmin\Commands\UpdateLicenseExpiry::class)->daily();
             $schedule->command(\App\SuperAdmin\Commands\NotifyLicenseExpiryPre::class)->daily();

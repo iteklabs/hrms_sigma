@@ -17,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
 
-        Cashier::ignoreMigrations();
+        // Cashier::ignoreMigrations();
 
         if (app_type() == 'saas') {
             Cashier::useSubscriptionModel(\App\SuperAdmin\Models\Subscription::class);

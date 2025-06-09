@@ -32,7 +32,9 @@ class GetLogsBMS extends Command
             $logs = DB::connection('external_logs')
                         ->table('attendances')  // first get query builder from the connection
                         ->join('users', 'attendances.worker_id', '=', 'users.id')  // now join is valid
-                        ->select('attendances.date', 'attendances.in_time', 'attendances.date_out', 'attendances.out_time', 'users.emp_no', 'users.name') // example additional select
+                        ->select('attendances.date', 'attendances.in_time', 'attendances.date_out', 'attendances.out_time', 'users.emp_no', 'users.name', 'attendances.id AS LogID')
+                        ->where('attendances.isSentToHCS_in', false)
+                        ->where('attendances.isSentToHCS_out', false)
                         ->orderByDesc('attendances.date')
                         ->get();
 
@@ -40,7 +42,7 @@ class GetLogsBMS extends Command
             foreach ($logs as $log) {
                 $users_data = $users[$log->emp_no] ?? null;
                 if($users_data){
-                    if ($log->date && $log->date_out && $log->emp_no == "90351567") {
+                    if ($log->date && $log->date_out) {
                         // Both In date and Out date are present
                         // \Log::info('Both In date and Out date exist for ' . $log->emp_no);
 
@@ -49,6 +51,7 @@ class GetLogsBMS extends Command
                         $out_date = $log->date_out;
                         $out_time = $log->out_time;
                         $user_id = $users_data->id;
+
 
                         $timestamp_in = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $in_date . ' ' . $in_time, 'Asia/Manila')->setTimezone('UTC');
                         $timestamp_out = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $out_date . ' ' . $out_time, 'Asia/Manila')->setTimezone('UTC');
@@ -82,8 +85,22 @@ class GetLogsBMS extends Command
                         $data->clock_out_ip_address = 'BMS';
                         $data->save();
 
-                        $logMessage = 'In date: ' . $in_date . ', In time: ' . $data_in . ', Out date: ' . $out_date . ', Out time: ' . $data_out . ', User ID: ' . $user_id . ', Total Minutes: ' . $totalMinutes;
-                        \Log::info($logMessage);
+                       
+                        $log_id = $log->LogID;
+
+                        $log_updated = DB::connection('external_logs')
+                        ->table('attendances')
+                        ->where('id', $log_id)
+                        ->update([
+                            'isSentToHCS_in' => true,
+                            'isSentToHCS_out' => true
+                        ]);
+
+                         \Log::info($log_updated . " <> " . $user_id);
+
+
+                        // $logMessage = 'In date: ' . $in_date . ', In time: ' . $data_in . ', Out date: ' . $out_date . ', Out time: ' . $data_out . ', User ID: ' . $user_id . ', Total Minutes: ' . $totalMinutes;
+                        // \Log::info($log_updated);
                         // \Log::info('My command ran at ' . $log->date . ' for employee ' . $log->emp_no . ' <> '. $log->name . ' with in time ' . $log->in_time . ' and out time '. $log->date_out  . " < > " . $log->out_time . ' and user id ' . $users_data?->name);
                     }
                 }

@@ -1493,6 +1493,9 @@ class LangTrans
             'ctc_value' => 'CTC Value',
             'deductions' => 'Deductions',
             'total_deductions' => 'Total Deductions',
+            'the_amount' => 'Amount',
+            'the_amount_hourly' => 'Hourly Amount',
+            'the_amount_daily' => 'Daily Amount',
         ],
         'hrm_settings' => [
             'updated' => 'HRM Setting Updated Successfully',

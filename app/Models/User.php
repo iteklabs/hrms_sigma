@@ -63,7 +63,10 @@ class User extends BaseModel implements AuthenticatableContract, JWTSubject
         'probation_end_date' => 'date',
         'notice_start_date' => 'date',
         'notice_end_date' => 'date',
-        'basic_salary' => 'double'
+        'basic_salary' => 'double',
+        'daily_rate' => 'double',
+        'hourly_rate' => 'double',
+        'semi_monthly_rate' => 'double',
     ];
 
     protected $permissions = ['salary_settings', 'leaves_view', 'assets_view', 'leave_types_view'];

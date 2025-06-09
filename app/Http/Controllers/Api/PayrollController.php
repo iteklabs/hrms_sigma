@@ -166,6 +166,7 @@ class PayrollController extends ApiBaseController
     {
         $user = user();
         $company = company();
+        
         Payrolls::payrollGenerateRegenerate($payrollGenerateRequest, $user, $company);
         return ApiResponse::make('Generate Successfully', []);
     }

@@ -1,14 +1,14 @@
-import { computed, ref } from "vue";
-import moment from "moment";
-import { useAuthStore } from "../../main/store/authStore";
-import { useI18n } from "vue-i18n";
-import { forEach, includes } from "lodash-es";
-import { checkUserPermission } from "../scripts/functions";
 import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+import { forEach, includes } from "lodash-es";
+import moment from "moment";
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { useAuthStore } from "../../main/store/authStore";
+import { checkUserPermission } from "../scripts/functions";
 
 moment.suppressDeprecationWarnings = true;
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 

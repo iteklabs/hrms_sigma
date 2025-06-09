@@ -923,32 +923,31 @@
     </a-drawer>
 </template>
 <script>
-import { defineComponent, ref, watch, nextTick } from "vue";
-import { useI18n } from "vue-i18n";
-import common from "../../../../common/composable/common";
 import {
-    UserOutlined,
-    HomeOutlined,
-    ExperimentOutlined,
-    CrownOutlined,
-    PlusOutlined,
-    DeleteOutlined,
-    ReloadOutlined,
-    SendOutlined,
+CrownOutlined,
+DeleteOutlined,
+ExperimentOutlined,
+HomeOutlined,
+PlusOutlined,
+ReloadOutlined,
+SendOutlined,
+UserOutlined,
 } from "@ant-design/icons-vue";
-import FormItemHeading from "../../../../common/components/common/typography/FormItemHeading.vue";
-import { forEach } from "lodash-es";
-import AppreciationTable from "../../appreciation/appreciations/AppreciationTable.vue";
-import WarningTable from "../../offboardings/warnings/warningTable.vue";
-import LeavesTable from "../../leave/leaves/leavesTable.vue";
-import ComplaintTable from "../../complaint/complaints/ComplaintTable.vue";
-import PrepaymentTable from "../../payrolls/pre-payments/PrepaymentTable.vue";
-import PayRollTable from "../../payrolls/payroll/PayrollTable.vue";
-import IncreamentTable from "../../payrolls/increments-promotions/IncreamentTable.vue";
-import AssetUserTable from "../../assets/asset/AssetUserTable.vue";
 import dayjs from "dayjs";
-import ResponseTable from "../../forms/survey-form/ResponseTable.vue";
+import { defineComponent, nextTick, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import FormItemHeading from "../../../../common/components/common/typography/FormItemHeading.vue";
+import common from "../../../../common/composable/common";
+import AppreciationTable from "../../appreciation/appreciations/AppreciationTable.vue";
+import AssetUserTable from "../../assets/asset/AssetUserTable.vue";
 import AttendanceDetail from "../../attendances/details/AttendanceDetail.vue";
+import ComplaintTable from "../../complaint/complaints/ComplaintTable.vue";
+import ResponseTable from "../../forms/survey-form/ResponseTable.vue";
+import LeavesTable from "../../leave/leaves/leavesTable.vue";
+import WarningTable from "../../offboardings/warnings/warningTable.vue";
+import IncreamentTable from "../../payrolls/increments-promotions/IncreamentTable.vue";
+import PayRollTable from "../../payrolls/payroll/PayrollTable.vue";
+import PrepaymentTable from "../../payrolls/pre-payments/PrepaymentTable.vue";
 
 export default defineComponent({
     props: ["userId", "visible"],

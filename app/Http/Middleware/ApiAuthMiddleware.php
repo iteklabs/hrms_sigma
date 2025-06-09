@@ -18,6 +18,7 @@ class ApiAuthMiddleware
 	 */
 	public function handle($request, Closure $next)
 	{
+		
 		if (!auth('api')->check()) {
 			throw new ApiException('UNAUTHORIZED EXCEPTION', null, 401, 401);
 		}

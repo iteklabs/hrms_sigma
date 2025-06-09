@@ -139,8 +139,17 @@ class Common
 
     public static function getIdFromHash($hash)
     {
+        // \Log::info($hash);
+
+        if (!is_string($hash)) {
+            // optionally log this or convert it
+            return $hash; // or throw new \InvalidArgumentException("Hash must be a string.");
+        }
+
+
         if ($hash != "") {
             $convertedId = Hashids::decode($hash);
+            // \Log::info($convertedId);
             $id = $convertedId[0];
 
             return $id;

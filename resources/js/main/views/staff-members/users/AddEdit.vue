@@ -830,22 +830,22 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted, watch, nextTick } from "vue";
-import { PlusOutlined, LoadingOutlined, SaveOutlined } from "@ant-design/icons-vue";
+import { LoadingOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons-vue";
+import { forEach } from "lodash-es";
+import { defineComponent, nextTick, onMounted, ref, watch } from "vue";
+import FormItemHeading from "../../../../common/components/common/typography/FormItemHeading.vue";
 import apiAdmin from "../../../../common/composable/apiAdmin";
-import Upload from "../../../../common/core/ui/file/Upload.vue";
-import RoleAddButton from "../../settings/roles/AddButton.vue";
 import common from "../../../../common/composable/common";
+import Upload from "../../../../common/core/ui/file/Upload.vue";
+import BasicSalary from "../../payrolls/basic-salary/BasicSalary.vue";
+import LocationAddButton from "../../settings/location/AddButton.vue";
+import RoleAddButton from "../../settings/roles/AddButton.vue";
 import DepartmentAddButton from "../departments/AddButton.vue";
 import DesignationAddButton from "../designations/AddButton.vue";
 import ShiftAddButton from "../shifts/AddButton.vue";
-import LocationAddButton from "../../settings/location/AddButton.vue";
-import FormItemHeading from "../../../../common/components/common/typography/FormItemHeading.vue";
-import { forEach } from "lodash-es";
-import BasicSalary from "../../payrolls/basic-salary/BasicSalary.vue";
 
-import EmployeeWorkStatusAddButton from "../../settings/employee-work-status/AddButton.vue";
 import { useAuthStore } from "../../../../main/store/authStore";
+import EmployeeWorkStatusAddButton from "../../settings/employee-work-status/AddButton.vue";
 
 export default defineComponent({
     props: [

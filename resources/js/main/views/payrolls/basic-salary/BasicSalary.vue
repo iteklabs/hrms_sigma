@@ -567,7 +567,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const { loading, rules } = apiAdmin();
         const { appSetting } = common();
-
+        // console.log('rules', rules)
         const selectUsers = ref("");
         const componentIds = ref([]);
         const formData = ref({
@@ -580,7 +580,7 @@ export default defineComponent({
             calculation_type: "monthly",
             ctc_value: 0,
         });
-        console.log('loading', loading);
+        // console.log('formData', props.user.xid);
         const monthlySalary = ref(0);
         const annualSalary = ref(0);
         const hourlySalary = ref(0);
@@ -591,19 +591,39 @@ export default defineComponent({
         const salaryComponents = ref([]);
         const salaryGroups = ref([]);
         let semi_monthly = 0;
-        const salaryGroupUrl =
+        const salaryGroupUrl = 
             "salary-groups?fields=id,xid,name,salaryGroupComponents{id,xid,x_salary_group_id,x_salary_component_id},salaryGroupComponents:salaryComponent{id,xid,name,type,value_type,bi_weekly,weekly,monthly,semi_monthly},salaryGroupUsers{id,xid,x_user_id,x_salary_group_id},salaryGroupUsers:users{id,xid,name}";
-
+        const userprofile_url = `employee-profile/${props.user.xid}`;
         const salaryGroupComponentProps = ref([]);
         onMounted(() => {
             fetchSalaryGroups();
+            fetchDataSalary();
+
         });
+
+        const fetchDataSalary = () => {
+            const salaryProfile = axiosAdmin.get(userprofile_url);
+            Promise.all([salaryProfile]).then(([salaryProfileResponse]) => {
+                console.log(formData)
+
+                formData.value = {
+                    ...formData.value, // keep existing values if needed
+                    calculation_type: salaryProfileResponse.data[0].calculation_type,
+                    ctc_value: salaryProfileResponse.data[0].monthly_amount|| 0, // if that's your main source
+                };
+                monthlySalary.value = salaryProfileResponse.data[0].monthly_amount;
+                dailySalary.value = salaryProfileResponse.data[0].daily_rate;
+                hourlySalary.value = salaryProfileResponse.data[0].hourly_rate
+                annualSalary.value = salaryProfileResponse.data[0].annual_amount
+            });
+        };
 
         const fetchSalaryGroups = () => {
             const salaryGroupPromise = axiosAdmin.get(salaryGroupUrl);
 
             Promise.all([salaryGroupPromise]).then(([salaryGroupResponse]) => {
                 salaryGroups.value = salaryGroupResponse.data;
+                
             });
         };
 
@@ -611,6 +631,7 @@ export default defineComponent({
             axiosAdmin.get(salaryGroupUrl).then((response) => {
                 salaryGroups.value = response.data;
             });
+            
         };
 
         const fetchSalaryComponentsAndUsers = (salaryGroupId) => {
@@ -622,10 +643,12 @@ export default defineComponent({
 
             axiosAdmin.get(salaryGroupUrl).then((response) => {
                 const allSalaryGroups = response.data;
-
+                // console.log('response', allSalaryGroups)
                 const selectedGroup = allSalaryGroups.find(
                     (group) => group.xid === salaryGroupId
                 );
+
+                
 
                 if (selectedGroup) {
                     salaryGroupComponentProps.value =

@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sss', function (Blueprint $table) {
+        Schema::create('philhealth', function (Blueprint $table) {
             $table->id();
             $table->double('min_salary');
             $table->double('max_salary');
-            $table->double('employer_share');
-            $table->double('mpf_yer');
-            $table->double('ec_yer');
-            $table->double('employee_share');
-            $table->double('mpf_ee');
+            $table->double('EE_share_fixed');
+            $table->double('ER_share_fixed');
+            $table->double('EE_share_percentage');
+            $table->double('ER_share_percentage');
+            $table->double('total_share_percentage');
             $table->timestamps();
         });
     }
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sss');
+        Schema::dropIfExists('philhealth');
     }
 };

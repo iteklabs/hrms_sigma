@@ -142,11 +142,10 @@ class Payrolls
     public static function updateEmployeeSalary($id, $basicSalary, $monthlyAmount, $annualAmount, $annualCtc, $ctcValue, $netSalary, $specialAllowances, $salaryComponents, $salaryGroupId)
     {
         $user = StaffMember::find($id);
-
+        
         // Update user basic salary details
         $user->basic_salary = $basicSalary;
-        $user->monthly_amount
-            = $monthlyAmount;
+        $user->monthly_amount = $monthlyAmount;
         $user->annual_amount = $annualAmount;
         $user->annual_ctc = $annualCtc;
         $user->ctc_value = $ctcValue;

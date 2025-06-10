@@ -11,15 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sss', function (Blueprint $table) {
+        Schema::create('pagibig', function (Blueprint $table) {
             $table->id();
-            $table->double('min_salary');
-            $table->double('max_salary');
-            $table->double('employer_share');
-            $table->double('mpf_yer');
-            $table->double('ec_yer');
-            $table->double('employee_share');
-            $table->double('mpf_ee');
             $table->timestamps();
         });
     }
@@ -29,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sss');
+        Schema::dropIfExists('pagibig');
     }
 };

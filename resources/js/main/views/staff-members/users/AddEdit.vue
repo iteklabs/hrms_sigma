@@ -984,13 +984,13 @@ export default defineComponent({
             }
         };
        const updateSalaryData = (updatedData) => {
-    console.log("Before update:", JSON.stringify(newData.value));
-    console.log("Updated data:", JSON.stringify(updatedData));
+            console.log("Before update:", JSON.stringify(newData.value));
+            console.log("Updated data:", JSON.stringify(updatedData));
 
-    Object.assign(newData.value, updatedData);
+            Object.assign(newData.value, updatedData);
 
-    console.log("After update:", JSON.stringify(newData.value));
-};
+            console.log("After update:", JSON.stringify(newData.value));
+        };
 
 
         const onClose = () => {

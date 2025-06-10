@@ -593,29 +593,39 @@ export default defineComponent({
         let semi_monthly = 0;
         const salaryGroupUrl = 
             "salary-groups?fields=id,xid,name,salaryGroupComponents{id,xid,x_salary_group_id,x_salary_component_id},salaryGroupComponents:salaryComponent{id,xid,name,type,value_type,bi_weekly,weekly,monthly,semi_monthly},salaryGroupUsers{id,xid,x_user_id,x_salary_group_id},salaryGroupUsers:users{id,xid,name}";
-        const userprofile_url = `employee-profile/${props.user.xid}`;
+        
+        // console.log(props.user)
         const salaryGroupComponentProps = ref([]);
         onMounted(() => {
             fetchSalaryGroups();
-            fetchDataSalary();
+            fetchDataSalary(props.user.xid);
 
         });
 
-        const fetchDataSalary = () => {
-            const salaryProfile = axiosAdmin.get(userprofile_url);
-            Promise.all([salaryProfile]).then(([salaryProfileResponse]) => {
-                console.log(formData)
-
-                formData.value = {
-                    ...formData.value, // keep existing values if needed
-                    calculation_type: salaryProfileResponse.data[0].calculation_type,
-                    ctc_value: salaryProfileResponse.data[0].monthly_amount|| 0, // if that's your main source
-                };
-                monthlySalary.value = salaryProfileResponse.data[0].monthly_amount;
-                dailySalary.value = salaryProfileResponse.data[0].daily_rate;
-                hourlySalary.value = salaryProfileResponse.data[0].hourly_rate
-                annualSalary.value = salaryProfileResponse.data[0].annual_amount
-            });
+        const fetchDataSalary = (id) => {
+            if(id){
+                const userprofile_url = `employee-profile/${id}`;
+                const salaryProfile = axiosAdmin.get(userprofile_url);
+                Promise.all([salaryProfile]).then(([salaryProfileResponse]) => {
+                    console.log(formData)
+                    let data_show = salaryProfileResponse.data[0];
+                    formData.value = {
+                        ...formData.value, // keep existing values if needed
+                        calculation_type: data_show.calculation_type,
+                        ctc_value: data_show.monthly_amount|| 0, // if that's your main source
+                        monthly_amount: data_show.monthly_amount|| 0,
+                        hourly_amount: data_show.hourly_rate,
+                        daily_amount: data_show.daily_rate,
+                        annual_amount: data_show.annual_amount
+                    };
+                    // monthlySalary.value = salaryProfileResponse.data[0].monthly_amount;
+                    // dailySalary.value = salaryProfileResponse.data[0].daily_rate;
+                    // hourlySalary.value = salaryProfileResponse.data[0].hourly_rate
+                    // annualSalary.value = salaryProfileResponse.data[0].annual_amount
+                    calculateSalary()
+                });
+            }
+            
         };
 
         const fetchSalaryGroups = () => {
@@ -948,7 +958,7 @@ const calculateSalary = () => {
             calculateEarningsAndDeductions();
 
             const { calculation_type, ctc_value, annual_ctc } = formData.value;
-            // console.log(calculation_type)
+            console.log(annual_ctc)
 
             // if (calculation_type === "fixed") {
             //     monthlySalary.value = ctc_value;
@@ -958,7 +968,7 @@ const calculateSalary = () => {
             //     monthlySalary.value = ((annual_ctc * percentage) / 100 / 12).toFixed(2);
             //     annualSalary.value = ((annual_ctc * percentage) / 100).toFixed(2);
             // }
-
+            console.log(calculation_type)
             switch (calculation_type) {
                 // case "fixed": {
                 //     monthlySalary.value = ctc_value;
@@ -982,6 +992,7 @@ const calculateSalary = () => {
                     dailySalary.value = (ctc_value / 24).toFixed(4);
                     hourlySalary.value = ((ctc_value / 24) / 8).toFixed(4);
                     annualSalary.value = (ctc_value * 12).toFixed(4);
+                    // annual_ctc = (ctc_value * 12).toFixed(4);
                     break;
                 default: {
                     monthlySalary.value = 0;
@@ -1003,6 +1014,7 @@ const calculateSalary = () => {
                 daily_rate: dailySalary.value,
                 salary_component_ids: componentIds.value,
                 special_allowances: specialAllowance.value,
+                // annual_ctc: annual_ctc,
                 // special_allowances: 0,
                 salary_components: salaryComponents.value,
                 net_salary: netSalary.value,
@@ -1230,6 +1242,8 @@ const calculateSalary = () => {
             () => props.visible,
             (newVal, oldVal) => {
                 fetchSalaryGroups();
+                // console.log("ID",props.user.xid)
+                fetchDataSalary(props.user.xid);
                 if (newVal) {
                     formData.value = {
                         basic_salary: props.user.basic_salary || 0,
@@ -1328,6 +1342,7 @@ const calculateSalary = () => {
             salaryGroupComponentProps,
             salaryGroups,
             fetchSalaryComponentsAndUsers,
+            fetchDataSalary,
             salaryGroupAdded,
 
             drawerWidth: window.innerWidth <= 991 ? "90%" : "60%",

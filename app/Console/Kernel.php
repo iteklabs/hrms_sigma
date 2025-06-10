@@ -26,7 +26,10 @@ class Kernel extends ConsoleKernel
          *
          * Cron expression: '0 5,10,19,22 * * *'
          */
-        $schedule->command('app:get-logs-b-m-s')->cron('0 5,10,19,22 * * *');
+        // $schedule->command('app:get-logs-b-m-s')->cron('* * * * *')->appendOutputTo(storage_path('logs/schedule.log'));
+        // $schedule->command('app:get-logs-b-m-s')->cron('0 5,19,22,10 * * *')->cron('58 10 * * *')->appendOutputTo(storage_path('logs/schedule.log'));
+
+        $schedule->command('app:get-logs-b-m-s')->cron('0 5,10,19,22 * * *')->appendOutputTo(storage_path('logs/schedule.log'));
         if (app_type() == 'saas') {
             $schedule->command(\App\SuperAdmin\Commands\UpdateLicenseExpiry::class)->daily();
             $schedule->command(\App\SuperAdmin\Commands\NotifyLicenseExpiryPre::class)->daily();

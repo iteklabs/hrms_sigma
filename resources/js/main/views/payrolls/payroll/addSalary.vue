@@ -97,21 +97,21 @@
     </a-drawer>
 </template>
 <script>
-import { defineComponent, onMounted, ref, watch, computed } from "vue";
 import {
-    PlusOutlined,
-    LoadingOutlined,
-    SaveOutlined,
-    ArrowUpOutlined,
-    ArrowDownOutlined,
-    MinusSquareOutlined,
+ArrowDownOutlined,
+ArrowUpOutlined,
+LoadingOutlined,
+MinusSquareOutlined,
+PlusOutlined,
+SaveOutlined,
 } from "@ant-design/icons-vue";
+import { defineComponent, onMounted, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import FormItemHeading from "../../../../common/components/common/typography/FormItemHeading.vue";
 import apiAdmin from "../../../../common/composable/apiAdmin";
 import common from "../../../../common/composable/common";
-import StaffMemberAddButton from "../../staff-members/users/StaffAddButton.vue";
-import FormItemHeading from "../../../../common/components/common/typography/FormItemHeading.vue";
-import { useI18n } from "vue-i18n";
 import hrmManagement from "../../../../common/composable/hrmManagement.js";
+import StaffMemberAddButton from "../../staff-members/users/StaffAddButton.vue";
 
 export default defineComponent({
     props: [
@@ -208,6 +208,7 @@ export default defineComponent({
         watch(
             () => props.visible,
             (newVal, oldVal) => {
+                console.log(props.data)
                 summaryData.value = [
                     {
                         key: "total_days",
@@ -249,6 +250,35 @@ export default defineComponent({
                         title: t("payroll.basic_salary"),
                         value: formatAmountCurrency(props.data.basic_salary),
                     },
+                    {
+                        key: "sss_amount_ee_share",
+                        title: t("payroll.sss_share"),
+                        value: formatAmountCurrency(props.data.sss_share_ee),
+                    },
+                    {
+                        key: "sss_amount_ee_mpf_share",
+                        title: t("payroll.sss_share_ee_mpf"),
+                        value: formatAmountCurrency(props.data.sss_mpf_ee),
+                    },
+                    {
+                        key: "pagibig_share_ee",
+                        title: t("payroll.pagibig_share_ee"),
+                        value: formatAmountCurrency(props.data.pagibig_share_ee),
+                    },
+                    {
+                        key: "philhealth_share_ee",
+                        title: t("payroll.philhealth_share_ee"),
+                        value: formatAmountCurrency(props.data.philhealth_share_ee),
+                    },
+                    {
+                        key: "tax_withheld",
+                        title: t("payroll.tax_withheld"),
+                        value: formatAmountCurrency(props.data.tax_withheld),
+                    },
+                    
+                    
+                    
+
                 ];
                 leaveHoliday.value = [
                     {

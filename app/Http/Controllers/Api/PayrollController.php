@@ -32,6 +32,7 @@ class PayrollController extends ApiBaseController
     {
         $loggedUser = user();
         $request = request();
+       
         // year Filters
         if ($request->has('year') && $request->year != "") {
             $payrollYear = $request->year;
@@ -42,6 +43,11 @@ class PayrollController extends ApiBaseController
         if ($request->has('month') && $request->month != "") {
             $payrollMonth = $request->month;
             $query = $query->where('payrolls.month', $payrollMonth);
+        }
+        //cutoff Filters
+        if ($request->has('cut_off') && $request->cut_off != "") {
+            $payrollcut_off = $request->cut_off;
+            $query = $query->where('payrolls.cut_off', $payrollcut_off);
         }
 
         if ($loggedUser->ability('admin', 'payrolls_view')) {
@@ -54,7 +60,7 @@ class PayrollController extends ApiBaseController
         } else {
             $query = $query->where('payrolls.user_id', $loggedUser->id);
         }
-
+        //  \Log::info('Payroll Index Request: ', $query->toSql());
         return  $query;
     }
 
@@ -164,11 +170,16 @@ class PayrollController extends ApiBaseController
 
     public function payrollGenerate(PayrollGenerateRequest $payrollGenerateRequest)
     {
-        $user = user();
-        $company = company();
-        
-        Payrolls::payrollGenerateRegenerate($payrollGenerateRequest, $user, $company);
-        return ApiResponse::make('Generate Successfully', []);
+        try {
+            $user = user();
+            $company = company();
+            // \Log::info($payrollGenerateRequest);
+            Payrolls::payrollGenerateRegenerate($payrollGenerateRequest, $user, $company);
+            return ApiResponse::make('Generate Successfully', []);
+        } catch (\Throwable $th) {
+            \Log::error('Payroll Generation Error: ' . $th->getMessage());
+
+        }
     }
 
     public function destroyed(Payroll $payroll)

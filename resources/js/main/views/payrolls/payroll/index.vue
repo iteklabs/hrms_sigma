@@ -171,6 +171,30 @@
                                     </a-select-option>
                                 </a-select>
                             </a-col>
+
+                            <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="6">
+                                <a-select
+                                    v-model:value="filters.cut_off"
+                                    :placeholder="
+                                        $t('common.select_default_text', [
+                                            $t('holiday.month'),
+                                        ])
+                                    "
+                                    :allowClear="true"
+                                    style="width: 100%"
+                                    optionFilterProp="title"
+                                    show-search
+                                    @change="setUrlData"
+                                >
+                                    <a-select-option
+                                        v-for="cut in cut_off"
+                                        :key="cut.name"
+                                        :value="cut.value"
+                                    >
+                                        {{ cut.name }}
+                                    </a-select-option>
+                                </a-select>
+                            </a-col>
                         </a-row>
                     </a-col>
                 </a-row>
@@ -203,24 +227,24 @@
     </PayrollTable>
 </template>
 <script>
-import { onMounted, ref } from "vue";
+import UserListDisplay from "@/common/components/user/UserListDisplay.vue";
 import {
-    DeleteOutlined,
-    CloseOutlined,
-    CheckOutlined,
-    SendOutlined,
-    ReloadOutlined,
-    EyeOutlined,
-    DollarCircleOutlined,
-    DownloadOutlined,
+CheckOutlined,
+CloseOutlined,
+DeleteOutlined,
+DollarCircleOutlined,
+DownloadOutlined,
+EyeOutlined,
+ReloadOutlined,
+SendOutlined,
 } from "@ant-design/icons-vue";
-import common from "../../../../common/composable/common";
-import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
 import dayjs from "dayjs";
+import { onMounted, ref } from "vue";
+import common from "../../../../common/composable/common";
 import hrmManagement from "../../../../common/composable/hrmManagement";
+import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
 import PayrollStatus from "./PayrollStatus.vue";
 import PayrollTable from "./PayrollTable.vue";
-import UserListDisplay from "@/common/components/user/UserListDisplay.vue";
 
 export default {
     components: {
@@ -243,10 +267,11 @@ export default {
             month: dayjs().format("MM"),
             year: dayjs(),
             user_id: undefined,
+            cut_off: 'A'
         });
         const allUsers = ref([]);
         const staffMembersUrl = "users";
-        const { getMonthNameByNumber, monthArrays } = hrmManagement();
+        const { getMonthNameByNumber, monthArrays, cut_off } = hrmManagement();
 
         onMounted(() => {
             const staffMemberPromise = axiosAdmin.get(staffMembersUrl);
@@ -260,6 +285,7 @@ export default {
             allUsers,
             filters,
             monthArrays,
+            cut_off,
         };
     },
 };

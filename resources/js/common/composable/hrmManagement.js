@@ -1,6 +1,6 @@
+import { find, forEach } from "lodash-es";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { find, forEach } from "lodash-es";
 import common from "./common";
 
 const hrmManagement = () => {
@@ -26,6 +26,12 @@ const hrmManagement = () => {
         { name: t("common.october"), value: "10" },
         { name: t("common.november"), value: "11" },
         { name: t("common.december"), value: "12" },
+    ]);
+
+
+    const cut_off = ref([
+        { name: t("common.1st_half"), value: "A" },
+        { name: t("common.2nd_half"), value: "B" },
     ]);
 
     const weekDays = ref([
@@ -314,6 +320,7 @@ const hrmManagement = () => {
         formatShiftTime24Hours,
         formatShiftTime12Hours,
         weekDays,
+        cut_off,
 
         selectedLetterHeadFields,
         resetSelectformOption,

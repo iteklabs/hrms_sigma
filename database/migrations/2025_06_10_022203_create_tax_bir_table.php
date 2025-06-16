@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('tax_bir', function (Blueprint $table) {
             $table->id();
+            $table->double('min_salary');
+            $table->double('max_salary');
+            $table->double('fixed_amount');
+            $table->double('tax_percentage');
             $table->timestamps();
         });
     }

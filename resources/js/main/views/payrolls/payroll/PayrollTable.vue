@@ -155,30 +155,30 @@
 </template>
 
 <script>
-import { onMounted, ref, watch } from "vue";
-import {
-    PlusOutlined,
-    EditOutlined,
-    DeleteOutlined,
-    SendOutlined,
-    ReloadOutlined,
-    DollarCircleOutlined,
-    DownloadOutlined,
-    CloseOutlined,
-    CheckOutlined,
-    EyeOutlined,
-} from "@ant-design/icons-vue";
-import crud from "../../../../common/composable/crud";
-import common from "../../../../common/composable/common";
-import UserInfo from "../../../../common/components/user/UserInfo.vue";
-import hrmManagement from "../../../../common/composable/hrmManagement";
 import PdfDownload from "@/main/components/pdf/PdfDownload.vue";
+import {
+CheckOutlined,
+CloseOutlined,
+DeleteOutlined,
+DollarCircleOutlined,
+DownloadOutlined,
+EditOutlined,
+EyeOutlined,
+PlusOutlined,
+ReloadOutlined,
+SendOutlined,
+} from "@ant-design/icons-vue";
 import { notification } from "ant-design-vue";
+import { find } from "lodash-es";
+import { onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import UserInfo from "../../../../common/components/user/UserInfo.vue";
+import common from "../../../../common/composable/common";
+import crud from "../../../../common/composable/crud";
+import hrmManagement from "../../../../common/composable/hrmManagement";
+import AddEdit from "./AddEdit.vue";
 import AddSalary from "./addSalary.vue";
 import fields from "./fields";
-import AddEdit from "./AddEdit.vue";
-import { useI18n } from "vue-i18n";
-import { find } from "lodash-es";
 
 export default {
     props: {
@@ -292,6 +292,9 @@ export default {
             if (tableFilter.month) {
                 extraFilterObject.month = tableFilter.month;
             }
+            if (tableFilter.cut_off) {
+                extraFilterObject.cut_off = tableFilter.cut_off;
+            }
             if (tableFilter.year) {
                 extraFilterObject.year = tableFilter.year.format("YYYY");
             }
@@ -321,6 +324,7 @@ export default {
                 .post("payrolls/generate", {
                     month: props.filters.month,
                     year: props.filters.year.format("YYYY"),
+                    cut_off: props.filters.cut_off
                 })
                 .then((successResponse) => {
                     if (successResponse) {

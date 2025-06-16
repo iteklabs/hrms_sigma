@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('pagibig', function (Blueprint $table) {
             $table->id();
+            $table->double('min_salary');
+            $table->double('max_salary');
+            $table->double('employer_share');
+            $table->double('employee_share');
+            $table->double('employer_share_percentage');
+            $table->double('employee_share_percentage');
+            $table->double('total_share_percentage');
             $table->timestamps();
         });
     }

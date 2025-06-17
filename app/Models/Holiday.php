@@ -9,7 +9,7 @@ class Holiday extends BaseModel
 {
     protected $table = 'holidays';
 
-    protected $default = ['xid', 'name', 'year', 'date', 'created_by', 'month'];
+    protected $default = ['xid', 'name', 'year', 'date', 'holiday_type', 'created_by', 'month'];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
@@ -21,7 +21,8 @@ class Holiday extends BaseModel
 
     protected $casts = [
         'is_deletable' => 'integer',
-        'date'  => 'date:Y-m-d'
+        'date'  => 'date:Y-m-d',
+        'holiday_type' => 'string',
     ];
 
     protected static function boot()

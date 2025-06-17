@@ -78,6 +78,7 @@ class HolidayController extends ApiBaseController
         $holiday->name = $request->name;
         $holiday->year = Carbon::createFromFormat('Y-m-d', $request->date)->year;
         $holiday->month = Carbon::createFromFormat('Y-m-d', $request->date)->month;
+        $holiday->holiday_type = $request->holiday_type;
 
         return $holiday;
     }

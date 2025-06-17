@@ -185,8 +185,16 @@
                         id="holiday-report"
                     >
                         <template #bodyCell="{ column, record }">
+                            
                             <template v-if="column.dataIndex === 'date'">
                                 {{ formatDate(record.date) }}
+                            </template>
+                            <template v-if="column.dataIndex === 'string'">
+                                <span v-if="record.holiday_type === 'RH'">{{ $t('holiday.regular_holiday') }}</span>
+                                <span v-if="record.holiday_type === 'SNW'">{{ $t('holiday.SNW_holiday') }}</span>
+                                <span v-if="record.holiday_type === 'SW'">{{ $t('holiday.SW_holiday') }}</span>
+                                <h1>{{ record.holiday_type }}</h1>
+                                <!-- {{ record.holiday_type  }} -->
                             </template>
                             <template v-if="column.dataIndex === 'action'">
                                 <a-button
@@ -234,25 +242,24 @@
     />
 </template>
 <script>
-import { onMounted, ref, watch } from "vue";
 import {
-    PlusOutlined,
-    EditOutlined,
-    DeleteOutlined,
-    DownloadOutlined,
+DeleteOutlined,
+DownloadOutlined,
+EditOutlined,
+PlusOutlined,
 } from "@ant-design/icons-vue";
-import { useRoute } from "vue-router";
-import fields from "./fields";
-import crud from "../../../../common/composable/crud";
-import common from "../../../../common/composable/common";
-import AddEdit from "./AddEdit.vue";
-import MarkHoliday from "./MarkHoliday.vue";
+import { onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
+import { useRoute } from "vue-router";
+import common from "../../../../common/composable/common";
+import crud from "../../../../common/composable/crud";
 import hrmManagement from "../../../../common/composable/hrmManagement";
-import axios from "axios";
+import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
 import PdfDownload from "../../../components/pdf/PdfDownload.vue";
+import AddEdit from "./AddEdit.vue";
 import AddQuick from "./AddQuick .vue";
+import fields from "./fields";
+import MarkHoliday from "./MarkHoliday.vue";
 
 export default {
     components: {
@@ -302,7 +309,7 @@ export default {
 
         const setUrlData = () => {
             crudVariables.tableUrl.value = {
-                url: `holidays?fields=id,xid,name,year,date,month,is_weekend`,
+                url: `holidays?fields=id,xid,name,year,date,month,is_weekend,holiday_type`,
                 extraFilters: {
                     ...extraFilters.value,
                     holiday_type: holidayType.value,

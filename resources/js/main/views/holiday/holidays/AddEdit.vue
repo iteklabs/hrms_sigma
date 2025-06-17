@@ -37,12 +37,34 @@
                         :validateStatus="rules.date ? 'error' : null"
                         class="required"
                     >
+                    
                         <a-date-picker
                             v-model:value="formData.date"
                             :format="appSetting.date_format"
                             valueFormat="YYYY-MM-DD"
                             style="width: 100%"
                         />
+                    </a-form-item>
+                </a-col>
+            </a-row>
+
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('holiday.holiday_type')"
+                        name="holiday_type"
+                        :help="rules.description ? rules.description.message : null"
+                        :validateStatus="rules.description ? 'error' : null"
+                    >
+                        <a-select
+                        v-model:value="formData.holiday_type"
+                        :placeholder="$t('common.select_default_text', [$t('holiday.type')])"
+                        style="width: 100%; margin-bottom: 12px"
+                    >
+                        <a-select-option value="RH">Regular Holiday</a-select-option>
+                        <a-select-option value="SNW">Special (Non-Working) Holiday</a-select-option>
+                        <a-select-option value="SW">Special (Working) Holiday</a-select-option>
+                    </a-select>
                     </a-form-item>
                 </a-col>
             </a-row>
@@ -61,8 +83,8 @@
     </a-modal>
 </template>
 <script>
-import { defineComponent, onMounted, ref } from "vue";
-import { PlusOutlined, LoadingOutlined, SaveOutlined } from "@ant-design/icons-vue";
+import { LoadingOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons-vue";
+import { defineComponent } from "vue";
 import apiAdmin from "../../../../common/composable/apiAdmin";
 import common from "../../../../common/composable/common";
 

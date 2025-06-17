@@ -9,6 +9,7 @@ const fields = () => {
         name: "",
         year: "",
         month: "",
+        holiday_type: "RH",
         date: undefined,
     };
 
@@ -20,6 +21,10 @@ const fields = () => {
         {
             title: t("holiday.date"),
             dataIndex: "date",
+        },
+        {
+            title: t("holiday.holiday_type"),
+            dataIndex: "string",
         },
         {
             title: t("common.action"),

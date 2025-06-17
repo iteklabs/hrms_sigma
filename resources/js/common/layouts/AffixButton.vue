@@ -315,73 +315,73 @@
 </template>
 
 <script>
-import { computed } from "vue";
 import {
-    PlusOutlined,
-    TeamOutlined,
-    DollarOutlined,
-    FundViewOutlined,
-    TranslationOutlined,
-    PlusCircleOutlined,
-    UserOutlined,
-    CloudServerOutlined,
-    ScheduleOutlined,
-    CrownOutlined,
-    PaperClipOutlined,
-    DeploymentUnitOutlined,
-    CarOutlined,
-    FontColorsOutlined,
-    NotificationOutlined,
-    PartitionOutlined,
-    InteractionOutlined,
-    PullRequestOutlined,
-    WomanOutlined,
-    RedEnvelopeOutlined,
-    TransactionOutlined,
-    FrownOutlined,
-    BankOutlined,
-    PayCircleOutlined,
-    RobotOutlined,
-    ShareAltOutlined,
-    ExceptionOutlined,
-    ExpandOutlined,
-    RotateRightOutlined,
-    FolderOpenOutlined,
-    NodeCollapseOutlined,
-    ContainerOutlined,
+BankOutlined,
+CarOutlined,
+CloudServerOutlined,
+ContainerOutlined,
+CrownOutlined,
+DeploymentUnitOutlined,
+DollarOutlined,
+ExceptionOutlined,
+ExpandOutlined,
+FolderOpenOutlined,
+FontColorsOutlined,
+FrownOutlined,
+FundViewOutlined,
+InteractionOutlined,
+NodeCollapseOutlined,
+NotificationOutlined,
+PaperClipOutlined,
+PartitionOutlined,
+PayCircleOutlined,
+PlusCircleOutlined,
+PlusOutlined,
+PullRequestOutlined,
+RedEnvelopeOutlined,
+RobotOutlined,
+RotateRightOutlined,
+ScheduleOutlined,
+ShareAltOutlined,
+TeamOutlined,
+TransactionOutlined,
+TranslationOutlined,
+UserOutlined,
+WomanOutlined,
 } from "@ant-design/icons-vue";
-import common from "../composable/common";
-import StaffAddButton from "../../main/views/staff-members/users/StaffAddButton.vue";
+import { computed } from "vue";
+import AccountAddButton from "../../main/views/accountings/accounts/AddButton.vue";
+import DepositCategoryAddButton from "../../main/views/accountings/deposit-categories/AddButton.vue";
+import DepositAddButton from "../../main/views/accountings/deposits/AddButton.vue";
+import ExpenseCategoryAddButton from "../../main/views/accountings/expense-categories/AddButton.vue";
+import ExpenseAddButton from "../../main/views/accountings/expenses/AddButton.vue";
+import PayeeAddButton from "../../main/views/accountings/payees/AddButton.vue";
+import PayersAddButton from "../../main/views/accountings/payers/AddButton.vue";
+import AppreciationAddButton from "../../main/views/appreciation/appreciations/AddButton.vue";
+import AwardAddButton from "../../main/views/appreciation/awards/AddButton.vue";
+import AssetAddButton from "../../main/views/assets/asset/AddButton.vue";
+import AttendanceAddButton from "../../main/views/attendances/attendance/AddButton.vue";
 import CurrencyAddButton from "../../main/views/common/settings/currency/AddButton.vue";
 import LanguageAddButton from "../../main/views/common/settings/translations/langs/AddButton.vue";
+import CompanyPolicyAddButton from "../../main/views/company-policies/AddButton.vue";
+import ComplaintAddButton from "../../main/views/complaint/complaints/AddButton.vue";
+import IndicatorAddButton from "../../main/views/forms/indicators/AddButton.vue";
+import FormFeedbackAddButton from "../../main/views/forms/survey-form/AddButton.vue";
+import SurveyFormAddButton from "../../main/views/forms/template/AddButton.vue";
+import LeaveAddButton from "../../main/views/leave/leaves/AddButton.vue";
+import LetterHeadeTemplateAddButton from "../../main/views/letter-head/template/AddButton.vue";
+import NewsAddButton from "../../main/views/news/AddButton.vue";
+import ResignationAddButton from "../../main/views/offboardings/resignations/AddButton.vue";
+import TerminationAddButton from "../../main/views/offboardings/terminations/AddButton.vue";
+import WarningAddButton from "../../main/views/offboardings/warnings/AddButton.vue";
+import IncrementsPromotionsAddButton from "../../main/views/payrolls/increments-promotions/AddButton.vue";
+import PrePaymentAddButton from "../../main/views/payrolls/pre-payments/AddButton.vue";
 import RoleAddButton from "../../main/views/settings/roles/AddButton.vue";
 import DepartmentAddButton from "../../main/views/staff-members/departments/AddButton.vue";
 import DesignationAddButton from "../../main/views/staff-members/designations/AddButton.vue";
 import ShiftsAddButton from "../../main/views/staff-members/shifts/AddButton.vue";
-import AssetAddButton from "../../main/views/assets/asset/AddButton.vue";
-import AppreciationAddButton from "../../main/views/appreciation/appreciations/AddButton.vue";
-import AwardAddButton from "../../main/views/appreciation/awards/AddButton.vue";
-import LeaveAddButton from "../../main/views/leave/leaves/AddButton.vue";
-import AttendanceAddButton from "../../main/views/attendances/attendance/AddButton.vue";
-import NewsAddButton from "../../main/views/news/AddButton.vue";
-import PrePaymentAddButton from "../../main/views/payrolls/pre-payments/AddButton.vue";
-import IncrementsPromotionsAddButton from "../../main/views/payrolls/increments-promotions/AddButton.vue";
-import CompanyPolicyAddButton from "../../main/views/company-policies/AddButton.vue";
-import WarningAddButton from "../../main/views/offboardings/warnings/AddButton.vue";
-import ResignationAddButton from "../../main/views/offboardings/resignations/AddButton.vue";
-import TerminationAddButton from "../../main/views/offboardings/terminations/AddButton.vue";
-import ComplaintAddButton from "../../main/views/complaint/complaints/AddButton.vue";
-import LetterHeadeTemplateAddButton from "../../main/views/letter-head/template/AddButton.vue";
-import FormFeedbackAddButton from "../../main/views/forms/survey-form/AddButton.vue";
-import IndicatorAddButton from "../../main/views/forms/indicators/AddButton.vue";
-import AccountAddButton from "../../main/views/accountings/accounts/AddButton.vue";
-import PayeeAddButton from "../../main/views/accountings/payees/AddButton.vue";
-import DepositAddButton from "../../main/views/accountings/deposits/AddButton.vue";
-import DepositCategoryAddButton from "../../main/views/accountings/deposit-categories/AddButton.vue";
-import ExpenseAddButton from "../../main/views/accountings/expenses/AddButton.vue";
-import ExpenseCategoryAddButton from "../../main/views/accountings/expense-categories/AddButton.vue";
-import PayersAddButton from "../../main/views/accountings/payers/AddButton.vue";
-import SurveyFormAddButton from "../../main/views/forms/template/AddButton.vue";
+import StaffAddButton from "../../main/views/staff-members/users/StaffAddButton.vue";
+import common from "../composable/common";
 
 export default {
     props: {

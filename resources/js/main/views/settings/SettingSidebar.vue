@@ -215,6 +215,57 @@
                             {{ $t("menu.salary_groups") }}
                         </a-menu-item>
                     </a-sub-menu>
+
+                    <!-- Timekeeping -->
+                    <a-sub-menu
+                        key="timekeeping_settings"
+                        v-if="
+                            permsArray.includes('salary_components_view') ||
+                            permsArray.includes('salary_groups_view') ||
+                            permsArray.includes('admin')
+                        "
+                    >
+                        <template #title>
+                            <span>
+                                <FieldTimeOutlined />
+                                <span>{{ $t("menu.timekeeping_settings") }}</span>
+                            </span>
+                        </template>
+                        <a-menu-item
+                            v-if="
+                                permsArray.includes('salary_components_view') ||
+                                permsArray.includes('admin')
+                            "
+                            @click="
+                                $router.push({
+                                    name: 'admin.settings.salary_components.index',
+                                })
+                            "
+                        >
+                            <template #icon>
+                                <BankOutlined />
+                            </template>
+                            {{ $t("menu.salary_components") }}
+                        </a-menu-item>
+                        <a-menu-item
+                            v-if="
+                                permsArray.includes('salary_groups_view') ||
+                                permsArray.includes('admin')
+                            "
+                            @click="
+                                $router.push({
+                                    name: 'admin.settings.salary_groups.index',
+                                })
+                            "
+                        >
+                            <template #icon>
+                                <AppstoreOutlined />
+                            </template>
+                            {{ $t("menu.salary_groups") }}
+                        </a-menu-item>
+                    </a-sub-menu>
+
+
                     <a-menu-item
                         key="update_app"
                         v-if="
@@ -253,29 +304,30 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted, watch } from "vue";
 import {
-    LaptopOutlined,
-    UserOutlined,
-    TranslationOutlined,
-    ShopOutlined,
-    SolutionOutlined,
-    ScheduleOutlined,
-    DollarOutlined,
-    AccountBookOutlined,
-    AppstoreAddOutlined,
-    ApartmentOutlined,
-    FolderOpenOutlined,
-    MailOutlined,
-    HistoryOutlined,
-    FormOutlined,
-    DatabaseOutlined,
-    EnvironmentOutlined,
-    ToolOutlined,
-    BankOutlined,
-    AppstoreOutlined,
-    FilePdfOutlined,
+AccountBookOutlined,
+ApartmentOutlined,
+AppstoreAddOutlined,
+AppstoreOutlined,
+BankOutlined,
+DatabaseOutlined,
+DollarOutlined,
+EnvironmentOutlined,
+FieldTimeOutlined,
+FilePdfOutlined,
+FolderOpenOutlined,
+FormOutlined,
+HistoryOutlined,
+LaptopOutlined,
+MailOutlined,
+ScheduleOutlined,
+ShopOutlined,
+SolutionOutlined,
+ToolOutlined,
+TranslationOutlined,
+UserOutlined,
 } from "@ant-design/icons-vue";
+import { defineComponent, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import common from "../../../common/composable/common";
 
@@ -300,6 +352,7 @@ export default defineComponent({
         ToolOutlined,
         BankOutlined,
         AppstoreOutlined,
+        FieldTimeOutlined,
         FilePdfOutlined,
     },
     setup() {

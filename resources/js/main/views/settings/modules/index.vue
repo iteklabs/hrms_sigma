@@ -44,12 +44,12 @@
 </template>
 
 <script>
-import { defineComponent } from "vue";
 import { LeftCircleOutlined, RightCircleOutlined } from "@ant-design/icons-vue";
-import SettingSidebar from "../SettingSidebar.vue";
+import { defineComponent } from "vue";
+import Common from "../../../../common/composable/common";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
 import ModuleSetting from "../../common/settings/modules/index.vue";
-import Common from "../../../../common/composable/common";
+import SettingSidebar from "../SettingSidebar.vue";
 
 export default defineComponent({
     components: {

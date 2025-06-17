@@ -213,7 +213,7 @@
                             <span>{{ $t("menu.shifts") }}</span>
                         </a-menu-item>
                     </a-sub-menu>
-                    <a-sub-menu
+                    <!-- <a-sub-menu
                         key="assets"
                         v-if="
                             permsArray.includes('asset_types_view') ||
@@ -261,7 +261,7 @@
                         >
                             <span>{{ $t("menu.assets") }}</span>
                         </a-menu-item>
-                    </a-sub-menu>
+                    </a-sub-menu> -->
                     <a-sub-menu
                         key="holidays"
                         v-if="
@@ -315,7 +315,7 @@
                             <span>{{ $t("menu.all_holidays") }}</span>
                         </a-menu-item>
                     </a-sub-menu>
-                    <a-sub-menu
+                    <!-- <a-sub-menu
                         key="appreciations"
                         v-if="
                             permsArray.includes('appreciations_view') ||
@@ -363,8 +363,8 @@
                         >
                             <span>{{ $t("menu.awards") }}</span>
                         </a-menu-item>
-                    </a-sub-menu>
-                    <a-sub-menu
+                    </a-sub-menu> -->
+                    <!-- <a-sub-menu
                         key="leaves"
                         v-if="
                             permsArray.includes('leaves_view') ||
@@ -446,7 +446,7 @@
                         >
                             <span>{{ $t("menu.unpaid_leaves") }}</span>
                         </a-menu-item>
-                    </a-sub-menu>
+                    </a-sub-menu> -->
                     <a-sub-menu
                         key="attendances"
                         v-if="
@@ -500,7 +500,7 @@
                             <span>{{ $t("menu.attendances") }}</span>
                         </a-menu-item>
                     </a-sub-menu>
-                    <a-menu-item
+                    <!-- <a-menu-item
                         v-if="
                             permsArray.includes('news_view') ||
                             permsArray.includes('admin')
@@ -515,7 +515,7 @@
                     >
                         <ReadOutlined />
                         <span>{{ $t("menu.news") }}</span>
-                    </a-menu-item>
+                    </a-menu-item> -->
                     <a-sub-menu
                         key="payrolls"
                         v-if="
@@ -601,7 +601,7 @@
                             <span>{{ $t("menu.basic_salaries") }}</span>
                         </a-menu-item>
                     </a-sub-menu>
-                    <a-menu-item
+                    <!-- <a-menu-item
                         v-if="
                             permsArray.includes('company_policies_view') ||
                             permsArray.includes('admin')
@@ -618,9 +618,9 @@
                     >
                         <FilePptOutlined />
                         <span>{{ $t("menu.company_policies") }}</span>
-                    </a-menu-item>
+                    </a-menu-item> -->
 
-                    <a-sub-menu
+                    <!-- <a-sub-menu
                         key="offboardings"
                         v-if="
                             permsArray.includes('warnings_view') ||
@@ -704,9 +704,9 @@
                         >
                             <span>{{ $t("menu.complaints") }}</span>
                         </a-menu-item>
-                    </a-sub-menu>
+                    </a-sub-menu> -->
 
-                    <a-sub-menu
+                    <!-- <a-sub-menu
                         key="letter_heads"
                         v-if="
                             permsArray.includes('letter_head_templates_view') ||
@@ -754,9 +754,9 @@
                         >
                             <span>{{ $t("menu.generates") }}</span>
                         </a-menu-item>
-                    </a-sub-menu>
+                    </a-sub-menu> -->
 
-                    <a-sub-menu
+                    <!-- <a-sub-menu
                         key="forms"
                         v-if="
                             permsArray.includes('forms_view') ||
@@ -820,7 +820,7 @@
                         >
                             <span>{{ $t("menu.feedbacks") }}</span>
                         </a-menu-item>
-                    </a-sub-menu>
+                    </a-sub-menu> -->
                     <a-sub-menu
                         key="accounts"
                         v-if="
@@ -1347,53 +1347,53 @@
 </template>
 
 <script>
-import { defineComponent, ref, watch, onMounted, computed } from "vue";
-import { Layout } from "ant-design-vue";
-import { useAuthStore } from "../../main/store/authStore";
-import { useRoute } from "vue-router";
 import {
-    HomeOutlined,
-    LogoutOutlined,
-    UserOutlined,
-    SettingOutlined,
-    CloseOutlined,
-    ShoppingOutlined,
-    ShoppingCartOutlined,
-    AppstoreOutlined,
-    ShopOutlined,
-    BarChartOutlined,
-    CalculatorOutlined,
-    TeamOutlined,
-    WalletOutlined,
-    BankOutlined,
-    RocketOutlined,
-    LaptopOutlined,
-    CarOutlined,
-    DollarCircleOutlined,
-    CrownOutlined,
-    ProfileOutlined,
-    TransactionOutlined,
-    ToolOutlined,
-    ScheduleOutlined,
-    ReadOutlined,
-    FieldTimeOutlined,
-    FolderOpenOutlined,
-    FilePptOutlined,
-    TabletOutlined,
-    TagsOutlined,
-    GiftOutlined,
-    HeartOutlined,
-    TrophyOutlined,
-    FrownOutlined,
-    PushpinOutlined,
-    ReconciliationOutlined,
-    WomanOutlined,
-    SnippetsOutlined,
-    CopyrightOutlined,
-    TagOutlined,
+AppstoreOutlined,
+BankOutlined,
+BarChartOutlined,
+CalculatorOutlined,
+CarOutlined,
+CloseOutlined,
+CopyrightOutlined,
+CrownOutlined,
+DollarCircleOutlined,
+FieldTimeOutlined,
+FilePptOutlined,
+FolderOpenOutlined,
+FrownOutlined,
+GiftOutlined,
+HeartOutlined,
+HomeOutlined,
+LaptopOutlined,
+LogoutOutlined,
+ProfileOutlined,
+PushpinOutlined,
+ReadOutlined,
+ReconciliationOutlined,
+RocketOutlined,
+ScheduleOutlined,
+SettingOutlined,
+ShopOutlined,
+ShoppingCartOutlined,
+ShoppingOutlined,
+SnippetsOutlined,
+TabletOutlined,
+TagOutlined,
+TagsOutlined,
+TeamOutlined,
+ToolOutlined,
+TransactionOutlined,
+TrophyOutlined,
+UserOutlined,
+WalletOutlined,
+WomanOutlined,
 } from "@ant-design/icons-vue";
+import { Layout } from "ant-design-vue";
+import { defineComponent, onMounted, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import { PerfectScrollbar } from "vue3-perfect-scrollbar";
 import common from "../../common/composable/common";
+import { useAuthStore } from "../../main/store/authStore";
 const { Sider } = Layout;
 
 export default defineComponent({

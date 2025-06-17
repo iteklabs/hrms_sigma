@@ -461,8 +461,23 @@ class Payrolls
     //     }
     // }
 
+    public static function get_prev_salary($id, $month, $year)
+    {
 
-    public static function get_sss_amount($basisSalary, $calculationType, $cutOff){
+        $payroll = Payroll::where('user_id', $id)
+            ->where('month', $month)
+            ->where('year', $year)
+            ->where('cut_off', 'A')
+            ->first();
+
+        if ($payroll) {
+            return $payroll;
+        }
+
+        return 0;
+
+    }
+    public static function get_sss_amount($id , $month, $year, $basisSalary, $calculationType, $cutOff){
         if(!isset($basisSalary) || $basisSalary <= 0){
             return [
                 'employer_share' => 0,
@@ -497,11 +512,38 @@ class Payrolls
                         'total_er_share_mpf' => $mpf_yer + $employer_share
                     ];
                 }else if($cutOff == 'B'){
-                    $employer_share = $sss->employer_share / 2;
-                    $employee_share = $sss->employee_share / 2;
-                    $mpf_yer = $sss->mpf_yer / 2;
-                    $mpf_ee = $sss->mpf_ee / 2;
-                    $ec_yer = $sss->ec_yer / 2;
+
+                    $get_prev_salary = self::get_prev_salary($id, $month, $year);
+                    $prev_basic =  $get_prev_salary['basic_salary'] ?? 0;
+                    $prev_sss_share_ee = $get_prev_salary['sss_share_ee'] ?? 0;
+                    $prev_sss_mpf_ee = $get_prev_salary['sss_mpf_ee'] ?? 0;
+                    $prev_sss_share_er = $get_prev_salary['sss_share_er'] ?? 0;
+                    $prev_sss_mpf_er = $get_prev_salary['sss_mpf_er'] ?? 0;
+                    $prev_sss_ec_er = $get_prev_salary['sss_ec_er'] ?? 0;
+                    $prev_pagibig_share_ee = $get_prev_salary['pagibig_share_ee'] ?? 0;
+                    $prev_pagibig_share_er = $get_prev_salary['pagibig_share_er'] ?? 0;
+                    $prev_philhealth_share_ee = $get_prev_salary['philhealth_share_ee'] ?? 0;
+                    $prev_philhealth_share_er = $get_prev_salary['philhealth_share_er'] ?? 0;
+                    $prev_tax_withheld = $get_prev_salary['tax_withheld'] ?? 0;
+                    // \Log::info("Previous Salary Details: ");
+                    // \Log::info("Basic Salary: $prev_basic");
+                    // \Log::info("SSS Employee Share: $prev_sss_share_ee");
+                    // \Log::info("SSS MPF Employee Share: $prev_sss_mpf_ee");
+                    // \Log::info("SSS Employer Share: $prev_sss_share_er");
+                    // \Log::info("SSS MPF Employer Share: $prev_sss_mpf_er");
+                    // \Log::info("SSS EC Employer Share: $prev_sss_ec_er");
+                    // \Log::info("Pagibig Employee Share: $prev_pagibig_share_ee");
+                    // \Log::info("Pagibig Employer Share: $prev_pagibig_share_er");
+                    // \Log::info("PhilHealth Employee Share: $prev_philhealth_share_ee");
+                    // \Log::info("PhilHealth Employer Share: $prev_philhealth_share_er");
+                    // \Log::info("Tax Withheld: $prev_tax_withheld");
+
+                    // Calculate the new SSS shares based on the previous salary
+                    $employer_share = $sss->employer_share - $prev_sss_share_er;
+                    $employee_share = $sss->employee_share - $prev_sss_share_ee;
+                    $mpf_yer = $sss->mpf_yer - $prev_sss_mpf_er;
+                    $mpf_ee = $sss->mpf_ee - $prev_sss_mpf_ee;
+                    $ec_yer = $sss->ec_yer - $prev_sss_ec_er;
 
                     return [
                         'employer_share' => $employer_share,
@@ -544,7 +586,7 @@ class Payrolls
     }
 
 
-    public static function get_pagibig_amount($basisSalary, $calculationType, $cutOff){
+    public static function get_pagibig_amount($id , $month, $year, $basisSalary, $calculationType, $cutOff){
         if(!isset($basisSalary) || $basisSalary <= 0){
             return [
                 'employer_share' => 0,
@@ -563,9 +605,13 @@ class Payrolls
                         'employee_share' => $pagibig->employee_share / 2
                     ];
                 }else if($cutOff == 'B'){
+                    $get_prev_salary = self::get_prev_salary($id, $month, $year);
+                    $prev_pagibig_share_ee = $get_prev_salary['pagibig_share_ee'] ?? 0;
+                    $prev_pagibig_share_er = $get_prev_salary['pagibig_share_er'] ?? 0;
+
                     return [
-                        'employer_share' => $pagibig->employer_share / 2,
-                        'employee_share' => $pagibig->employee_share / 2
+                        'employer_share' => $pagibig->employer_share - $prev_pagibig_share_er,
+                        'employee_share' => $pagibig->employee_share - $prev_pagibig_share_ee
                     ];
                 }
             break;
@@ -587,7 +633,7 @@ class Payrolls
         // return 0;
     }
 
-    public static function get_philhealth_amount($basisSalary, $calculationType, $cutOff){
+    public static function get_philhealth_amount($id , $month, $year, $basisSalary, $calculationType, $cutOff){
         // Placeholder for PhilHealth calculation logic
         // This function should return an array with 'employer_share' and 'employee_share'
         // similar to the SSS and Pagibig functions.
@@ -614,8 +660,14 @@ class Payrolls
                     ];
 
                 }else if($cutOff == 'B'){
-                    $employee_share = ($basisSalary * $philhealth->EE_share_percentage ?? 0) / 2;
-                    $employer_share = ($basisSalary * $philhealth->ER_share_percentage ?? 0) / 2;
+                    $get_prev_salary = self::get_prev_salary($id, $month, $year);
+                    
+                    $prev_philhealth_share_ee = $get_prev_salary['philhealth_share_ee'] ?? 0;
+                    $prev_philhealth_share_er = $get_prev_salary['philhealth_share_er'] ?? 0;
+
+
+                    $employee_share = ($basisSalary * $philhealth->EE_share_percentage ?? 0) - $prev_philhealth_share_ee;
+                    $employer_share = ($basisSalary * $philhealth->ER_share_percentage ?? 0) - $prev_philhealth_share_er;
                     
                     return [
                         'employer_share' => $employer_share,
@@ -652,7 +704,7 @@ class Payrolls
         }
     }
 
-    public static function get_withheld_tax($taxable, $calculationType, $cutOff)
+    public static function get_withheld_tax($id , $month, $year, $taxable, $calculationType, $cutOff)
     {
         \Log::info('Salary: ' . $taxable);
         if($cutOff == 'A'){
@@ -661,6 +713,9 @@ class Payrolls
             $taxable_table = TaxBir::where('min_salary', '<=', $taxable_annual_gross)
                 ->where('max_salary', '>=', $taxable_annual_gross)
                 ->first();
+
+            $get_prev_salary = self::get_prev_salary($id, $month, $year);
+            $prev_tax_withheld = $get_prev_salary['tax_withheld'] ?? 0;
 
             switch ($calculationType) {
                 case 's_monthly':
@@ -686,12 +741,41 @@ class Payrolls
                 
             }
         }else if($cutOff == 'B'){
-            $taxable = $taxable * 12;
+            $get_prev_salary = self::get_prev_salary($id, $month, $year);
+            $taxable = ($taxable + $get_prev_salary["taxable_income"]) * 12;
+             \Log::info('Annual Salary: ' . $taxable);
             $taxable_annual_gross = (float) $taxable ?? 0;
             $taxable_table = TaxBir::where('min_salary', '<=', $taxable_annual_gross)
                 ->where('max_salary', '>=', $taxable_annual_gross)
                 ->first();
-        
+            switch ($calculationType) {
+                case 's_monthly':
+                    $annual_tax = ((($taxable_annual_gross - $taxable_table->min_salary) * $taxable_table->tax_percentage) + $taxable_table->fixed_amount);
+                    // Adjust the annual tax based on the previous tax withheld
+                    
+                    $prev_tax_withheld = $get_prev_salary['tax_withheld'] ?? 0;
+                    $annual_tax = number_format($annual_tax, 2, '.', '');
+                    $monthly_tax = $annual_tax / 12;
+                    $per_cutoff_tax = $monthly_tax - $prev_tax_withheld;
+                    \Log::info('Annual Tax: ' . $annual_tax);
+                    \Log::info('Monthly Tax: ' . $monthly_tax);
+                    \Log::info('Per Cutoff Tax: ' . $per_cutoff_tax);
+                    return [
+                        'annual_tax' => $annual_tax,
+                        'monthly_tax' => number_format($monthly_tax, 2, '.', ''),
+                        'per_cutoff_tax' => number_format($per_cutoff_tax, 2, '.', '')
+                    ];
+                    // \Log::info('Annual Tax: ' . $annual_tax);
+                    // \Log::info('Monthly Tax: ' . $monthly_tax);
+                    // \Log::info('Per Cutoff Tax: ' . $per_cutoff_tax);
+
+                break;
+
+                case 'monthly':
+                    
+                break;
+                
+            }
         }
         
 
@@ -700,7 +784,8 @@ class Payrolls
 
     public static function payrollGenerateRegenerate($payrollGenerateRequest, $user, $company)
     {
-        if($payrollGenerateRequest->has('year') && $payrollGenerateRequest->has('month') && $payrollGenerateRequest->month > 0 && $payrollGenerateRequest->cut_off == "A"){
+        // && $payrollGenerateRequest->cut_off == "A"
+        if($payrollGenerateRequest->has('year') && $payrollGenerateRequest->has('month') && $payrollGenerateRequest->month > 0 ){
 
             $year = (int) $payrollGenerateRequest->year;
             $month = (int) $payrollGenerateRequest->month;
@@ -742,12 +827,12 @@ class Payrolls
 
                     \Log::debug($allUser->calculation_type . " - " . $cut_off . " - " . $allUser->name . " - " . $allUser->basic_salary);
                     // SSSS Calculation
-                    $sssData = self::get_sss_amount($allUser->basic_salary, $allUser->calculation_type, $cut_off);
+                    $sssData = self::get_sss_amount($allUser->id, $month, $year, $allUser->basic_salary, $allUser->calculation_type, $cut_off);
                     // Pagibig Calculation
-                    $pagibigData = self::get_pagibig_amount($allUser->basic_salary, $allUser->calculation_type, $cut_off);
+                    $pagibigData = self::get_pagibig_amount($allUser->id, $month, $year, $allUser->basic_salary, $allUser->calculation_type, $cut_off);
 
                     // PhilHealth Calculation
-                    $philhealthData = self::get_philhealth_amount($allUser->basic_salary, $allUser->calculation_type, $cut_off);
+                    $philhealthData = self::get_philhealth_amount($allUser->id, $month, $year, $allUser->basic_salary, $allUser->calculation_type, $cut_off);
 
                     $sss_empee_share = $sssData['employee_share'] ?? 0;
                     $sss_emper_share  = $sssData['employer_share'] ?? 0;
@@ -762,7 +847,7 @@ class Payrolls
 
                     $taxable_forBIR = ($basicSalary - (($sss_empee_share + $sss_mpf_ee) + $pagibig_ee + $philhealth_ee));
                     // tax calculation
-                    $tax_data = self::get_withheld_tax($taxable_forBIR, $allUser->calculation_type, $cut_off);
+                    $tax_data = self::get_withheld_tax($allUser->id, $month, $year, $taxable_forBIR, $allUser->calculation_type, $cut_off);
                     $tax_withheld = $tax_data['per_cutoff_tax'] ?? 0;
                     \Log::debug($tax_data);
 
@@ -801,6 +886,7 @@ class Payrolls
                     $payroll->pagibig_share_ee = $pagibigData['employee_share'] ?? 0;
                     $payroll->philhealth_share_er = $philhealthData['employer_share'] ?? 0;
                     $payroll->philhealth_share_ee = $philhealthData['employee_share'] ?? 0;
+                    $payroll->taxable_income = $taxable_forBIR;
                     $payroll->tax_withheld = $tax_withheld ?? 0;
 
                     // $payroll->sss_total_ee_share_mpf = $sssData['total_ee_share_mpf'];

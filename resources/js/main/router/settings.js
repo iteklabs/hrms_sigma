@@ -86,6 +86,20 @@ export default [
                 },
             },
             {
+                path: "attendance_setup",
+                component: () =>
+                    import(
+                        "../views/settings/attendance-setup/index.vue"
+                    ),
+                name: "admin.settings.attendance_logs_setup.index",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "settings",
+                    menuKey: (route) => "attendance_setup",
+                    permission: "attendance_setup_view",
+                },
+            },
+            {
                 path: "salary-components",
                 component: () =>
                     import(

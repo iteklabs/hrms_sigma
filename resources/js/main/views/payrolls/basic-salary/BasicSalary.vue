@@ -989,8 +989,8 @@ const calculateSalary = () => {
                     monthlySalary.value = ctc_value;
                     semi_monthly = (ctc_value / 2).toFixed(4);
                     basicSalary.value = ctc_value;
-                    dailySalary.value = (ctc_value / 24).toFixed(4);
-                    hourlySalary.value = ((ctc_value / 24) / 8).toFixed(4);
+                    dailySalary.value = (ctc_value / 31).toFixed(4);
+                    hourlySalary.value = ((ctc_value / 31) / 8).toFixed(4);
                     annualSalary.value = (ctc_value * 12).toFixed(4);
                     // annual_ctc = (ctc_value * 12).toFixed(4);
                     break;

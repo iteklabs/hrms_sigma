@@ -238,16 +238,16 @@
                             "
                             @click="
                                 $router.push({
-                                    name: 'admin.settings.salary_components.index',
+                                    name: 'admin.settings.attendance_logs_setup.index',
                                 })
                             "
                         >
                             <template #icon>
-                                <BankOutlined />
+                                <ClockCircleOutlined />
                             </template>
-                            {{ $t("menu.salary_components") }}
+                            {{ $t("menu.attendance_setup") }}
                         </a-menu-item>
-                        <a-menu-item
+                        <!-- <a-menu-item
                             v-if="
                                 permsArray.includes('salary_groups_view') ||
                                 permsArray.includes('admin')
@@ -262,7 +262,7 @@
                                 <AppstoreOutlined />
                             </template>
                             {{ $t("menu.salary_groups") }}
-                        </a-menu-item>
+                        </a-menu-item> -->
                     </a-sub-menu>
 
 
@@ -302,7 +302,7 @@
         </perfect-scrollbar>
     </div>
 </template>
-
+<!-- <ClockCircleOutlined /> -->
 <script>
 import {
 AccountBookOutlined,
@@ -310,6 +310,7 @@ ApartmentOutlined,
 AppstoreAddOutlined,
 AppstoreOutlined,
 BankOutlined,
+ClockCircleOutlined,
 DatabaseOutlined,
 DollarOutlined,
 EnvironmentOutlined,
@@ -325,7 +326,7 @@ ShopOutlined,
 SolutionOutlined,
 ToolOutlined,
 TranslationOutlined,
-UserOutlined,
+UserOutlined
 } from "@ant-design/icons-vue";
 import { defineComponent, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
@@ -354,6 +355,7 @@ export default defineComponent({
         AppstoreOutlined,
         FieldTimeOutlined,
         FilePdfOutlined,
+        ClockCircleOutlined
     },
     setup() {
         const { appSetting, user, permsArray, appModules, appType } = common();

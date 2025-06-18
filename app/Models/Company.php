@@ -62,8 +62,19 @@ class Company extends BaseModel
         'letterhead_right_space' => 'integer',
         'letterhead_top_space' => 'integer',
         'letterhead_button_space' => 'integer',
-        'use_custom_font' => 'integer'
-    ];
+        'use_custom_font' => 'integer',
+        'total_hrs_per_day' => 'string',
+        'regular_ot_percentage' => 'string',
+        'legal_holiday_percentage' => 'string',
+        'legal_holiday_ot_percentage' => 'string',
+        'rest_day_percentage' => 'string',
+        'rest_day_ot_percentage' => 'string',
+        'special_holiday_percentage' => 'string',
+        'special_holiday_ot_percentage' => 'string',
+        'night_diff_percentage' => 'string',
+        'night_diff_start_time' => 'string',
+        'night_diff_end_time' => 'string'
+];
 
     protected $filterable = ['name'];
 

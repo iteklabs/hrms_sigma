@@ -767,32 +767,32 @@
     </a-row>
 </template>
 <script>
-import { onMounted, ref, watch } from "vue";
 import {
-    EyeOutlined,
-    PlusOutlined,
-    EditOutlined,
-    DeleteOutlined,
-    ExclamationCircleOutlined,
-    SaveOutlined,
-    SettingOutlined,
-    FileTextOutlined,
-    ExperimentOutlined,
-    ApartmentOutlined,
-    ControlOutlined,
+ApartmentOutlined,
+ControlOutlined,
+DeleteOutlined,
+EditOutlined,
+ExclamationCircleOutlined,
+ExperimentOutlined,
+EyeOutlined,
+FileTextOutlined,
+PlusOutlined,
+SaveOutlined,
+SettingOutlined,
 } from "@ant-design/icons-vue";
+import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { ColorPicker } from "vue3-colorpicker";
 import "vue3-colorpicker/style.css";
-import Upload from "../../../../common/core/ui/file/Upload.vue";
 import apiAdmin from "../../../../common/composable/apiAdmin";
-import CurrencyAddButton from "../../common/settings/currency/AddButton.vue";
 import common from "../../../../common/composable/common";
-import SettingSidebar from "../SettingSidebar.vue";
+import Upload from "../../../../common/core/ui/file/Upload.vue";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
-import CreateMenuSetting from "./CreateMenuSetting.vue";
-import PdfFontSettings from "../../settings/pdf-fonts/PdfFontSettings.vue";
 import { useAuthStore } from "../../../store/authStore";
+import CurrencyAddButton from "../../common/settings/currency/AddButton.vue";
+import PdfFontSettings from "../../settings/pdf-fonts/PdfFontSettings.vue";
+import SettingSidebar from "../SettingSidebar.vue";
+import CreateMenuSetting from "./CreateMenuSetting.vue";
 
 export default {
     components: {
@@ -884,6 +884,15 @@ export default {
                 auto_detect_timezone: company.auto_detect_timezone,
                 app_debug: company.app_debug,
                 update_app_notification: company.update_app_notification,
+                regular_ot_percentage: company.regular_ot_percentage,
+                legal_holiday_percentage: company.legal_holiday_percentage,
+                legal_holiday_ot_percentage: company.legal_holiday_ot_percentage,
+                rest_day_percentage: company.rest_day_percentage,
+                rest_day_ot_percentage: company.rest_day_ot_percentage,
+                night_diff_percentage: company.night_diff_percentage,
+                night_diff_start_time: company.night_diff_start_time ? company.night_diff_start_time.slice(0, 5) : "",
+                night_diff_end_time: company.night_diff_end_time ? company.night_diff_end_time.slice(0, 5) : "",
+                total_hrs_per_day: company.total_hrs_per_day,
                 _method: "PUT",
             };
         };

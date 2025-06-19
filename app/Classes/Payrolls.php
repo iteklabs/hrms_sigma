@@ -474,7 +474,20 @@ class Payrolls
             return $payroll;
         }
 
-        return 0;
+        return [
+            'basic_salary' => 0,
+            'sss_share_ee' => 0,
+            'sss_mpf_ee' => 0,
+            'sss_share_er' => 0,
+            'sss_mpf_er' => 0,
+            'sss_ec_er' => 0,
+            'pagibig_share_ee' => 0,
+            'pagibig_share_er' => 0,
+            'philhealth_share_ee' => 0,
+            'philhealth_share_er' => 0,
+            'tax_withheld' => 0,
+            'taxable_income' => 0
+        ];
 
     }
     public static function get_sss_amount($id , $month, $year, $basisSalary, $calculationType, $cutOff){
@@ -492,8 +505,15 @@ class Payrolls
         $sss = SSS::where('min_salary', '<=', $basisSalary)
             ->where('max_salary', '>=', $basisSalary)
             ->first();
+        // \Log::info("SSS Details: ");
+        // \Log::info("Employer Share: " . $sss->employer_share);
+        // \Log::info("Employee Share: " . $sss->employee_share);
+        // \Log::info("MPF YER: " . $sss->mpf_yer);
+        // \Log::info("MPF EE: " . $sss->mpf_ee);
+        // \Log::info("EC YER: " . $sss->ec_yer);
 
         switch ($calculationType) {
+            case 'daily':
             case 's_monthly':
                 if ($cutOff == 'A') {
                     $employer_share = $sss->employer_share / 2;
@@ -598,6 +618,7 @@ class Payrolls
             ->first();
 
         switch ($calculationType) {
+            case 'daily':
             case 's_monthly':
                 if ($cutOff == 'A') {
                     return [
@@ -650,6 +671,7 @@ class Payrolls
 
 
         switch ($calculationType) {
+            case 'daily':
             case 's_monthly':
                 if ($cutOff == 'A') {
                     $employee_share = ($basisSalary * $philhealth->EE_share_percentage ?? 0) / 2;
@@ -742,13 +764,16 @@ class Payrolls
             }
         }else if($cutOff == 'B'){
             $get_prev_salary = self::get_prev_salary($id, $month, $year);
+            // \Log::info($get_prev_salary);
             $taxable = ($taxable + $get_prev_salary["taxable_income"]) * 12;
+            
              \Log::info('Annual Salary: ' . $taxable);
             $taxable_annual_gross = (float) $taxable ?? 0;
             $taxable_table = TaxBir::where('min_salary', '<=', $taxable_annual_gross)
                 ->where('max_salary', '>=', $taxable_annual_gross)
                 ->first();
             switch ($calculationType) {
+                case 'daily':
                 case 's_monthly':
                     $annual_tax = ((($taxable_annual_gross - $taxable_table->min_salary) * $taxable_table->tax_percentage) + $taxable_table->fixed_amount);
                     // Adjust the annual tax based on the previous tax withheld
@@ -757,9 +782,9 @@ class Payrolls
                     $annual_tax = number_format($annual_tax, 2, '.', '');
                     $monthly_tax = $annual_tax / 12;
                     $per_cutoff_tax = $monthly_tax - $prev_tax_withheld;
-                    \Log::info('Annual Tax: ' . $annual_tax);
-                    \Log::info('Monthly Tax: ' . $monthly_tax);
-                    \Log::info('Per Cutoff Tax: ' . $per_cutoff_tax);
+                    // \Log::info('Annual Tax: ' . $annual_tax);
+                    // \Log::info('Monthly Tax: ' . $monthly_tax);
+                    // \Log::info('Per Cutoff Tax: ' . $per_cutoff_tax);
                     return [
                         'annual_tax' => $annual_tax,
                         'monthly_tax' => number_format($monthly_tax, 2, '.', ''),
@@ -828,6 +853,7 @@ class Payrolls
                     \Log::debug($allUser->calculation_type . " - " . $cut_off . " - " . $allUser->name . " - " . $allUser->basic_salary);
                     // SSSS Calculation
                     $sssData = self::get_sss_amount($allUser->id, $month, $year, $allUser->basic_salary, $allUser->calculation_type, $cut_off);
+                    
                     // Pagibig Calculation
                     $pagibigData = self::get_pagibig_amount($allUser->id, $month, $year, $allUser->basic_salary, $allUser->calculation_type, $cut_off);
 
@@ -846,10 +872,15 @@ class Payrolls
                     
 
                     $taxable_forBIR = ($basicSalary - (($sss_empee_share + $sss_mpf_ee) + $pagibig_ee + $philhealth_ee));
+                    if($allUser->id == "12"){
+                        \Log::debug($sssData);
+                    }
+                    
                     // tax calculation
                     $tax_data = self::get_withheld_tax($allUser->id, $month, $year, $taxable_forBIR, $allUser->calculation_type, $cut_off);
+                    
                     $tax_withheld = $tax_data['per_cutoff_tax'] ?? 0;
-                    \Log::debug($tax_data);
+                    \Log::debug($sssData);
 
                     
                     

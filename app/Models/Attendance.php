@@ -23,7 +23,17 @@ class Attendance extends BaseModel
         'office_clock_in_time',
         'office_clock_out_time',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'regular_ot',
+        'legal_holiday',
+        'legal_holiday_ot',
+        'special_holiday',
+        'special_holiday_ot',
+        'rest_day',
+        'rest_day_ot',
+        'rest_day_special_holiday',
+        'rest_day_special_holiday_ot',
+        'night_differential'
     ];
 
     protected $hidden = ['id', 'user_id', 'leave_id', 'leave_type_id', 'holiday_id'];

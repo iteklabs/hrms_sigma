@@ -17,6 +17,7 @@ use App\Models\SSS;
 use App\Models\Pagibig;
 use App\Models\Philhealth;
 use App\Models\TaxBIR;
+use App\Classes\CommonHrm;
 
 class Payrolls
 {
@@ -726,81 +727,136 @@ class Payrolls
         }
     }
 
-    public static function get_withheld_tax($id , $month, $year, $taxable, $calculationType, $cutOff)
+    public static function get_withheld_tax($id , $month, $year, $taxable, $calculationType, $cutOff, $type_tax)
     {
-        \Log::info('Salary: ' . $taxable);
-        if($cutOff == 'A'){
-            $taxable = $taxable * 24;
-            $taxable_annual_gross = (float) $taxable ?? 0;
-            $taxable_table = TaxBir::where('min_salary', '<=', $taxable_annual_gross)
-                ->where('max_salary', '>=', $taxable_annual_gross)
-                ->first();
+        // \Log::info('Salary: ' . $type_tax);
+        // if($cutOff == 'A'){
+        //     $taxable = $taxable * 24;
+        //     $taxable_annual_gross = (float) $taxable ?? 0;
+        //     $taxable_table = TaxBir::where('min_salary', '<=', $taxable_annual_gross)
+        //         ->where('max_salary', '>=', $taxable_annual_gross)
+        //         ->first();
 
-            $get_prev_salary = self::get_prev_salary($id, $month, $year);
-            $prev_tax_withheld = $get_prev_salary['tax_withheld'] ?? 0;
+        //     $get_prev_salary = self::get_prev_salary($id, $month, $year);
+        //     $prev_tax_withheld = $get_prev_salary['tax_withheld'] ?? 0;
 
-            switch ($calculationType) {
-                case 's_monthly':
-                    $annual_tax = ((($taxable_annual_gross - $taxable_table->min_salary) * $taxable_table->tax_percentage) + $taxable_table->fixed_amount);
-                    $annual_tax = number_format($annual_tax, 2, '.', '');
-                    $monthly_tax = $annual_tax / 12;
-                    $per_cutoff_tax = $monthly_tax / 2;
+        //     switch ($calculationType) {
+        //         case 's_monthly':
+        //             $annual_tax = ((($taxable_annual_gross - $taxable_table->min_salary) * $taxable_table->tax_percentage) + $taxable_table->fixed_amount);
+        //             $annual_tax = number_format($annual_tax, 2, '.', '');
+        //             $monthly_tax = $annual_tax / 12;
+        //             $per_cutoff_tax = $monthly_tax / 2;
 
-                    return [
-                        'annual_tax' => $annual_tax,
-                        'monthly_tax' => number_format($monthly_tax, 2, '.', ''),
-                        'per_cutoff_tax' => number_format($per_cutoff_tax, 2, '.', '')
-                    ];
-                    // \Log::info('Annual Tax: ' . $annual_tax);
-                    // \Log::info('Monthly Tax: ' . $monthly_tax);
-                    // \Log::info('Per Cutoff Tax: ' . $per_cutoff_tax);
+        //             return [
+        //                 'annual_tax' => $annual_tax,
+        //                 'monthly_tax' => number_format($monthly_tax, 2, '.', ''),
+        //                 'per_cutoff_tax' => number_format($per_cutoff_tax, 2, '.', '')
+        //             ];
+        //             // \Log::info('Annual Tax: ' . $annual_tax);
+        //             // \Log::info('Monthly Tax: ' . $monthly_tax);
+        //             // \Log::info('Per Cutoff Tax: ' . $per_cutoff_tax);
 
-                break;
+        //         break;
 
-                case 'monthly':
+        //         case 'monthly':
                     
-                break;
+        //         break;
                 
-            }
-        }else if($cutOff == 'B'){
-            $get_prev_salary = self::get_prev_salary($id, $month, $year);
-            // \Log::info($get_prev_salary);
-            $taxable = ($taxable + $get_prev_salary["taxable_income"]) * 12;
+        //     }
+        // }else if($cutOff == 'B'){
+        //     $get_prev_salary = self::get_prev_salary($id, $month, $year);
+        //     // \Log::info($get_prev_salary);
+        //     $taxable = ($taxable + $get_prev_salary["taxable_income"]) * 12;
             
-             \Log::info('Annual Salary: ' . $taxable);
-            $taxable_annual_gross = (float) $taxable ?? 0;
-            $taxable_table = TaxBir::where('min_salary', '<=', $taxable_annual_gross)
-                ->where('max_salary', '>=', $taxable_annual_gross)
-                ->first();
-            switch ($calculationType) {
-                case 'daily':
-                case 's_monthly':
-                    $annual_tax = ((($taxable_annual_gross - $taxable_table->min_salary) * $taxable_table->tax_percentage) + $taxable_table->fixed_amount);
-                    // Adjust the annual tax based on the previous tax withheld
+        //      \Log::info('Annual Salary: ' . $taxable);
+        //     $taxable_annual_gross = (float) $taxable ?? 0;
+        //     $taxable_table = TaxBir::where('min_salary', '<=', $taxable_annual_gross)
+        //         ->where('max_salary', '>=', $taxable_annual_gross)
+        //         ->first();
+        //     switch ($calculationType) {
+        //         case 'daily':
+        //         case 's_monthly':
+        //             $annual_tax = ((($taxable_annual_gross - $taxable_table->min_salary) * $taxable_table->tax_percentage) + $taxable_table->fixed_amount);
+        //             // Adjust the annual tax based on the previous tax withheld
                     
-                    $prev_tax_withheld = $get_prev_salary['tax_withheld'] ?? 0;
-                    $annual_tax = number_format($annual_tax, 2, '.', '');
-                    $monthly_tax = $annual_tax / 12;
-                    $per_cutoff_tax = $monthly_tax - $prev_tax_withheld;
-                    // \Log::info('Annual Tax: ' . $annual_tax);
-                    // \Log::info('Monthly Tax: ' . $monthly_tax);
-                    // \Log::info('Per Cutoff Tax: ' . $per_cutoff_tax);
-                    return [
-                        'annual_tax' => $annual_tax,
-                        'monthly_tax' => number_format($monthly_tax, 2, '.', ''),
-                        'per_cutoff_tax' => number_format($per_cutoff_tax, 2, '.', '')
-                    ];
-                    // \Log::info('Annual Tax: ' . $annual_tax);
-                    // \Log::info('Monthly Tax: ' . $monthly_tax);
-                    // \Log::info('Per Cutoff Tax: ' . $per_cutoff_tax);
+        //             $prev_tax_withheld = $get_prev_salary['tax_withheld'] ?? 0;
+        //             $annual_tax = number_format($annual_tax, 2, '.', '');
+        //             $monthly_tax = $annual_tax / 12;
+        //             $per_cutoff_tax = $monthly_tax - $prev_tax_withheld;
+        //             // \Log::info('Annual Tax: ' . $annual_tax);
+        //             // \Log::info('Monthly Tax: ' . $monthly_tax);
+        //             // \Log::info('Per Cutoff Tax: ' . $per_cutoff_tax);
+        //             return [
+        //                 'annual_tax' => $annual_tax,
+        //                 'monthly_tax' => number_format($monthly_tax, 2, '.', ''),
+        //                 'per_cutoff_tax' => number_format($per_cutoff_tax, 2, '.', '')
+        //             ];
+        //             // \Log::info('Annual Tax: ' . $annual_tax);
+        //             // \Log::info('Monthly Tax: ' . $monthly_tax);
+        //             // \Log::info('Per Cutoff Tax: ' . $per_cutoff_tax);
 
-                break;
+        //         break;
 
-                case 'monthly':
+        //         case 'monthly':
                     
-                break;
+        //         break;
                 
-            }
+        //     }
+        // }
+
+
+        switch ($type_tax) {
+            case 'annualize':
+                switch ($calculationType) {
+                    case 's_monthly':
+                        if($cutOff == 'A'){
+                             $taxable = $taxable * 24;
+                            $taxable_annual_gross = (float) $taxable ?? 0;
+                            $taxable_table = TaxBir::where('min_salary', '<=', $taxable_annual_gross)->where('max_salary', '>=', $taxable_annual_gross)->first();
+                            $annual_tax = ((($taxable_annual_gross - $taxable_table->min_salary) * $taxable_table->tax_percentage) + $taxable_table->fixed_amount);
+                            $annual_tax = number_format($annual_tax, 2, '.', '');
+                            $monthly_tax = $annual_tax / 12;
+                            $per_cutoff_tax = $monthly_tax / 2;
+
+                            return [
+                                'annual_tax' => $annual_tax,
+                                'monthly_tax' => number_format($monthly_tax, 2, '.', ''),
+                                'per_cutoff_tax' => number_format($per_cutoff_tax, 2, '.', '')
+                            ];
+
+                        }else if($cutOff == 'B'){
+                            $get_prev_salary = self::get_prev_salary($id, $month, $year);
+                            $taxable = ($taxable + $get_prev_salary["taxable_income"]) * 12;
+                            $taxable_annual_gross = (float) $taxable ?? 0;
+                            $taxable_table = TaxBir::where('min_salary', '<=', $taxable_annual_gross)->where('max_salary', '>=', $taxable_annual_gross)->first();
+                            $annual_tax = ((($taxable_annual_gross - $taxable_table->min_salary) * $taxable_table->tax_percentage) + $taxable_table->fixed_amount);
+                            $prev_tax_withheld = $get_prev_salary['tax_withheld'] ?? 0;
+                            $annual_tax = number_format($annual_tax, 2, '.', '');
+                            $monthly_tax = $annual_tax / 12;
+                            $per_cutoff_tax = $monthly_tax - $prev_tax_withheld;
+
+                            return [
+                                'annual_tax' => $annual_tax,
+                                'monthly_tax' => number_format($monthly_tax, 2, '.', ''),
+                                'per_cutoff_tax' => number_format($per_cutoff_tax, 2, '.', '')
+                            ];
+                        }
+                        
+
+                        
+
+                    break;
+
+                    case 'monthly':
+                        
+                    break;
+                    
+                }
+            break;
+            
+            default:
+            # code...
+            break;
         }
         
 
@@ -816,7 +872,7 @@ class Payrolls
             $month = (int) $payrollGenerateRequest->month;
             $cut_off = $payrollGenerateRequest->cut_off;
 
-            $allUsers = StaffMember::select('id', 'basic_salary', 'salary_group_id', 'ctc_value', 'annual_ctc', 'calculation_type', 'name')
+            $allUsers = StaffMember::select('id', 'basic_salary', 'salary_group_id', 'ctc_value', 'annual_ctc', 'calculation_type', 'name', 'company_id')
                 ->where('status', 'active')
                 ->whereNotNull('ctc_value')
                 ->with('salaryGroup.salaryGroupComponents.salaryComponent')->get();
@@ -830,6 +886,9 @@ class Payrolls
                 $allUsers = $allUsers->whereIn('id', $userIds);
             }
             foreach ($allUsers as $allUser) {
+
+                $sched = CommonHrm::getScheduleOftaxAndBenifits($allUser->company_id);
+                \Log::info($sched);
                 $payroll = Payroll::where('month', $month)
                     ->where('year', $year)
                     ->where('user_id', $allUser->id)
@@ -877,7 +936,7 @@ class Payrolls
                     }
                     
                     // tax calculation
-                    $tax_data = self::get_withheld_tax($allUser->id, $month, $year, $taxable_forBIR, $allUser->calculation_type, $cut_off);
+                    $tax_data = self::get_withheld_tax($allUser->id, $month, $year, $taxable_forBIR, $allUser->calculation_type, $cut_off, $sched['tax_schedule']);
                     
                     $tax_withheld = $tax_data['per_cutoff_tax'] ?? 0;
                     \Log::debug($sssData);

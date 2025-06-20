@@ -214,6 +214,23 @@
                             </template>
                             {{ $t("menu.salary_groups") }}
                         </a-menu-item>
+
+                        <a-menu-item
+                            v-if="
+                                permsArray.includes('benefits_setup') ||
+                                permsArray.includes('admin')
+                            "
+                            @click="
+                                $router.push({
+                                    name: 'admin.settings.benefits_setup.index',
+                                })
+                            "
+                        >
+                            <template #icon>
+                                <CoffeeOutlined />
+                            </template>
+                            {{ $t("menu.benefits_setup") }}
+                        </a-menu-item>
                     </a-sub-menu>
 
                     <!-- Timekeeping -->
@@ -311,6 +328,7 @@ AppstoreAddOutlined,
 AppstoreOutlined,
 BankOutlined,
 ClockCircleOutlined,
+CoffeeOutlined,
 DatabaseOutlined,
 DollarOutlined,
 EnvironmentOutlined,
@@ -355,7 +373,8 @@ export default defineComponent({
         AppstoreOutlined,
         FieldTimeOutlined,
         FilePdfOutlined,
-        ClockCircleOutlined
+        ClockCircleOutlined,
+        CoffeeOutlined
     },
     setup() {
         const { appSetting, user, permsArray, appModules, appType } = common();

@@ -86,6 +86,20 @@ export default [
                 },
             },
             {
+                path: "benefits_setup",
+                component: () =>
+                    import(
+                        "../views/settings/benefits_setup/index.vue"
+                    ),
+                name: "admin.settings.benefits_setup.index",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "settings",
+                    menuKey: (route) => "benefits_setup",
+                    permission: "benefits_setup_view",
+                },
+            },
+            {
                 path: "attendance_setup",
                 component: () =>
                     import(

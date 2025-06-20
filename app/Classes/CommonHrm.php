@@ -19,6 +19,7 @@ use App\Models\Generate;
 use App\Models\Leave;
 use App\Models\Payroll;
 use App\Models\PrePayment;
+use App\Models\Company;
 
 class CommonHrm
 {
@@ -992,4 +993,21 @@ class CommonHrm
 
         return $dates;
     }
+
+
+    public static function getScheduleOftaxAndBenifits($company_id){
+        $data = Company::find($company_id);
+
+        if ($data) {
+            return [
+                'tax_schedule' => $data->withholding_tax_processing,
+                'benefits_schedule' => $data->gov_benifits,
+            ];
+        } else {
+            throw new ApiException("Company not found");
+        }
+    }
+
+
+
 }

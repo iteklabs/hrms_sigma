@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Attendance;
 use App\Classes\CommonHrm;
+use \Carbon\Carbon;
 
 use Illuminate\Console\Command;
 
@@ -57,8 +58,8 @@ class GetLogsBMS extends Command
                         $get_nd = CommonHrm::getNightDifferentialMinutes($in_date, $out_date, $in_time, $out_time, $users_data->company_id);
                         $get_holiday = CommonHrm::getAttendanceHoursByHolidayType($in_date, $out_date, $in_time, $out_time);
                         // \Log::info($get_holiday);
-                        $timestamp_in = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $in_date . ' ' . $in_time, 'Asia/Manila')->setTimezone('UTC');
-                        $timestamp_out = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $out_date . ' ' . $out_time, 'Asia/Manila')->setTimezone('UTC');
+                        $timestamp_in = Carbon::createFromFormat('Y-m-d H:i:s', $in_date . ' ' . $in_time, 'Asia/Manila')->setTimezone('UTC');
+                        $timestamp_out = Carbon::createFromFormat('Y-m-d H:i:s', $out_date . ' ' . $out_time, 'Asia/Manila')->setTimezone('UTC');
                         
                         $special_working_h =0;
                         $special_non_working_h = 0;
@@ -66,10 +67,18 @@ class GetLogsBMS extends Command
                         $is_holiday = $get_holiday['is_holiday'];
                         $holiday_id = $get_holiday['holiday_id'];
 
-                        $totalMinutes = CommonHrm::getMinutesFromTimes($in_time, $out_time);
+                        $totalMinutes = CommonHrm::getMinutesFromTimes($in_time, $out_time, $in_date, $out_date);
+
+                        
                         $clockoutDateTime = $timestamp_in->copy()->addMinutes($totalMinutes);
                         $data_in = $timestamp_in->copy()->format('Y-m-d H:i:s');
                         $data_out = $clockoutDateTime->format('Y-m-d H:i:s');
+
+
+                        // if($users_data->id == 12 && $in_date == "2025-06-29"){
+                        //     \Log::info($totalMinutes . " <> " . $in_date . " <> " . $out_date . " <> " . $data_out . ' <h> '. ($totalMinutes / 60));
+                        //     exit;
+                        // }
 
                         if($get_holiday['is_holiday']){
                             
@@ -101,6 +110,7 @@ class GetLogsBMS extends Command
                         $data->user_id = $user_id;
                         $data->company_id = $users_data->company_id;
                         $data->date = $in_date;
+                        $data->date_out = $out_date;
                         $data->clock_in_date_time = $data_in;
                         $data->total_duration = $totalMinutes;
                         $data->clock_out_date_time = $data_out;

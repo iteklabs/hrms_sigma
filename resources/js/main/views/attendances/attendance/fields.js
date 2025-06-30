@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n";
 
 const fields = () => {
     const url =
-        "attendances?fields=id,xid,user_id,x_user_id,reason,leave_type_id,x_leave_type_id,date,clock_in_time,clock_out_time,total_duration,user{id,xid,name,profile_image,profile_image_url},is_late,is_half_day,clock_in_date_time,clock_out_date_time,clock_in_ip_address,clock_out_ip_address, regular_ot, legal_holiday, legal_holiday_ot, special_holiday, special_holiday_ot, rest_day, rest_day_ot, rest_day_special_holiday, rest_day_special_holiday_ot, night_differential,user:designation{id,xid,name},user:location{id,xid,name}";
+        "attendances?fields=id,xid,user_id,x_user_id,reason,leave_type_id,x_leave_type_id,date,clock_in_time,clock_out_time,total_duration,user{id,xid,name,profile_image,profile_image_url},is_late,is_half_day,clock_in_date_time,clock_out_date_time,clock_in_ip_address,clock_out_ip_address, regular_ot, legal_holiday, legal_holiday_ot, special_holiday, special_holiday_ot, rest_day, rest_day_ot, rest_day_special_holiday, rest_day_special_holiday_ot, night_differential, date_out,user:designation{id,xid,name},user:location{id,xid,name}";
     const addEditUrl = "attendances";
     const { t } = useI18n();
     const hashableColumns = ["user_id", "leave_type_id"];
@@ -35,6 +35,10 @@ const fields = () => {
         {
             title: t("attendance.clock_in_date_time"),
             dataIndex: "clock_in_date_time",
+        },
+        {
+            title: t("attendance.date_out"),
+            dataIndex: "date_out",
         },
         {
             title: t("attendance.clock_out_date_time"),

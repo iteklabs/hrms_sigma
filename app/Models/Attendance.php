@@ -33,7 +33,8 @@ class Attendance extends BaseModel
         'rest_day_ot',
         'rest_day_special_holiday',
         'rest_day_special_holiday_ot',
-        'night_differential'
+        'night_differential',
+        // 'date_out'
     ];
 
     protected $hidden = ['id', 'user_id', 'leave_id', 'leave_type_id', 'holiday_id'];
@@ -55,6 +56,7 @@ class Attendance extends BaseModel
         'leave_type_id' => Hash::class . ':hash',
         'holiday_id' => Hash::class . ':hash',
         'date' => 'date:Y-m-d',
+        'date_out' => 'date:Y-m-d',
         'clock_in_date_time' => 'datetime',
         'clock_out_date_time' => 'datetime',
         'is_paid' => 'boolean'

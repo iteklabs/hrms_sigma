@@ -23,8 +23,31 @@ use App\Models\Company;
 
 class CommonHrm
 {
-    public static function getMinutesFromTimes($startTime, $endTime)
+    // public static function getMinutesFromTimes($startTime, $endTime)
+    // {
+    //     $timeArray = self::getDetailsArrayFromTimes($startTime, $endTime);
+    //     $isNextDayForTime = self::isTimeForNextDate($startTime, $endTime);
+
+    //     if ($isNextDayForTime) {
+    //         $totalMinutes = ((24 - $timeArray['start_hours'] - 1) * 60) + (60 - $timeArray['start_minutes']) +  ($timeArray['end_hours'] * 60) +  $timeArray['end_minutes'];
+    //     } else {
+    //         $totalMinutes =  (($timeArray['end_hours'] - $timeArray['start_hours'] - 1) * 60) + (60 - $timeArray['start_minutes']) +  $timeArray['end_minutes'];
+    //     }
+
+    //     return $totalMinutes;
+    // }
+
+    
+    public static function getMinutesFromTimes($startTime, $endTime, $dateIn = null, $dateOut = null)
     {
+        // If dateIn and dateOut are provided, use Carbon for accurate calculation
+        if ($dateIn && $dateOut) {
+            $start = \Carbon\Carbon::parse($dateIn . ' ' . $startTime);
+            $end = \Carbon\Carbon::parse($dateOut . ' ' . $endTime);
+            return abs($end->diffInMinutes($start));
+        }
+
+        // Fallback to original logic if only times are provided
         $timeArray = self::getDetailsArrayFromTimes($startTime, $endTime);
         $isNextDayForTime = self::isTimeForNextDate($startTime, $endTime);
 

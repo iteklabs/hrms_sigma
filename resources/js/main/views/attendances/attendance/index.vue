@@ -26,7 +26,7 @@
                 <a-space>
                     <template
                         v-if="
-                            permsArray.includes('attendances_create') ||
+                            permsArray.includes('attendances_create_101') ||
                             permsArray.includes('admin')
                         "
                     >
@@ -35,11 +35,15 @@
                             {{ $t("attendance.add") }}
                         </a-button>
 
-                        <a-button type="primary" @click="addItem">
+                       
+                    </template>
+
+                     <a-button type="primary" @click="addItem">
                             <CheckCircleOutlined />
                             {{ $t("attendance.process") }}
                         </a-button>
-                    </template>
+
+                        
                     <a-button
                         v-if="
                             table.selectedRowKeys.length > 0 &&

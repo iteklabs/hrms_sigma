@@ -70,7 +70,7 @@ class GetLogsBMS extends Command
                         $clockoutDateTime = $timestamp_in->copy()->addMinutes($totalMinutes);
                         $data_in = $timestamp_in->copy()->format('Y-m-d H:i:s');
                         $data_out = $clockoutDateTime->format('Y-m-d H:i:s');
-                        
+
                         if($get_holiday['is_holiday']){
                             
 
@@ -126,15 +126,15 @@ class GetLogsBMS extends Command
                         \Log::info($data);
                         $log_id = $log->LogID;
 
-                        // $log_updated = DB::connection('external_logs')
-                        // ->table('attendances')
-                        // ->where('id', $log_id)
-                        // ->update([
-                        //     'isSentToHCS_in' => true,
-                        //     'isSentToHCS_out' => true
-                        // ]);
+                        $log_updated = DB::connection('external_logs')
+                        ->table('attendances')
+                        ->where('id', $log_id)
+                        ->update([
+                            'isSentToHCS_in' => true,
+                            'isSentToHCS_out' => true
+                        ]);
 
-                        // \Log::info($log_updated . " <> " . $user_id);
+                        \Log::info($log_updated . " <> " . $user_id);
                         }
                     }
                 }

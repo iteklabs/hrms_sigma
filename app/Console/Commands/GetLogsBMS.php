@@ -46,20 +46,55 @@ class GetLogsBMS extends Command
                         // Both In date and Out date are present
                         // \Log::info('Both In date and Out date exist for ' . $log->emp_no);
 
+                        if($users_data->id == 12){
+
+                        
                         $in_date = $log->date;
                         $in_time = $log->in_time;
                         $out_date = $log->date_out;
                         $out_time = $log->out_time;
                         $user_id = $users_data->id;
-
-
+                        $get_nd = CommonHrm::getNightDifferentialMinutes($in_date, $out_date, $in_time, $out_time, $users_data->company_id);
+                        $get_holiday = CommonHrm::getAttendanceHoursByHolidayType($in_date, $out_date, $in_time, $out_time);
+                        // \Log::info($get_holiday);
                         $timestamp_in = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $in_date . ' ' . $in_time, 'Asia/Manila')->setTimezone('UTC');
                         $timestamp_out = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $out_date . ' ' . $out_time, 'Asia/Manila')->setTimezone('UTC');
+                        
+                        $special_working_h =0;
+                        $special_non_working_h = 0;
+                        $regular_working_h = 0;
+                        $is_holiday = $get_holiday['is_holiday'];
+
 
                         $totalMinutes = CommonHrm::getMinutesFromTimes($in_time, $out_time);
                         $clockoutDateTime = $timestamp_in->copy()->addMinutes($totalMinutes);
                         $data_in = $timestamp_in->copy()->format('Y-m-d H:i:s');
                         $data_out = $clockoutDateTime->format('Y-m-d H:i:s');
+                        
+                        if($get_holiday['is_holiday']){
+                            
+
+                            foreach ($get_holiday as $index => $holiday_date) {
+                                if ($index !== 'is_holiday' && !empty($get_holiday[$index])) {
+                                    // \Log::info($get_holiday[$index][0]['hours']);
+                                    switch ($index) {
+                                        case 'SW':
+                                            // Handle Special Working Holiday
+                                                $special_working_h = $get_holiday[$index][0]['hours'];
+                                            break;
+                                        case 'SNW':
+                                            // Handle Special Non-Working Holiday
+                                                $special_non_working_h = $get_holiday[$index][0]['hours'];
+                                            break;
+                                        case 'RH':
+                                            // Handle Regular Holiday
+                                                $regular_working_h = $get_holiday[$index][0]['hours'];
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                        
                     
 
                         $data = new Attendance();
@@ -74,7 +109,7 @@ class GetLogsBMS extends Command
                         $data->is_paid = 1;
                         $data->office_clock_in_time = $users_data->shift?->clock_in_time;
                         $data->office_clock_out_time = $users_data->shift?->clock_out_time;
-                        $data->is_holiday = 0;
+                        $data->is_holiday = $is_holiday;
                         $data->is_leave = 0;
                         $data->leave_type_id = null;
                         $data->status = 'present';
@@ -83,25 +118,24 @@ class GetLogsBMS extends Command
                         $data->leave_id = null;
                         $data->clock_in_ip_address = 'BMS';
                         $data->clock_out_ip_address = 'BMS';
-                        $data->save();
+                        $data->night_differential = $get_nd;
+                        $data->legal_holiday = $regular_working_h;
+                        $data->special_holiday = $special_working_h;
 
-                       
+                        $data->save();
+                        \Log::info($data);
                         $log_id = $log->LogID;
 
-                        $log_updated = DB::connection('external_logs')
-                        ->table('attendances')
-                        ->where('id', $log_id)
-                        ->update([
-                            'isSentToHCS_in' => true,
-                            'isSentToHCS_out' => true
-                        ]);
+                        // $log_updated = DB::connection('external_logs')
+                        // ->table('attendances')
+                        // ->where('id', $log_id)
+                        // ->update([
+                        //     'isSentToHCS_in' => true,
+                        //     'isSentToHCS_out' => true
+                        // ]);
 
-                         \Log::info($log_updated . " <> " . $user_id);
-
-
-                        // $logMessage = 'In date: ' . $in_date . ', In time: ' . $data_in . ', Out date: ' . $out_date . ', Out time: ' . $data_out . ', User ID: ' . $user_id . ', Total Minutes: ' . $totalMinutes;
-                        // \Log::info($log_updated);
-                        // \Log::info('My command ran at ' . $log->date . ' for employee ' . $log->emp_no . ' <> '. $log->name . ' with in time ' . $log->in_time . ' and out time '. $log->date_out  . " < > " . $log->out_time . ' and user id ' . $users_data?->name);
+                        // \Log::info($log_updated . " <> " . $user_id);
+                        }
                     }
                 }
             }

@@ -34,6 +34,11 @@
                             <PlusOutlined />
                             {{ $t("attendance.add") }}
                         </a-button>
+
+                        <a-button type="primary" @click="addItem">
+                            <CheckCircleOutlined />
+                            {{ $t("attendance.process") }}
+                        </a-button>
                     </template>
                     <a-button
                         v-if="
@@ -227,24 +232,25 @@
     <user-view-page :visible="userOpen" :userId="userId" @closed="closeUser" />
 </template>
 <script>
+import { CheckCircleOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons-vue";
 import { onMounted, ref } from "vue";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons-vue";
 import { useI18n } from "vue-i18n";
-import fields from "./fields";
-import crud from "../../../../common/composable/crud";
-import common from "../../../../common/composable/common";
-import AddEdit from "./AddEdit.vue";
-import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
-import hrmManagement from "../../../../common/composable/hrmManagement";
-import AttendanceStatus from "./AttendanceStatus.vue";
 import UserInfo from "../../../../common/components/user/UserInfo.vue";
 import UserListDisplay from "../../../../common/components/user/UserListDisplay.vue";
+import common from "../../../../common/composable/common";
+import crud from "../../../../common/composable/crud";
+import hrmManagement from "../../../../common/composable/hrmManagement";
+import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
+import AddEdit from "./AddEdit.vue";
+import AttendanceStatus from "./AttendanceStatus.vue";
+import fields from "./fields";
 
 export default {
     components: {
         PlusOutlined,
         EditOutlined,
         DeleteOutlined,
+        CheckCircleOutlined,
         AddEdit,
         AdminPageHeader,
         AttendanceStatus,

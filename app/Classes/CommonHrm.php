@@ -441,6 +441,7 @@ class CommonHrm
 
         return $ipaddress;
     }
+    
 
     public static function getTodayAttendanceDetails()
     {
@@ -1009,5 +1010,103 @@ class CommonHrm
     }
 
 
+    public static function getNightDifferentialMinutes($inDate, $outDate, $inTime, $outTime, $company_id)
+    {
+        $company = Company::find($company_id);
+
+        if (!$company || !$company->night_diff_start_time || !$company->night_diff_end_time) {
+            return 0;
+        }
+
+        // Compose full datetime for in/out
+        $start = Carbon::parse($inDate . ' ' . $inTime);
+        $end = Carbon::parse($outDate . ' ' . $outTime);
+
+        // Night diff start/end (e.g. 22:00 to 06:00)
+        $nightStart = $company->night_diff_start_time;
+        $nightEnd = $company->night_diff_end_time;
+
+        $totalNightMinutes = 0;
+        $current = $start->copy();
+
+        // Loop through each day covered by the attendance
+        while ($current->lt($end)) {
+            // Night diff period for this day
+            $nightStartDateTime = Carbon::parse($current->format('Y-m-d') . ' ' . $nightStart);
+            // If night diff ends next day
+            if (strtotime($nightEnd) <= strtotime($nightStart)) {
+            $nightEndDateTime = $nightStartDateTime->copy()->addDay()->setTimeFromTimeString($nightEnd);
+            } else {
+            $nightEndDateTime = Carbon::parse($current->format('Y-m-d') . ' ' . $nightEnd);
+            }
+
+            // Calculate overlap for this night diff period
+            $periodStart = $current->greaterThan($nightStartDateTime) ? $current->copy() : $nightStartDateTime->copy();
+            $periodEnd = $end->lessThan($nightEndDateTime) ? $end->copy() : $nightEndDateTime->copy();
+
+            $minutes = $periodEnd->gt($periodStart) ? $periodEnd->diffInMinutes($periodStart) : 0;
+            $totalNightMinutes += $minutes;
+
+            // Move to next day
+            $current = $nightEndDateTime;
+        }
+
+        $totalNightHours = abs($totalNightMinutes / 60);
+        // \Log::info($inDate . " - " . $inTime ." <> " . $outDate . " - " . $outTime ." <=> " . $totalNightHours . " hours" );
+        return $totalNightHours;
+    }
+
+
+    /**
+     * Get the number of attendance hours by holiday type for a given attendance period.
+     * Handles night shift crossing into a holiday.
+     *
+     * @param string $inDate  (Y-m-d)
+     * @param string $outDate (Y-m-d)
+     * @param string $inTime  (H:i:s)
+     * @param string $outTime (H:i:s)
+     * @return array
+     */
+    public static function getAttendanceHoursByHolidayType($inDate, $outDate, $inTime, $outTime)
+    {
+        $start = Carbon::parse($inDate . ' ' . $inTime);
+        $end = Carbon::parse($outDate . ' ' . $outTime);
+
+        // Collect all dates covered by the attendance
+        $period = CarbonPeriod::create($start->copy()->startOfDay(), $end->copy()->startOfDay());
+        
+        $result = [
+            'RH' => [],
+            'SNW' => [],
+            'SW' => [],
+            'is_holiday' => false
+        ];
+
+        foreach ($period as $date) {
+            $currentDate = $date->format('Y-m-d');
+
+            // Determine segment start/end for this date
+            $segmentStart = $currentDate == $start->format('Y-m-d') ? $start : $date->copy()->startOfDay();
+            $segmentEnd = $currentDate == $end->format('Y-m-d') ? $end : $date->copy()->endOfDay();
+
+            // Find holiday type for this date
+            $holiday = Holiday::whereDate('date', $currentDate)->first();
+            $type = $holiday ? ($holiday->holiday_type ?? 'Unknown') : null;
+
+            // Calculate hours for this segment
+            $hours = $segmentEnd->gt($segmentStart) ? $segmentEnd->diffInMinutes($segmentStart) / 60 : 0;
+
+            // Only include if it's a holiday type we care about
+            if (in_array($type, ['RH', 'SNW', 'SW'])) {
+            $result[$type][] = [
+                'date' => $currentDate,
+                'hours' => abs($hours)
+            ];
+            $result['is_holiday'] = true;
+            }
+        }
+
+        return $result;
+    }
 
 }

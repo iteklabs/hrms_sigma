@@ -1,10 +1,10 @@
+import common from "@/common/composable/common";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import common from "@/common/composable/common";
 
 const fields = () => {
     const url =
-        "attendances?fields=id,xid,user_id,x_user_id,reason,leave_type_id,x_leave_type_id,date,clock_in_time,clock_out_time,total_duration,user{id,xid,name,profile_image,profile_image_url},is_late,is_half_day,clock_in_date_time,clock_out_date_time,clock_in_ip_address,clock_out_ip_address,user:designation{id,xid,name},user:location{id,xid,name}";
+        "attendances?fields=id,xid,user_id,x_user_id,reason,leave_type_id,x_leave_type_id,date,clock_in_time,clock_out_time,total_duration,user{id,xid,name,profile_image,profile_image_url},is_late,is_half_day,clock_in_date_time,clock_out_date_time,clock_in_ip_address,clock_out_ip_address, regular_ot, legal_holiday, legal_holiday_ot, special_holiday, special_holiday_ot, rest_day, rest_day_ot, rest_day_special_holiday, rest_day_special_holiday_ot, night_differential,user:designation{id,xid,name},user:location{id,xid,name}";
     const addEditUrl = "attendances";
     const { t } = useI18n();
     const hashableColumns = ["user_id", "leave_type_id"];
@@ -55,6 +55,46 @@ const fields = () => {
         {
             title: t("attendance.is_late"),
             dataIndex: "is_late",
+        },
+        {
+            title: t("attendance.regular_ot"),
+            dataIndex: "regular_ot",
+        },
+        {
+            title: t("attendance.legal_holiday"),
+            dataIndex: "legal_holiday",
+        },
+        {
+            title: t("attendance.legal_holiday_ot"),
+            dataIndex: "legal_holiday_ot",
+        },
+        {
+            title: t("attendance.special_holiday"),
+            dataIndex: "special_holiday",
+        },
+        {
+            title: t("attendance.special_holiday_ot"),
+            dataIndex: "special_holiday_ot",
+        },
+        {
+            title: t("attendance.rest_day"),
+            dataIndex: "rest_day",
+        },
+        {
+            title: t("attendance.rest_day_ot"),
+            dataIndex: "rest_day_ot",
+        },
+        {
+            title: t("attendance.rest_day_special_holiday"),
+            dataIndex: "rest_day_special_holiday",
+        },
+        {
+            title: t("attendance.rest_day_special_holiday_ot"),
+            dataIndex: "rest_day_special_holiday_ot",
+        },
+        {
+            title: t("attendance.night_differential"),
+            dataIndex: "night_differential",
         },
         {
             title: t("common.status"),

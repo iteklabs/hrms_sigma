@@ -46,7 +46,7 @@ class GetLogsBMS extends Command
                         // Both In date and Out date are present
                         // \Log::info('Both In date and Out date exist for ' . $log->emp_no);
 
-                        if($users_data->id == 12){
+                        // if($users_data->id == 12){
 
                         
                         $in_date = $log->date;
@@ -64,7 +64,7 @@ class GetLogsBMS extends Command
                         $special_non_working_h = 0;
                         $regular_working_h = 0;
                         $is_holiday = $get_holiday['is_holiday'];
-
+                        $holiday_id = $get_holiday['holiday_id'];
 
                         $totalMinutes = CommonHrm::getMinutesFromTimes($in_time, $out_time);
                         $clockoutDateTime = $timestamp_in->copy()->addMinutes($totalMinutes);
@@ -114,7 +114,7 @@ class GetLogsBMS extends Command
                         $data->leave_type_id = null;
                         $data->status = 'present';
                         $data->is_half_day = 0;
-                        $data->holiday_id = null;
+                        $data->holiday_id = $holiday_id;
                         $data->leave_id = null;
                         $data->clock_in_ip_address = 'BMS';
                         $data->clock_out_ip_address = 'BMS';
@@ -135,7 +135,7 @@ class GetLogsBMS extends Command
                         ]);
 
                         \Log::info($log_updated . " <> " . $user_id);
-                        }
+                        // }
                     }
                 }
             }

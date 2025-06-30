@@ -1079,7 +1079,8 @@ class CommonHrm
             'RH' => [],
             'SNW' => [],
             'SW' => [],
-            'is_holiday' => false
+            'is_holiday' => false,
+            'holiday_id' => null
         ];
 
         foreach ($period as $date) {
@@ -1103,6 +1104,7 @@ class CommonHrm
                 'hours' => abs($hours)
             ];
             $result['is_holiday'] = true;
+            $result['holiday_id'] = $holiday->id;
             }
         }
 

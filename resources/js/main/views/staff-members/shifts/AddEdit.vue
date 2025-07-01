@@ -258,7 +258,6 @@ export default defineComponent({
         const onSubmit = () => {
             var clockInTime = "";
             var clockOutTime = "";
-console.log(formatShiftTime12Hours(newFormData.value.clock_in_time))
             var time_in = formatShiftTime12Hours(newFormData.value.clock_in_time);
             var time_out = formatShiftTime12Hours(newFormData.value.clock_out_time);
             if (newFormData.value.time.length > 0) {

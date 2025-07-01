@@ -27,7 +27,7 @@
                     </a-form-item>
                 </a-col>
 
-                <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                <a-col :xs="24" :sm="24" :md="6" :lg="6">
                     <a-form-item
                         :label="$t('shift.clock_in_time')"
                         name="clock_in_time"
@@ -35,12 +35,23 @@
                         :validateStatus="rules.clock_in_time ? 'error' : null"
                         class="required"
                     >
-                        <a-time-range-picker
-                            v-model:value="newFormData.time"
-                            valueFormat="hh:mm A"
-                            format="h:mm a"
-                            style="width: 100%"
-                            use12-hours
+                        <a-input
+                            v-model:value="newFormData.clock_in_time"
+                            :placeholder="$t('common.placeholder_default_text', [$t('shift.clock_in_time')])"
+                        />
+                    </a-form-item>
+                </a-col>
+                <a-col :xs="24" :sm="24" :md="6" :lg="6">
+                    <a-form-item
+                        :label="$t('shift.clock_out_time')"
+                        name="clock_out_time"
+                        :help="rules.clock_out_time ? rules.clock_out_time.message : null"
+                        :validateStatus="rules.clock_out_time ? 'error' : null"
+                        class="required"
+                    >
+                        <a-input
+                            v-model:value="newFormData.clock_out_time"
+                            :placeholder="$t('common.placeholder_default_text', [$t('shift.clock_out_time')])"
                         />
                     </a-form-item>
                 </a-col>
@@ -204,18 +215,17 @@
     </a-drawer>
 </template>
 <script>
-import { defineComponent, ref, watch } from "vue";
 import {
-    PlusOutlined,
-    LoadingOutlined,
-    SaveOutlined,
-    MinusSquareOutlined,
+LoadingOutlined,
+MinusSquareOutlined,
+PlusOutlined,
+SaveOutlined,
 } from "@ant-design/icons-vue";
+import { forEach } from "lodash-es";
+import { defineComponent, ref, watch } from "vue";
 import apiAdmin from "../../../../common/composable/apiAdmin";
 import common from "../../../../common/composable/common";
-import dayjs from "dayjs";
 import hrmManagement from "../../../../common/composable/hrmManagement";
-import { forEach } from "lodash-es";
 import { useHrmStore } from "../../../../main/store/hrmStore";
 
 export default defineComponent({
@@ -248,16 +258,18 @@ export default defineComponent({
         const onSubmit = () => {
             var clockInTime = "";
             var clockOutTime = "";
-
+console.log(formatShiftTime12Hours(newFormData.value.clock_in_time))
+            var time_in = formatShiftTime12Hours(newFormData.value.clock_in_time);
+            var time_out = formatShiftTime12Hours(newFormData.value.clock_out_time);
             if (newFormData.value.time.length > 0) {
-                clockInTime = formatShiftTime24Hours(newFormData.value.time[0]);
-                clockOutTime = formatShiftTime24Hours(newFormData.value.time[1]);
+                clockInTime = formatShiftTime24Hours(time_in);
+                clockOutTime = formatShiftTime24Hours(time_out);
             }
-
+            
             let dataObject = {
                 ...newFormData.value,
-                clock_in_time: newFormData.value.time[0] ? clockInTime : "",
-                clock_out_time: newFormData.value.time[1] ? clockOutTime : "",
+                clock_in_time: time_in ? clockInTime : "",
+                clock_out_time: time_out ? clockOutTime : "",
                 allowed_ip_address: ipAddressFilter(),
             };
             addEditRequestAdmin({

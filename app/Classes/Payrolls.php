@@ -901,7 +901,7 @@ class Payrolls
                 }
 
                     $basicSalary = $allUser->basic_salary / 2 ?? 0;
-                    $resultData = CommonHrm::getMonthYearAttendanceDetails($allUser->id, $month, $year);
+                    $resultData = CommonHrm::getMonthYearAttendanceDetails($allUser->id, $month, $year, $cut_off);
                     $totalDaysInMonth = $resultData['total_days'];
                     $holidayCount = $resultData['holiday_count'];
                     $paidLeaveCount = $resultData['total_paid_leaves'];

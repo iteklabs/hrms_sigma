@@ -565,15 +565,204 @@ class CommonHrm
         ];
     }
 
-    public static function getMonthYearAttendanceDetails($userId, $month, $year)
+    // public static function getMonthYearAttendanceDetails($userId, $month, $year)
+    // {
+    //     $company = company();
+    //     $user = StaffMember::select('id', 'name', 'shift_id')->with(['shift'])->find($userId);
+
+    //     $currentDateTime = Carbon::now($company->timezone);
+    //     $today = Carbon::now($company->timezone)->startOfDay();
+    //     $startDate = Carbon::createFromDate($year, $month, 1, $company->timezone)->startOfDay();
+    //     $endDate = $startDate->copy()->endOfMonth()->startOfDay();
+
+    //     $attendanceData = [];
+    //     $lateTime = 0;
+    //     $clockedInDuration = 0;
+    //     $totalLateDays = 0;
+    //     $totalHalfDays = 0;
+    //     $totalPaidLeave = 0;
+    //     $paidLeaveCount = 0;
+    //     $totalUnPaidLeave = 0;
+    //     $totalHolidayCount = 0;
+    //     $totalDays = 0;
+
+    //     $shiftDetails = self::getUserClockingTime($userId);
+
+    //     $shiftClockInTime = $shiftDetails['clock_in_time'];
+    //     $shiftClockOutTime = $shiftDetails['clock_out_time'];
+    //     $officeHoursInMinutes = self::getMinutesFromTimes($shiftClockInTime, $shiftClockOutTime);
+
+    //     $allAttendances = Attendance::with(['leave:id,leave_type_id,reason', 'leave.leaveType:id,name', 'holiday'])
+    //         ->whereBetween('attendances.date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+    //         ->where('attendances.user_id', $userId)
+    //         ->get();
+    //     $allHolidays = Holiday::whereBetween('holidays.date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+    //         ->get();
+
+    //     $totalWorkingDays = 0;
+    //     $totalPresentDays = 0;
+
+    //     while ($endDate->gte($startDate)) {
+    //         $currentDate = $endDate->copy();
+
+    //         $isAttendanceDataFound = $allAttendances->filter(function ($allAttendance) use ($currentDate) {
+    //             return $allAttendance->date->format('Y-m-d') == $currentDate->format('Y-m-d');
+    //         })->first();
+
+    //         $isHolidayDataFound = $allHolidays->filter(function ($allHoliday) use ($currentDate) {
+    //             return $allHoliday->date->format('Y-m-d') == $currentDate->format('Y-m-d');
+    //         })->first();
+
+    //         $totalWorkDurationInMinutes = 0;
+    //         $isHoliday = false;
+    //         $isLeave = false;
+    //         $holidayName = '';
+    //         $leaveName = '';
+    //         $leaveReason = '';
+
+    //         if ($currentDate->gt($today)) {
+    //             $status = 'upcoming';
+    //         } else if ($isHolidayDataFound) {
+    //             $status = 'holiday';
+    //             $isHoliday = true;
+    //             $holidayName = $isHolidayDataFound->name;
+
+    //             $totalHolidayCount += 1;
+    //         } else if ($isAttendanceDataFound) {
+    //             if ($isAttendanceDataFound->leave_type_id && $isAttendanceDataFound->is_half_day) {
+    //                 $status = 'half_day';
+    //                 $isLeave = true;
+    //                 $leaveName = $isAttendanceDataFound->leave && $isAttendanceDataFound->leave->leaveType ? $isAttendanceDataFound->leave->leaveType->name : '';
+    //                 $leaveReason = $isAttendanceDataFound->leave ? $isAttendanceDataFound->leave->reason : '';
+
+    //                 $totalPresentDays += 0.5;
+    //                 $totalHalfDays += 1;
+    //             } else if ($isAttendanceDataFound->leave_type_id) {
+    //                 $status = 'absent';
+    //                 $isLeave = true;
+    //                 $leaveName = $isAttendanceDataFound->leave && $isAttendanceDataFound->leave->leaveType ? $isAttendanceDataFound->leave->leaveType->name : '';
+    //                 $leaveReason = $isAttendanceDataFound->leave ? $isAttendanceDataFound->leave->reason : '';
+    //             } else {
+    //                 $status = 'present';
+
+    //                 $totalPresentDays += 1;
+    //             }
+
+    //             if ($status == 'half_day' || $status == 'present') {
+
+    //                 // If attendance date is same as today date
+    //                 // And user not clocked out
+    //                 // Then we will calcualte the difference
+    //                 if ($isAttendanceDataFound->clock_in_date_time && $isAttendanceDataFound->clock_in_date_time->format('Y-m-d') == $today->format('Y-m-d') && $isAttendanceDataFound->clock_out_date_time == null) {
+    //                     $totalWorkDurationInMinutes = $currentDateTime->diffInMinutes($isAttendanceDataFound->clock_in_date_time);
+    //                 } else if ($isAttendanceDataFound->clock_in_date_time != null && $isAttendanceDataFound->clock_out_date_time != null) {
+    //                     // User have clock in and clock out time
+    //                     $totalWorkDurationInMinutes = $isAttendanceDataFound->clock_out_date_time->diffInMinutes($isAttendanceDataFound->clock_in_date_time);
+    //                 } else if ($user && $user->shift) {
+    //                     $clockOutTimeDateFormatForAttendance = Carbon::createFromFormat('Y-m-d H:i:s', $isAttendanceDataFound->clock_in_date_time->format('Y-m-d') . '' . $user->shift->clock_out_time);
+
+    //                     // If user assigned a shift
+    //                     $totalWorkDurationInMinutes = $clockOutTimeDateFormatForAttendance->diffInMinutes($isAttendanceDataFound->clock_in_date_time);
+    //                 } else {
+    //                     // If shift not defined then take setting from company
+    //                 }
+
+    //                 if ($isAttendanceDataFound->is_late) {
+    //                     $isLateClockedIn = CommonHrm::isLateClockedIn($isAttendanceDataFound->office_clock_in_time, $isAttendanceDataFound->clock_in_time);
+
+    //                     if ($isLateClockedIn) {
+    //                         $lateTime =  CommonHrm::getMinutesFromTimes($isAttendanceDataFound->office_clock_in_time, $isAttendanceDataFound->clock_in_time);
+    //                     } else {
+    //                         $lateTime = 0;
+    //                     }
+    //                 } else {
+    //                     $lateTime = 0;
+    //                 }
+    //             }
+
+
+    //             if ($isAttendanceDataFound->is_paid) {
+    //                 $totalPaidLeave += $isAttendanceDataFound->is_half_day ? 0.5 : 1;
+
+    //                 if ($isAttendanceDataFound->leave_type_id) {
+    //                     $paidLeaveCount += $isAttendanceDataFound->is_half_day ? 0.5 : 1;
+    //                 }
+    //             } else {
+    //                 $totalUnPaidLeave += $isAttendanceDataFound->is_half_day ? 0.5 : 1;
+    //             }
+
+    //             $totalWorkingDays += 1;
+    //         } else {
+    //             $status = 'not_marked';
+    //             $totalWorkingDays += 1;
+    //         }
+
+    //         if ($status != 'upcoming') {
+    //             $isUserLate = $isAttendanceDataFound && $isAttendanceDataFound->is_late ? $isAttendanceDataFound->is_late : 0;
+
+    //             $attendanceData[] = [
+    //                 'date' => $currentDate->format('Y-m-d'),
+    //                 'status' => $status,
+    //                 'is_holiday' => $isHoliday,
+    //                 'holiday_name' => $holidayName,
+    //                 'is_leave' => $isLeave,
+    //                 'leave_name' => $leaveName,
+    //                 'is_late'   => $isUserLate,
+    //                 'late_time' => $lateTime,
+    //                 'clock_in'  => $isAttendanceDataFound ? $isAttendanceDataFound->clock_in_date_time : '',
+    //                 'clock_out'  => $isAttendanceDataFound ? $isAttendanceDataFound->clock_out_date_time : '',
+    //                 'clock_in_ip'  => $isAttendanceDataFound ? $isAttendanceDataFound->clock_in_ip_address : '',
+    //                 'clock_out_ip'  => $isAttendanceDataFound ? $isAttendanceDataFound->clock_out_ip_address : '',
+    //                 'leave_reason'  => $leaveReason,
+    //                 'worked_time'  => $totalWorkDurationInMinutes
+    //             ];
+
+    //             $totalLateDays += $isUserLate;
+    //             $clockedInDuration += $totalWorkDurationInMinutes;
+    //         }
+
+    //         $totalDays += 1;
+
+    //         $endDate->subDay();
+    //     }
+
+    //     return [
+    //         'data'  => $attendanceData,
+    //         'total_days'  => $totalDays,
+    //         'working_days'  => $totalWorkingDays,
+    //         'present_days'  => $totalPresentDays,
+    //         'paid_leaves'  => $paidLeaveCount,
+    //         'half_days'  => $totalHalfDays,
+    //         'office_time'  => $officeHoursInMinutes,
+    //         'total_office_time'  => $totalWorkingDays * $officeHoursInMinutes,
+    //         'clock_in_duration'  => $clockedInDuration,
+    //         'total_late_days'  => $totalLateDays,
+    //         'total_paid_leaves' => $totalPaidLeave,
+    //         'total_unpaid_leaves' => $totalUnPaidLeave,
+    //         'holiday_count' => $totalHolidayCount,
+    //     ];
+    // }
+
+    public static function getMonthYearAttendanceDetails($userId, $month, $year, $cut_off)
     {
         $company = company();
         $user = StaffMember::select('id', 'name', 'shift_id')->with(['shift'])->find($userId);
 
         $currentDateTime = Carbon::now($company->timezone);
         $today = Carbon::now($company->timezone)->startOfDay();
-        $startDate = Carbon::createFromDate($year, $month, 1, $company->timezone)->startOfDay();
-        $endDate = $startDate->copy()->endOfMonth()->startOfDay();
+
+        // Determine cut-off range
+        if ($cut_off === 'A') {
+            $startDate = Carbon::createFromDate($year, $month, 1, $company->timezone)->startOfDay();
+            $endDate = $startDate->copy()->addDays(14)->startOfDay(); // 1 to 15
+        } elseif ($cut_off === 'B') {
+            $startDate = Carbon::createFromDate($year, $month, 16, $company->timezone)->startOfDay();
+            $endDate = $startDate->copy()->endOfMonth()->startOfDay(); // 16 to 30/31
+        } else {
+            // Default: whole month
+            $startDate = Carbon::createFromDate($year, $month, 1, $company->timezone)->startOfDay();
+            $endDate = $startDate->copy()->endOfMonth()->startOfDay();
+        }
 
         $attendanceData = [];
         $lateTime = 0;

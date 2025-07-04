@@ -50,6 +50,18 @@ export default [
                     permission: "salary_settings",
                 },
             },
+            {
+                path: "salary_adjustment",
+                component: () =>
+                    import("../views/payrolls/salary_adjustment/index.vue"),
+                name: "admin.payroll.adjustment_salary",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "salary_adjustment",
+                    menuKey: (route) => "salary_adjustment",
+                    permission: "salary_adjustment",
+                },
+            },
         ],
     },
 ];

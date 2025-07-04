@@ -60,7 +60,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
 
         // Create Menu Update
         ApiRoute::post('companies/update-create-menu', ['as' => 'api.companies.update-create-menu', 'uses' => 'CompanyController@updateCreateMenu']);
-
+        ApiRoute::resource('salary_adjustment','SalaryAdjustmentController', $options);
         ApiRoute::resource('users', 'UsersController', $options);
         ApiRoute::post('update-salary', ['as' => 'api.users.basic_salary', 'uses' => 'UsersController@updateBasicSalary']);
         ApiRoute::post('change-group', ['as' => 'api.users.change_group', 'uses' => 'UsersController@changeGroup']);

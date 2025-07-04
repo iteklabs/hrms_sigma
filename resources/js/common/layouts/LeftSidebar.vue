@@ -500,6 +500,33 @@
                             <span>{{ $t("menu.attendances") }}</span>
                         </a-menu-item>
                     </a-sub-menu>
+
+                    <a-sub-menu key="salary_adjustment">
+                        <template #title>
+                            <span>
+                                <ScheduleOutlined />
+                                <span>{{ $t("menu.salary_adjustment") }}</span>
+                            </span>
+                        </template>
+
+                        <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.payroll.adjustment_salary',
+                                    });
+                                }
+                            "
+                            key="salary_adjustment"
+                        >
+                        
+                            <span>{{ $t("menu.salary_adjustment") }}</span>
+                        </a-menu-item>
+
+                    </a-sub-menu>
+
+
                     <!-- <a-menu-item
                         v-if="
                             permsArray.includes('news_view') ||
@@ -1243,7 +1270,7 @@
                         </template>
                         {{ $t("menu.expenses") }}
                     </a-menu-item>
-
+                    
                     <a-sub-menu key="payrolls">
                         <template #title>
                             <span>

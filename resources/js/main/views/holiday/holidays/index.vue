@@ -193,7 +193,7 @@
                                 <span v-if="record.holiday_type === 'RH'">{{ $t('holiday.regular_holiday') }}</span>
                                 <span v-if="record.holiday_type === 'SNW'">{{ $t('holiday.SNW_holiday') }}</span>
                                 <span v-if="record.holiday_type === 'SW'">{{ $t('holiday.SW_holiday') }}</span>
-                                <h1>{{ record.holiday_type }}</h1>
+                                
                                 <!-- {{ record.holiday_type  }} -->
                             </template>
                             <template v-if="column.dataIndex === 'action'">

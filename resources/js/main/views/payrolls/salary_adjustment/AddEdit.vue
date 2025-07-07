@@ -8,9 +8,10 @@
         :maskClosable="false"
         @close="onClose"
     >
+
         <a-form layout="vertical" id="add_edit_user_form">
             <a-tabs v-model:activeKey="addEditActiveTab">
-                <a-tab-pane key="adjustment" :tab="$t('user.basic_info')">
+                <a-tab-pane key="adjustment" :tab="$t('menu.salary_adjustment')">
                     
                     <a-row :gutter="16">
                         
@@ -19,8 +20,7 @@
                                 :label="$t('salary_adjustment.name')"
                                 name="input_text"
                             >
-                            
-                                <a-input v-model:value="record.name" />
+                                <a-input v-model:value="formData.name" />
                             </a-form-item>
                         </a-col>
 
@@ -30,7 +30,7 @@
                                 name="process_type"
                             >
                                 <a-select
-                                    v-model:value="record.process_payment"
+                                    v-model:value="formData.process_payment"
                                     style="width: 100%"
                                     :placeholder="$t('salary_adjustment.process_type')"
                                 >
@@ -47,16 +47,13 @@
                         </a-col>
 
                         <!-- Recurring Options -->
-                        <template v-if="record.process_payment === 'recurring'">
+                        <template v-if="formData.process_payment === 'recurring'">
                             <a-col :xs="24" :sm="24" :md="12" :lg="12">
-                                <a-form-item
-                                    :label="$t('salary_adjustment.recurring')"
-                                    name="recurring_type"
-                                >
+                                <a-form-item :label="$t('salary_adjustment.recurring')" name="recurring_type">
                                     <a-row :gutter="8">
                                         <a-col :span="8">
                                             <a-input
-                                                v-model:value="record.year"
+                                                v-model:value="formData.year"
                                                 :placeholder="$t('salary_adjustment.year')"
                                                 style="width: 100%;"
                                                 type="number"
@@ -64,7 +61,7 @@
                                         </a-col>
                                         <a-col :span="8">
                                             <a-input
-                                                v-model:value="record.month"
+                                                v-model:value="formData.month"
                                                 :placeholder="$t('salary_adjustment.month')"
                                                 style="width: 100%;"
                                                 type="number"
@@ -72,7 +69,7 @@
                                         </a-col>
                                         <a-col :span="8">
                                             <a-select
-                                                v-model:value="record.cut_off"
+                                                v-model:value="formData.cut_off"
                                                 style="width: 100%"
                                                 :placeholder="$t('salary_adjustment.cutoff')"
                                             >
@@ -87,7 +84,7 @@
                         </template>
 
                         <!-- Date Range Options -->
-                        <template v-if="record.process_payment === 'date_range'">
+                        <template v-if="formData.process_payment === 'date_range'">
                             <a-col :xs="24" :sm="24" :md="12" :lg="12">
                                 <a-form-item
                                     :label="$t('salary_adjustment.date_from')"
@@ -123,7 +120,7 @@
                                 name="amount"
                             >
                                 <a-input-number
-                                    v-model:value="record.amount"
+                                    v-model:value="formData.amount"
                                     style="width: 100%"
                                     :min="0"
                                     :placeholder="$t('salary_adjustment.amount')"
@@ -138,7 +135,7 @@
                                 name="type_taxable"
                             >
                                 <a-select
-                                    v-model:value="record.type"
+                                    v-model:value="formData.type"
                                     style="width: 100%"
                                     :placeholder="$t('salary_adjustment.type_taxable')"
                                 >
@@ -200,11 +197,6 @@ export default defineComponent({
         const { addEditRequestAdmin, loading, rules, addEditActiveTab } = apiAdmin(
             "adjustment"
         );
-
-        
-
-        
-        // console.log(props)
         const roles = ref([]);
         const authStore = useAuthStore();
         const departments = ref([]);
@@ -216,21 +208,17 @@ export default defineComponent({
         const showVisibilty = ref(false);
         const adjustedVisible = ref(false);
         const newData = ref({});
-        const record = ref();
-        const formData = ref();
-        
-        // console.log(formData)
         
         const onSubmit = () => {
             var newFormData = {
-                ...props.record,
+                ...props.formData,
                 visibility: selectedVisibility.value,
                 ...newData.value,
             };
 
-            console.log(newFormData)
+            console.log(newFormData.id)
             addEditRequestAdmin({
-                id: "add_edit_user_form",
+                id: newFormData.id,
                 url: props.url,
                 data: newFormData,
                 successMessage: props.successMessage,
@@ -259,19 +247,19 @@ export default defineComponent({
         // Proxy for date_from to handle dayjs conversion
         const dateFromProxy = computed({
             get() {
-                return props.record.date_from ? dayjs(props.record.date_from) : null;
+                return props.formData.date_from ? dayjs(props.formData.date_from) : null;
             },
             set(val) {
-                props.record.date_from = val ? val.format('YYYY-MM-DD') : null;
+                props.formData.date_from = val ? val.format('YYYY-MM-DD') : null;
             }
         });
 
         const dateToProxy = computed({
             get() {
-                return props.record.date_to ? dayjs(props.record.date_to) : null;
+                return props.formData.date_to ? dayjs(props.formData.date_to) : null;
             },
             set(val) {
-                props.record.date_to = val ? val.format('YYYY-MM-DD') : null;
+                props.formData.date_to = val ? val.format('YYYY-MM-DD') : null;
             }
         });
 

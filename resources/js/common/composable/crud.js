@@ -1,10 +1,10 @@
-import { reactive, ref, createVNode, watch, computed } from "vue";
-import { Modal, notification } from "ant-design-vue";
 import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
+import { Modal, notification } from "ant-design-vue";
+import { forEach, get, has, includes } from "lodash-es";
+import { computed, createVNode, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useAuthStore } from "../../main/store/authStore";
 import datatable from "./datatable";
-import { includes, has, get, forEach } from "lodash-es";
 
 const crud = () => {
     const {
@@ -57,6 +57,7 @@ const crud = () => {
     };
 
     const editItem = (item) => {
+        
         const itemDetails = {};
         var multiDimension = multiDimensalObjectColumns.value;
 
@@ -70,10 +71,10 @@ const crud = () => {
                 itemDetails[key] = item[key];
             }
         });
-
+        
         itemDetails["_method"] = "PUT";
         formData.value = itemDetails;
-
+        // console.log(viewData)
         viewData.value = item;
         addEditUrl.value = `${crudUrl.value}/${item.xid}`;
         addEditType.value = "edit";

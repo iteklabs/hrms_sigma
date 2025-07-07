@@ -2892,6 +2892,32 @@
                                                     </div>
                                                 </td>
                                             </tr>
+
+
+                                            <tr>
+                                                <td class="text-gray-800">
+                                                    {{ $t("menu.salary_adjustment") }}
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex">
+                                                        <label
+                                                            class="form-check form-check-custom me-5 me-lg-20"
+                                                        >
+                                                            <a-checkbox
+                                                                :value="
+                                                                    permissions[
+                                                                        'salary_adjustment_add_edit'
+                                                                    ]
+                                                                "
+                                                            >
+                                                                {{
+                                                                    $t("common.add_edit")
+                                                                }}
+                                                            </a-checkbox>
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </a-checkbox-group>
@@ -2918,8 +2944,8 @@
     </a-drawer>
 </template>
 <script>
-import { defineComponent, ref, onMounted, computed, watch } from "vue";
-import { PlusOutlined, LoadingOutlined, SaveOutlined } from "@ant-design/icons-vue";
+import { LoadingOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons-vue";
+import { defineComponent, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import apiAdmin from "../../../../common/composable/apiAdmin";
 import common from "../../../../common/composable/common";

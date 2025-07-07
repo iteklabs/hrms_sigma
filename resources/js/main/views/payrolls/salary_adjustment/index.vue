@@ -28,7 +28,7 @@
                 <a-space>
                     <template
                         v-if="
-                            permsArray.includes('salary_adjustment') ||
+                            permsArray.includes('salary_adjustment_add_edit') ||
                             permsArray.includes('admin')
                         "
                     >
@@ -49,7 +49,18 @@
     </admin-page-filters>
 
     <admin-page-table-content>
-        
+        <AddEdit
+            :addEditType="addEditType"
+            :visible="addEditVisible"
+            :url="addEditUrl"
+            @addEditSuccess="addEditSuccess"
+            @closed="onCloseAddEdit"
+            :formData="formData"
+            :data="viewData"
+            :pageTitle="pageTitle"
+            :successMessage="successMessage"
+            @addListSuccess="reSetFormData"
+        />
 
         <a-row>
             <a-col :span="24">
@@ -100,11 +111,11 @@
                             <template v-if="column.dataIndex === 'action'">
                                 <a-button
                                     v-if="
-                                        permsArray.includes('salary_adjustment') ||
+                                        permsArray.includes('salary_adjustment_add_edit') ||
                                         permsArray.includes('admin')
                                     "
                                     type="primary"
-                                    @click="modelOpen(record)"
+                                    @click="editItem(record)"
                                     style="margin-left: 4px"
                                 >
                                     <template #icon><EditOutlined /></template>
@@ -116,19 +127,7 @@
                 </div>
             </a-col>
         </a-row>
-        <AddEdit
-            addEditType="edit"
-            :visible="addEditVisible"
-            :url="'salary_adjustment'"
-            @addEditSuccess="addEditSuccess"
-            @closed="modelClose"
-            :formData="formData"
-            :record="recordData"
-            :data="viewData"
-            :pageTitle="pageTitle"
-            :successMessage="successMessage"
-            @addListSuccess="reSetFormData"
-        />
+        
     </admin-page-table-content>
 </template>
 
@@ -142,6 +141,7 @@ import common from "../../../../common/composable/common";
 import crud from "../../../../common/composable/crud";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
 import AddEdit from "./AddEdit.vue";
+import fields from "./fields";
 
 export default {
     components: {
@@ -155,15 +155,23 @@ export default {
     setup() {
         const {
             permsArray,
-            addEditUrl,
-            statusColors,
+            // statusColors,
             formatDateTime,
-            user,
+            // user,
             formatAmountCurrency,
         } = common();
+
+        const {
+            url,
+            initData,
+            columns,
+            addEditUrl,
+            hashableColumns,
+            filterableColumns
+        } = fields();
         const sampleFileUrl = window.config.staff_member_sample_file;
         const { t } = useI18n();
-        const addEditVisible = ref(false);
+        // const addEditVisible = ref(false);
         const recordData = ref("");
         const crudVariables = crud();
         const userOpen = ref(false);
@@ -183,61 +191,25 @@ export default {
             status: "active",
         });
 
-        const closed = () => {
-            addEditVisible.value = false;
-        };
-        const modelClose = () => {
-            addEditVisible.value = false;
-            setUrlData();
-        };
-        const modelOpen = (item) => {
-            recordData.value = item;
-            // console.log(item)
-            addEditVisible.value = true;
-        };
+        // const closed = () => {
+        //     addEditVisible.value = false;
+        // };
+        // const modelClose = () => {
+        //     addEditVisible.value = false;
+        //     setUrlData();
+        // };
+        
 
-        const columns = [
-            {
-                title: t("salary_adjustment.name"),
-                dataIndex: "name",
-            },
-            {
-                title: t("salary_adjustment.date_from"),
-                dataIndex: "date_from",
-            },
-            {
-                title: t("salary_adjustment.date_to"),
-                dataIndex: "date_to",
-            },
-            {
-                title: t("salary_adjustment.amount"),
-                dataIndex: "amount",
-            },
-            {
-                title: t("salary_adjustment.type_taxable"),
-                dataIndex: "type",
-            },
-            {
-                title: t("common.action"),
-                dataIndex: "action",
-            },
-        ];
+       
 
         onMounted(() => {
             setUrlData();
         });
 
-        const filterableColumns = [
-            {
-                key: "name",
-                value: t("user.name"),
-            },
-        ];
-
         const setUrlData = () => {
             crudVariables.tableUrl.value = {
                 url:
-                    "salary_adjustment?fields=id,name,process_payment,cut_off,month,year,date_from,date_to,amount,type",
+                    url,
                 extraFilters,
             };
 
@@ -246,25 +218,31 @@ export default {
             crudVariables.fetch({
                 page: 1,
             });
+
+            crudVariables.crudUrl.value = addEditUrl;
+            crudVariables.langKey.value = "salary_adjustment";
+            crudVariables.initData.value = { ...initData };
+            crudVariables.formData.value = { ...initData };
+            crudVariables.hashableColumns.value = { ...hashableColumns };
         };
 
         return {
             columns,
             filterableColumns,
             permsArray,
-            statusColors,
+            // statusColors,
             extraFilters,
             formatDateTime,
             ...crudVariables,
             sampleFileUrl,
             setUrlData,
-            user,
+            // user,
             closed,
-            modelOpen,
-            addEditVisible,
+            // modelOpen,
+            // addEditVisible,
             recordData,
             formatAmountCurrency,
-            modelClose,
+            // modelClose,
             userOpen,
             userId,
             openUserView,

@@ -33,4 +33,11 @@ class SalaryAdjustmentController extends ApiBaseController
         }
         
     }
+
+    // public function stored(SalaryAdjustment $SalaryAdjustment){
+    //     $request = request();
+    //     echo "<pre>";
+    //    print_r($SalaryAdjustment->find($request->id));
+    //    exit;
+    // }
 }

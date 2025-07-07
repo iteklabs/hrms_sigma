@@ -208,7 +208,7 @@ export default defineComponent({
         const showVisibilty = ref(false);
         const adjustedVisible = ref(false);
         const newData = ref({});
-        
+
         const onSubmit = () => {
             var newFormData = {
                 ...props.formData,
@@ -238,9 +238,6 @@ export default defineComponent({
 
         const onClose = () => {
             rules.value = {};
-            // showVisibilty.value = true;
-            // console.log(showVisibilty.value)
-            
             emit("closed");
         };
 

@@ -86,11 +86,15 @@
                         <template #bodyCell="{ column, record }">
                             <!-- <pre>{{ record }}</pre> -->
                             <template v-if="column.dataIndex === 'user_id'">
-                                <span
+                                <!-- <span
                                     v-if="
                                         record.user.name
                                     "
-                                >{{ record.user.name }}</span>
+                                >{{ record.user.name }}</span> -->
+
+                                <a-button type="link" @click="openUserView(record)">
+                                    <UserInfo :user="record.user" />
+                                </a-button>
                             </template>
 
 
@@ -139,7 +143,7 @@
         </a-row>
         
     </admin-page-table-content>
-
+    <user-view-page :visible="userOpen" :userId="userId" @closed="closeUser" />
 </template>
 
 
@@ -186,7 +190,7 @@ export default {
         const userId = ref(undefined);
 
         const openUserView = (item) => {
-            userId.value = item.xid;
+            userId.value = item.x_user_id;
             userOpen.value = true;
         };
 

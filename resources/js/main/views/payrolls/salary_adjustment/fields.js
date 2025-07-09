@@ -6,7 +6,7 @@ const fields = () => {
     const { user } = common();
     const { t } = useI18n();
     const url =
-        "salary_adjustment?fields=xid,id,name,process_payment,cut_off,month,year,date_from,date_to,amount,type";
+        "salary_adjustment?fields=xid,x_user_id,name,process_payment,cut_off,month,year,date_from,date_to,amount,type";
     const addEditUrl = "salary_adjustment";
     const hashableColumns = [
         
@@ -22,9 +22,14 @@ const fields = () => {
         date_to: "",
         amount: 0,
         type: "T",
+        user: ""
     };
 
      const columns = [
+            {
+                title: t("salary_adjustment.user"),
+                dataIndex:"user_id",
+            },
             {
                 title: t("salary_adjustment.name"),
                 dataIndex: "name",

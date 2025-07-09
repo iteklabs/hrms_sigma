@@ -14,7 +14,7 @@
                 <a-tab-pane key="adjustment" :tab="$t('menu.salary_adjustment')">
                     
                     <a-row :gutter="16">
-                        
+                        <!-- <pre>{{ formData.user.xid }}</pre>  -->
                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
                             <a-form-item
                                 :label="$t('salary_adjustment.name')"
@@ -144,6 +144,46 @@
                                 </a-select>
                             </a-form-item>
                         </a-col>
+
+                        <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                            <a-form-item
+                                :label="$t('attendance.user')"
+                                name="user_id"
+                                :help="rules.user_id ? rules.user_id.message : null"
+                                :validateStatus="rules.user_id ? 'error' : null"
+                                class="required"
+                            >
+                            
+                            <span style="display: flex">
+                                <a-select
+                                    v-model:value="formData.user.xid"
+                                    :placeholder="
+                                        $t('common.select_default_text', [
+                                            $t('attendance.user'),
+                                        ])
+                                    "
+                                    :allowClear="true"
+                                    optionFilterProp="title"
+                                    show-search
+                                >
+                                
+                                    <a-select-option
+                                        v-for="user in users"
+                                        :key="user.xid"
+                                        :value="user.xid"
+                                        :title="user.name"
+                                    >
+                                        <user-list-display
+                                            :user="user"
+                                            whereToShow="select"
+                                        />
+                                    </a-select-option>
+                                </a-select>
+                                <UserAddButton @onAddSuccess="userAdded" />
+                            </span>
+                    </a-form-item>
+                </a-col>
+                        
                     </a-row>
                     
                 </a-tab-pane>
@@ -166,12 +206,13 @@
 
 <script>
 import { LoadingOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons-vue";
-import { computed, defineComponent, ref } from "vue";
+import { computed, defineComponent, onMounted, ref } from "vue";
 import FormItemHeading from "../../../../common/components/common/typography/FormItemHeading.vue";
+import UserListDisplay from "../../../../common/components/user/UserListDisplay.vue";
 import apiAdmin from "../../../../common/composable/apiAdmin";
 import common from "../../../../common/composable/common";
-
 import { useAuthStore } from "../../../../main/store/authStore";
+import UserAddButton from "../../staff-members/users/StaffAddButton.vue";
 
 export default defineComponent({
     props: [
@@ -190,6 +231,8 @@ export default defineComponent({
         LoadingOutlined,
         SaveOutlined,
         FormItemHeading,
+        UserAddButton,
+        UserListDisplay
     },
     
     setup(props, { emit }) {
@@ -208,6 +251,8 @@ export default defineComponent({
         const showVisibilty = ref(false);
         const adjustedVisible = ref(false);
         const newData = ref({});
+        const users = ref([]);
+        const userUrl = "users?limit=10000";
 
         const onSubmit = () => {
             var newFormData = {
@@ -216,7 +261,7 @@ export default defineComponent({
                 ...newData.value,
             };
 
-            console.log(newFormData.id)
+            // console.log(newFormData.id)
             addEditRequestAdmin({
                 id: newFormData.id,
                 url: props.url,
@@ -233,7 +278,15 @@ export default defineComponent({
             });
         };
         
+        onMounted(() => {
+            const usersPromise = axiosAdmin.get(userUrl);
 
+            Promise.all([usersPromise]).then(
+                ([userResponse]) => {
+                    users.value = userResponse.data;
+                }
+            );
+        });
 
 
         const onClose = () => {
@@ -266,7 +319,7 @@ export default defineComponent({
             onClose,
             onSubmit,
             roles,
-
+            users,
             permsArray,
             appSetting,
             departments,

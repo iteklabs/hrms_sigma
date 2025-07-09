@@ -74,7 +74,7 @@ const crud = () => {
         
         itemDetails["_method"] = "PUT";
         formData.value = itemDetails;
-        // console.log(viewData)
+        // console.log(item)
         viewData.value = item;
         addEditUrl.value = `${crudUrl.value}/${item.xid}`;
         addEditType.value = "edit";

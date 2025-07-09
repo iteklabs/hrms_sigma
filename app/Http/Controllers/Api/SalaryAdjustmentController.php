@@ -16,7 +16,7 @@ class SalaryAdjustmentController extends ApiBaseController
         try {
             $request = request();
             $limit = $request->limit; // default to 10 if not provided
-            $data = SalaryAdjustment::orderBy('id', 'desc')
+            $data = SalaryAdjustment::with(['user'])->orderBy('id', 'desc')
                 ->limit($limit)
                 ->get();
             return response()->json([

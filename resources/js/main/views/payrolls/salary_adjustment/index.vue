@@ -84,6 +84,16 @@
                         size="middle"
                     >
                         <template #bodyCell="{ column, record }">
+                            <!-- <pre>{{ record }}</pre> -->
+                            <template v-if="column.dataIndex === 'user_id'">
+                                <span
+                                    v-if="
+                                        record.user.name
+                                    "
+                                >{{ record.user.name }}</span>
+                            </template>
+
+
                             <template v-if="column.dataIndex === 'name'">
                                 <span
                                     v-if="
@@ -129,6 +139,7 @@
         </a-row>
         
     </admin-page-table-content>
+
 </template>
 
 
@@ -155,9 +166,7 @@ export default {
     setup() {
         const {
             permsArray,
-            // statusColors,
             formatDateTime,
-            // user,
             formatAmountCurrency,
         } = common();
 
@@ -171,7 +180,6 @@ export default {
         } = fields();
         const sampleFileUrl = window.config.staff_member_sample_file;
         const { t } = useI18n();
-        // const addEditVisible = ref(false);
         const recordData = ref("");
         const crudVariables = crud();
         const userOpen = ref(false);
@@ -191,16 +199,6 @@ export default {
             status: "active",
         });
 
-        // const closed = () => {
-        //     addEditVisible.value = false;
-        // };
-        // const modelClose = () => {
-        //     addEditVisible.value = false;
-        //     setUrlData();
-        // };
-        
-
-       
 
         onMounted(() => {
             setUrlData();
@@ -230,19 +228,14 @@ export default {
             columns,
             filterableColumns,
             permsArray,
-            // statusColors,
             extraFilters,
             formatDateTime,
             ...crudVariables,
             sampleFileUrl,
             setUrlData,
-            // user,
             closed,
-            // modelOpen,
-            // addEditVisible,
             recordData,
             formatAmountCurrency,
-            // modelClose,
             userOpen,
             userId,
             openUserView,

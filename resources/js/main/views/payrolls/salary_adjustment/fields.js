@@ -9,7 +9,7 @@ const fields = () => {
         "salary_adjustment?fields=xid,x_user_id,name,process_payment,cut_off,month,year,date_from,date_to,amount,type";
     const addEditUrl = "salary_adjustment";
     const hashableColumns = [
-        
+        'user_id'
     ];
 
     const initData = {
@@ -22,7 +22,9 @@ const fields = () => {
         date_to: "",
         amount: 0,
         type: "T",
-        user: ""
+        user_id: undefined,
+        // x_user_id: "",
+        // user: ""
     };
 
      const columns = [

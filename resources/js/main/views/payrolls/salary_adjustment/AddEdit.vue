@@ -14,7 +14,7 @@
                 <a-tab-pane key="adjustment" :tab="$t('menu.salary_adjustment')">
                     
                     <a-row :gutter="16">
-                        <!-- <pre>{{ formData.user.xid }}</pre>  -->
+                        <!-- <pre>{{ formData }}</pre>  -->
                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
                             <a-form-item
                                 :label="$t('salary_adjustment.name')"
@@ -156,7 +156,7 @@
                             
                             <span style="display: flex">
                                 <a-select
-                                    v-model:value="formData.user.xid"
+                                    v-model:value="formData.user_id"
                                     :placeholder="
                                         $t('common.select_default_text', [
                                             $t('attendance.user'),
@@ -261,7 +261,7 @@ export default defineComponent({
                 ...newData.value,
             };
 
-            // console.log(newFormData.id)
+            console.log(newData.value)
             addEditRequestAdmin({
                 id: newFormData.id,
                 url: props.url,

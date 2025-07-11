@@ -443,7 +443,7 @@
                             >
                                 <span style="display: flex">
                                     <a-select
-                                        v-model:value="formData.shift_id"
+                                        v-model:value="formData.shift_id_list"
                                         :placeholder="$t('common.select_default_text', [$t('user.shift_id')])"
                                         :allowClear="true"
                                         optionFilterProp="title"
@@ -983,7 +983,12 @@ export default defineComponent({
                 visibility: selectedVisibility.value,
                 employee_number: employeeId.value,
                 ...newData.value,
+                shift_id_list: JSON.stringify(props.formData.shift_id_list
+                    ? props.formData.shift_id_list.map((item) => item)
+                    : [])
             };
+
+            console.log("newFormData", newFormData);
             addEditRequestAdmin({
                 id: "add_edit_user_form",
                 url: props.url,

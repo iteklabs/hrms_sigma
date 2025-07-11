@@ -76,7 +76,7 @@ class User extends BaseModel implements AuthenticatableContract, JWTSubject
         'philhealth_no' => 'string',
         'pagibig_no' => 'string',
         'tin_no' => 'string',
-
+        'shft_id_list' => 'array'
     ];
 
     protected $permissions = ['salary_settings', 'leaves_view', 'assets_view', 'leave_types_view'];

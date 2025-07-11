@@ -272,7 +272,7 @@ export default defineComponent({
                 allowed_ip_address: ipAddressFilter(),
             };
 
-            console.log('dataObject',newFormData.value);
+            // console.log('dataObject',newFormData.value);
             addEditRequestAdmin({
                 url: props.url,
                 data: dataObject,
@@ -348,7 +348,7 @@ export default defineComponent({
                         clock_in_time: "",
                         clock_out_time: "",
                     };
-                    console.log('data',newFormData.value);
+                    // console.log('data',newFormData.value);
                     formFields.value = [];
                 }
             }

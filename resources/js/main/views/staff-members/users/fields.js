@@ -1,11 +1,11 @@
-import { useI18n } from "vue-i18n";
 import common from "@/common/composable/common";
+import { useI18n } from "vue-i18n";
 
 const fields = () => {
     const { user } = common();
     const { t } = useI18n();
     const url =
-        "users?fields=id,xid,user_type,name,email,employee_number,gender,allow_login,dob,joining_date,is_married,marriage_date,personal_email,personal_phone,report_to,x_report_to,is_manager,visibility,reporter{id,xid,name},location_id,x_location_id,location{id,xid,name},designation_id,x_designation_id,designation{id,xid,name},profile_image,profile_image_url,phone,address,status,created_at,role_id,x_role_id,role{id,xid,name,display_name},basic_salary,probation_start_date,probation_end_date,notice_start_date,notice_end_date,duration,shift_id,x_shift_id,shift{id,xid,name},department_id,x_department_id,department{id,xid,name},end_date,annual_ctc,salary_group_id,x_salary_group_id,salaryGroup{id,xid},employee_status_id,x_employee_status_id,employeeWorkStatus{id,xid,name}";
+        "users?fields=id,xid,user_type,name,email,employee_number,gender,sss_no,philhealth_no,pagibig_no,tin_no,sss_fixed,philhealth_fixed,pagibig_fixed,tin_fixed,allow_login,dob,joining_date,is_married,marriage_date,personal_email,personal_phone,report_to,x_report_to,is_manager,visibility,reporter{id,xid,name},location_id,x_location_id,location{id,xid,name},designation_id,x_designation_id,designation{id,xid,name},profile_image,profile_image_url,phone,address,status,created_at,role_id,x_role_id,role{id,xid,name,display_name},basic_salary,probation_start_date,probation_end_date,notice_start_date,notice_end_date,duration,shift_id,x_shift_id,shift{id,xid,name},department_id,x_department_id,department{id,xid,name},end_date,annual_ctc,divisor,calculation_type,semi_monthly_rate,hourly_rate,daily_rate,sss_no,salary_group_id,x_salary_group_id,salaryGroup{id,xid},employee_status_id,x_employee_status_id,employeeWorkStatus{id,xid,name}";
     const addEditUrl = "users";
     const hashableColumns = [
         "location_id",
@@ -48,6 +48,7 @@ const fields = () => {
         designation_id: undefined,
         salary_group_id: undefined,
         employee_status_id: undefined,
+        sss_no: "",
     };
 
     const columns = [

@@ -313,6 +313,31 @@ const hrmManagement = () => {
         });
     };
 
+
+    const sssFormat = (val) => {
+        const raw = val.replace(/\D/g, '');
+        // console.log(raw.replace(/^(\d{2})(\d{7})(\d{1})$/, '$1-$2-$3'))
+        return raw.replace(/^(\d{2})(\d{7})(\d{1})$/, '$1-$2-$3');
+    }
+
+    const philhealthFormat = (val) => {
+        const raw = val.replace(/\D/g, '');
+        // console.log(raw.replace(/^(\d{2})(\d{9})(\d{1})$/, '$1-$2-$3'))
+        return raw.replace(/^(\d{2})(\d{9})(\d{1})$/, '$1-$2-$3');
+    }
+
+    const pagibigFormat = (val) => {
+        const raw = val.replace(/\D/g, '');
+        // console.log(raw.replace(/^(\d{4})(\d{4})(\d{4})$/, '$1-$2-$3'))
+        return raw.replace(/^(\d{4})(\d{4})(\d{4})$/, '$1-$2-$3');
+    }
+
+    const tinFormat = (val) => {
+        const raw = val.replace(/\D/g, '');
+        // console.log(raw.replace(/^(\d{3})(\d{3})(\d{3})(\d{3})$/, '$1-$2-$3-$4'))
+        return raw.replace(/^(\d{3})(\d{3})(\d{3})(\d{3})$/, '$1-$2-$3-$4');
+    }
+
     return {
         monthArrays,
         getMonthNameByNumber,
@@ -321,7 +346,10 @@ const hrmManagement = () => {
         formatShiftTime12Hours,
         weekDays,
         cut_off,
-
+        sssFormat,
+        philhealthFormat,
+        pagibigFormat,
+        tinFormat,
         selectedLetterHeadFields,
         resetSelectformOption,
         letterHeadUser,

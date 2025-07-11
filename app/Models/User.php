@@ -67,6 +67,16 @@ class User extends BaseModel implements AuthenticatableContract, JWTSubject
         'daily_rate' => 'double',
         'hourly_rate' => 'double',
         'semi_monthly_rate' => 'double',
+        'divisor' => 'integer',
+        'sss_fixed' => 'double',
+        'philhealth_fixed' => 'double',
+        'pagibig_fixed' => 'double',
+        'tin_fixed' => 'double',
+        'sss_no' => 'string',
+        'philhealth_no' => 'string',
+        'pagibig_no' => 'string',
+        'tin_no' => 'string',
+
     ];
 
     protected $permissions = ['salary_settings', 'leaves_view', 'assets_view', 'leave_types_view'];

@@ -24,80 +24,98 @@ class Payrolls
     public static function updateUserSalary($userId, $annualCTC)
     {
         $user = StaffMember::find($userId);
-       
-        $calculationType = $user->calculation_type;
-        $ctcValue = (float)$user->ctc_value;
-        if ($ctcValue == 0 || $annualCTC == 0) {
-            $monthlySalary = 0;
-        } else {
-            if ($ctcValue == 0 || $ctcValue === null) {
-                $monthlySalary = 0;
-            } else {
-                $monthlySalary = $calculationType === 'fixed'
-                    ? $ctcValue
-                    : ($annualCTC * $ctcValue) / 100 / 12;
-            }
-        }
-
+        $monthlySalary = $user->basic_salary;
+        $netSalary= $user->net_salary;
+        $specialAllowance = 0;
         $annualAmount = $monthlySalary * 12;
-        $monthlyCtc = $annualCTC / 12;
-        $earnings = 0;
-        $deductions = 0;
-
-        $basicSalaryDetails = $user->basicSalaryDetails ? $user->basicSalaryDetails : [];
-        foreach ($basicSalaryDetails as $group) {
-            $salaryComponents = $group->salaryComponent ? $group->salaryComponent : [];
-            foreach ($salaryComponents as $component) {
-                $amount = 0.0;
-
-                switch ($component->value_type) {
-                    case 'fixed':
-                        $amount = (float) $component->monthly;
-                        break;
-                    case 'variable':
-                        $amount = (float) $group['monthly'];
-                        break;
-
-                    case 'basic_percent':
-                        $amount = ($monthlySalary * (float) $component->monthly) / 100;
-                        break;
-
-                    case 'ctc_percent':
-                        if ($ctcValue != 0) {
-                            $amount = ($monthlySalary * (float) $component->monthly) / $ctcValue;
-                        } else {
-                            $amount = 0;
-                        }
-                        break;
-
-                    default:
-                        $amount = 0.0;
-                        break;
-                }
-
-                if ($component->type === 'earnings') {
-                    $earnings += (float) $amount;
-                } elseif ($component->type === 'deductions') {
-                    $deductions += (float) $amount;
-                }
-            }
-        }
-        $specialAllowance = number_format(($monthlyCtc - $monthlySalary - $earnings), 2, '.', '');
-        $netSalary = number_format(
-            ($monthlySalary + $specialAllowance + $earnings - $deductions),
-            2,
-            '.',
-            ''
-        );
+        $annualCTC = $monthlySalary * 12;
         $user->update([
             'basic_salary' => $monthlySalary,
             'monthly_amount' => $netSalary,
             'annual_amount' => $annualAmount,
             'annual_ctc' => $annualCTC,
             'special_allowances' => $specialAllowance,
-            'net_salary'
-            => $netSalary
+            'net_salary' => $netSalary
         ]);
+
+        // echo "<pre>";
+        // print_r($user->toArray());
+        // echo "</pre>";
+        // exit;
+       
+        // $calculationType = $user->calculation_type;
+        // $ctcValue = (float)$user->ctc_value;
+        // if ($ctcValue == 0 || $annualCTC == 0) {
+        //     $monthlySalary = 0;
+        // } else {
+        //     if ($ctcValue == 0 || $ctcValue === null) {
+        //         $monthlySalary = 0;
+        //     } else {
+        //         $monthlySalary = $calculationType === 'fixed'
+        //             ? $ctcValue
+        //             : ($annualCTC * $ctcValue) / 100 / 12;
+        //     }
+        // }
+
+        // $annualAmount = $monthlySalary * 12;
+        // $monthlyCtc = $annualCTC / 12;
+        // $earnings = 0;
+        // $deductions = 0;
+
+        // $basicSalaryDetails = $user->basicSalaryDetails ? $user->basicSalaryDetails : [];
+        // foreach ($basicSalaryDetails as $group) {
+        //     $salaryComponents = $group->salaryComponent ? $group->salaryComponent : [];
+        //     foreach ($salaryComponents as $component) {
+        //         $amount = 0.0;
+
+        //         switch ($component->value_type) {
+        //             case 'fixed':
+        //                 $amount = (float) $component->monthly;
+        //                 break;
+        //             case 'variable':
+        //                 $amount = (float) $group['monthly'];
+        //                 break;
+
+        //             case 'basic_percent':
+        //                 $amount = ($monthlySalary * (float) $component->monthly) / 100;
+        //                 break;
+
+        //             case 'ctc_percent':
+        //                 if ($ctcValue != 0) {
+        //                     $amount = ($monthlySalary * (float) $component->monthly) / $ctcValue;
+        //                 } else {
+        //                     $amount = 0;
+        //                 }
+        //                 break;
+
+        //             default:
+        //                 $amount = 0.0;
+        //                 break;
+        //         }
+
+        //         if ($component->type === 'earnings') {
+        //             $earnings += (float) $amount;
+        //         } elseif ($component->type === 'deductions') {
+        //             $deductions += (float) $amount;
+        //         }
+        //     }
+        // }
+        // $specialAllowance = number_format(($monthlyCtc - $monthlySalary - $earnings), 2, '.', '');
+        // $netSalary = number_format(
+        //     ($monthlySalary + $specialAllowance + $earnings - $deductions),
+        //     2,
+        //     '.',
+        //     ''
+        // );
+        // $user->update([
+        //     'basic_salary' => $monthlySalary,
+        //     'monthly_amount' => $netSalary,
+        //     'annual_amount' => $annualAmount,
+        //     'annual_ctc' => $annualCTC,
+        //     'special_allowances' => $specialAllowance,
+        //     'net_salary'
+        //     => $netSalary
+        // ]);
     }
 
     // this is use for change payroll status generate to paid
@@ -144,7 +162,7 @@ class Payrolls
 
 
     // This function is use for update or create basic salary from basic salary and employee modules
-    public static function updateEmployeeSalary($id, $basicSalary, $monthlyAmount, $annualAmount, $annualCtc, $ctcValue, $netSalary, $specialAllowances, $salaryComponents, $salaryGroupId)
+    public static function updateEmployeeSalary($id, $basicSalary, $monthlyAmount, $annualAmount, $annualCtc, $ctcValue, $netSalary, $specialAllowances, $salaryComponents, $salaryGroupId, $divisor)
     {
         $user = StaffMember::find($id);
         
@@ -156,6 +174,7 @@ class Payrolls
         $user->ctc_value = $ctcValue;
         $user->net_salary = $netSalary;
         $user->special_allowances = $specialAllowances;
+        $user->divisor = $divisor;
         $user->save();
         self::changeGroup($id, $user->annual_ctc, $salaryGroupId, $salaryComponents);
     }

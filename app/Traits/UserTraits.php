@@ -220,7 +220,11 @@ trait UserTraits
                 $salaryGroupId = $request->has('salary_group_id') && $request->salary_group_id ? $this->getIdFromHash($request->salary_group_id) : null;
                 $user->salary_group_id = $salaryGroupId;
                 // salary details update function
-                Payrolls::updateEmployeeSalary($user->id, $user->basic_salary, $user->monthly_amount, $user->annual_amount, $user->annual_ctc, $user->ctc_value, $user->net_salary, $user->special_allowances, $request->salary_components, $salaryGroupId);
+                // echo "<pre>";
+                // print_r($request->all());
+                // echo "</pre>";
+                // exit;
+                Payrolls::updateEmployeeSalary($user->id, $user->basic_salary, $user->monthly_amount, $user->annual_amount, $user->annual_ctc, $user->ctc_value, $user->net_salary, $user->special_allowances, $request->salary_components, $salaryGroupId, $user->divisor);
             } else {
                 throw new ApiException("Don't have valid permission for Salary Setting");
             }
@@ -314,12 +318,17 @@ trait UserTraits
     public function updateBasicSalary(SalaryUpdateRequest $salaryUpdateRequest)
     {
         $request = request();
+
+        // echo "<pre>";
+        // print_r($salaryUpdateRequest->all());
+        // echo "</pre>";
+        // exit;
         $loggedUser = user();
         if ($request->has('annual_ctc') && $request->annual_ctc != '') {
             if ($loggedUser->ability('admin', 'salary_settings')) {
                 $id = $this->getIdFromHash($salaryUpdateRequest->xid);
                 $salaryComponents = $salaryUpdateRequest->salary_components;
-                Payrolls::updateEmployeeSalary($id, $salaryUpdateRequest->basic_salary, $salaryUpdateRequest->monthly_amount, $salaryUpdateRequest->annual_amount, $salaryUpdateRequest->annual_ctc, $salaryUpdateRequest->ctc_value, $salaryUpdateRequest->net_salary, $salaryUpdateRequest->special_allowances, $salaryComponents, $salaryUpdateRequest->salary_group_id);
+                Payrolls::updateEmployeeSalary($id, $salaryUpdateRequest->basic_salary, $salaryUpdateRequest->monthly_amount, $salaryUpdateRequest->annual_amount, $salaryUpdateRequest->annual_ctc, $salaryUpdateRequest->ctc_value, $salaryUpdateRequest->net_salary, $salaryUpdateRequest->special_allowances, $salaryComponents, $salaryUpdateRequest->salary_group_id, $salaryUpdateRequest->divisor);
             } else {
                 throw new ApiException("Don't have valid permission for Salary Setting");
             }

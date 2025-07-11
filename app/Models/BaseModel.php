@@ -56,7 +56,7 @@ class BaseModel extends ApiMainModel
     {
         $permssionArray = [
             'salary_settings' => [
-                'fields' => ['annual_ctc', 'salary_group', 'monthly_amount', 'annual_amount', 'ctc_value', 'special_allowances', 'net_salary', 'basic_salary',  'semi_monthly_rate', 'hourly_rate', 'daily_rate'],
+                'fields' => ['annual_ctc', 'salary_group', 'monthly_amount', 'annual_amount', 'ctc_value', 'special_allowances', 'net_salary', 'basic_salary',  'semi_monthly_rate', 'hourly_rate', 'daily_rate', 'divisor'],
                 'relations' => ['salaryGroup', 'basicSalaryDetails', 'salaryGroupUsers'],
             ],
             'leaves_view' => [

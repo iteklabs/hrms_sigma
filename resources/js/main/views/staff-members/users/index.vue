@@ -209,7 +209,9 @@
                         bordered
                         size="middle"
                     >
+                    
                         <template #bodyCell="{ column, text, record }">
+                            <!-- <pre>{{ record }}</pre> -->
                             <template v-if="column.dataIndex === 'name'">
                                 <a-button type="link" @click="openUserView(record)">
                                     <user-info :user="record" />
@@ -289,23 +291,23 @@
     />
 </template>
 <script>
-import { onMounted, ref } from "vue";
-import {
-    PlusOutlined,
-    EditOutlined,
-    DeleteOutlined,
-    EyeOutlined,
-} from "@ant-design/icons-vue";
-import fields from "./fields";
-import crud from "../../../../common/composable/crud";
-import common from "../../../../common/composable/common";
-import AddEdit from "./AddEdit.vue";
-import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
-import ImportUsers from "../../../../common/core/ui/Import.vue";
-import UserInfo from "../../../../common/components/user/UserInfo.vue";
-import ViewVue from "./View.vue";
-import AddQuick from "./AddQuick .vue";
 import UserListDisplayVue from "@/common/components/user/UserListDisplay.vue";
+import {
+    DeleteOutlined,
+    EditOutlined,
+    EyeOutlined,
+    PlusOutlined,
+} from "@ant-design/icons-vue";
+import { onMounted, ref } from "vue";
+import UserInfo from "../../../../common/components/user/UserInfo.vue";
+import common from "../../../../common/composable/common";
+import crud from "../../../../common/composable/crud";
+import ImportUsers from "../../../../common/core/ui/Import.vue";
+import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
+import AddEdit from "./AddEdit.vue";
+import AddQuick from "./AddQuick .vue";
+import fields from "./fields";
+import ViewVue from "./View.vue";
 
 export default {
     components: {

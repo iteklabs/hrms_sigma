@@ -2,7 +2,7 @@
     <a-form>
         <a-row :gutter="16">
             <a-col :xs="24" :sm="24" :md="24" :lg="24">
-                <pre>{{ formData }}</pre>
+                <!-- <pre>{{ formData }}</pre> -->
                 <a-form-item
                     :label="$t('salary_group.salary_group_id')"
                     name="salary_group_id"
@@ -339,7 +339,7 @@
                         class="required"
                     >
                         <a-input
-                            v-model:value="formData.philhealth"
+                            v-model:value="formData.philhealth_fixed"
                             :placeholder="$t('common.placeholder_default_text', [$t('basic_salary.philhealth_fixed')])"
                             style="width: 100%"
                         />
@@ -352,7 +352,7 @@
                         class="required"
                     >
                         <a-input
-                            v-model:value="formData.pagibig"
+                            v-model:value="formData.pagibig_fixed"
                             :placeholder="$t('common.placeholder_default_text', [$t('basic_salary.pagibig_fixed')])"
                             style="width: 100%"
                         />
@@ -366,7 +366,7 @@
                         class="required"
                     >
                         <a-input
-                            v-model:value="formData.tin"
+                            v-model:value="formData.tin_fixed"
                             :placeholder="$t('common.placeholder_default_text', [$t('basic_salary.tin_fixed')])"
                             style="width: 100%"
                         />
@@ -780,6 +780,14 @@ export default defineComponent({
                 }
             }
         );
+
+        watch(formData, (newVal) => {
+            emit("updateSalaryData", {
+                        ...formData.value,
+                xid: props.user.xid,
+                
+            });
+        }, { deep: true })
 
         watch(
             [

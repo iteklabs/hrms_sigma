@@ -578,7 +578,7 @@ export default defineComponent({
         
         const calculateSalary = () => {
                     const { calculation_type, ctc_value, annual_ctc, divisor, semi_monthly_rate, basic_salary } = formData.value;
-                    console.log("data_fsadasdsadasdadaddsorm", formData.value)
+                    // console.log("data_fsadasdsadasdadaddsorm", formData.value)
                     switch (calculation_type) {
                         case "fixed":
                         case "s_monthly":
@@ -611,7 +611,7 @@ export default defineComponent({
                             semi_monthlySalary.value = 0;
                         }
                     }
-                    console.log("divisor", divisorData.value)
+                    // console.log("divisor", divisorData.value)
                     monthlyCostToCompany.value = (annual_ctc / 12).toFixed(2);
 
                     emit("updateSalaryData", {
@@ -635,7 +635,7 @@ export default defineComponent({
         };
 
         const formatDataID = (ident) => {
-            console.log("formatDataID", ident);
+            // console.log("formatDataID", ident);
 
             switch (ident) {
                 case "SSS":
@@ -704,7 +704,7 @@ export default defineComponent({
             () => props.visible,
             (newVal, oldVal) => {
                 fetchSalaryGroups();
-                console.log("ID",props.user)
+                // console.log("ID",props.user)
                 fetchDataSalary(props.user.xid);
                 if (newVal) {
                     formData.value = {
@@ -775,7 +775,7 @@ export default defineComponent({
                     if (props.user.salary_group) {
                         fetchSalaryComponentsAndUsers(props.user.salary_group.xid);
                     }
-                    basicSalary.value = 0;
+                    // basicSalary.value = 0;
                     calculateSalary();
                 }
             }

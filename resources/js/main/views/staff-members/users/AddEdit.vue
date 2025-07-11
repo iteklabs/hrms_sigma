@@ -400,7 +400,7 @@
                                 </span>
                             </a-form-item>
                         </a-col>
-                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                        <!-- <a-col :xs="24" :sm="24" :md="12" :lg="12">
                             <a-form-item
                                 :label="$t('user.shift_id')"
                                 name="shift_id"
@@ -418,6 +418,38 @@
                                         :allowClear="true"
                                         optionFilterProp="title"
                                         show-search
+                                    >
+                                        <a-select-option
+                                            v-for="shift in shifts"
+                                            :key="shift.xid"
+                                            :value="shift.xid"
+                                            :title="shift.name"
+                                        >
+                                            {{ shift.name }}
+                                        </a-select-option>
+                                    </a-select>
+                                    <ShiftAddButton @onAddSuccess="shiftAdded" />
+                                </span>
+                            </a-form-item>
+                        </a-col> -->
+
+
+                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                            <a-form-item
+                                :label="$t('user.shift_id')"
+                                name="shift_id"
+                                :help="rules.shift_id ? rules.shift_id.message : null"
+                                :validateStatus="rules.shift_id ? 'error' : null"
+                            >
+                                <span style="display: flex">
+                                    <a-select
+                                        v-model:value="formData.shift_id"
+                                        :placeholder="$t('common.select_default_text', [$t('user.shift_id')])"
+                                        :allowClear="true"
+                                        optionFilterProp="title"
+                                        show-search
+                                        mode="multiple"
+                                        style="flex: 1"
                                     >
                                         <a-select-option
                                             v-for="shift in shifts"
@@ -984,12 +1016,12 @@ export default defineComponent({
             }
         };
        const updateSalaryData = (updatedData) => {
-            console.log("Before update:", JSON.stringify(newData.value));
-            console.log("Updated data:", JSON.stringify(updatedData));
+            // console.log("Before update:", JSON.stringify(newData.value));
+            // console.log("Updated data:", JSON.stringify(updatedData));
 
             Object.assign(newData.value, updatedData);
 
-            console.log("After update:", JSON.stringify(newData.value));
+            // console.log("After update:", JSON.stringify(newData.value));
         };
 
 

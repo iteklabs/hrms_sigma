@@ -216,10 +216,10 @@
 </template>
 <script>
 import {
-LoadingOutlined,
-MinusSquareOutlined,
-PlusOutlined,
-SaveOutlined,
+    LoadingOutlined,
+    MinusSquareOutlined,
+    PlusOutlined,
+    SaveOutlined,
 } from "@ant-design/icons-vue";
 import { forEach } from "lodash-es";
 import { defineComponent, ref, watch } from "vue";
@@ -260,10 +260,10 @@ export default defineComponent({
             var clockOutTime = "";
             var time_in = formatShiftTime12Hours(newFormData.value.clock_in_time);
             var time_out = formatShiftTime12Hours(newFormData.value.clock_out_time);
-            if (newFormData.value.time.length > 0) {
+            // if (newFormData.value.time.length > 0) {
                 clockInTime = formatShiftTime24Hours(time_in);
                 clockOutTime = formatShiftTime24Hours(time_out);
-            }
+            // }
             
             let dataObject = {
                 ...newFormData.value,
@@ -271,6 +271,8 @@ export default defineComponent({
                 clock_out_time: time_out ? clockOutTime : "",
                 allowed_ip_address: ipAddressFilter(),
             };
+
+            console.log('dataObject',newFormData.value);
             addEditRequestAdmin({
                 url: props.url,
                 data: dataObject,
@@ -320,6 +322,7 @@ export default defineComponent({
             () => props.visible,
 
             (newVal, oldVal) => {
+                
                 if (props.addEditType == "edit") {
                     newFormData.value = {
                         ...props.formData,
@@ -345,7 +348,7 @@ export default defineComponent({
                         clock_in_time: "",
                         clock_out_time: "",
                     };
-
+                    console.log('data',newFormData.value);
                     formFields.value = [];
                 }
             }

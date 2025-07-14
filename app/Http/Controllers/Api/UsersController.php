@@ -31,6 +31,9 @@ class UsersController extends ApiBaseController
         $this->userType = "staff_members";
     }
 
+
+
+
     public function toGetEmployeeProfile()
     {
         $request = request();

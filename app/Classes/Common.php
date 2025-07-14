@@ -461,4 +461,16 @@ class Common
 
         return $convertedArray;
     }
+
+
+    public static function getHashArrayFromId($values)
+    {
+        $convertedArray = [];
+
+        foreach ($values as $value) {
+            $convertedArray[] = Common::getHashFromId($value);
+        }
+
+        return $convertedArray;
+    }
 }

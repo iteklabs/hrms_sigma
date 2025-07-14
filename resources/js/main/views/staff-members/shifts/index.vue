@@ -217,16 +217,15 @@
     </admin-page-table-content>
 </template>
 <script>
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons-vue";
 import { onMounted } from "vue";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons-vue";
 import { useI18n } from "vue-i18n";
-import fields from "./fields";
-import crud from "../../../../common/composable/crud";
 import common from "../../../../common/composable/common";
-import AddEdit from "./AddEdit.vue";
-import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
-import dayjs from "dayjs";
+import crud from "../../../../common/composable/crud";
 import hrmManagement from "../../../../common/composable/hrmManagement";
+import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
+import AddEdit from "./AddEdit.vue";
+import fields from "./fields";
 
 export default {
     components: {

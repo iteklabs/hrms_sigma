@@ -28,7 +28,7 @@ class User extends BaseModel implements AuthenticatableContract, JWTSubject
 
     protected $hidden = ['id', 'role_id', 'employee_status_id', 'password', 'remember_token', 'department_id', 'designation_id', 'shift_id', 'location_id', 'salary_group_id'];
 
-    protected $appends = ['xid', 'x_company_id', 'x_employee_status_id', 'x_role_id', 'x_salary_group_id', 'x_report_to', 'profile_image_url', 'x_department_id', 'x_designation_id', 'x_shift_id', 'x_location_id', 'duration'];
+    protected $appends = ['xid', 'x_company_id', 'x_employee_status_id', 'x_role_id', 'x_salary_group_id', 'x_report_to', 'profile_image_url', 'x_department_id', 'x_designation_id', 'x_shift_id', 'x_location_id', 'duration', 'x_shft_id_list'];
 
     protected $filterable = ['name', 'user_type', 'email', 'status', 'phone', 'shift_id'];
 
@@ -41,7 +41,9 @@ class User extends BaseModel implements AuthenticatableContract, JWTSubject
         'getXLocationIdAttribute' => 'location_id',
         'getXReportToAttribute' => 'report_to',
         'getXSalaryGroupIdAttribute' => 'salary_group_id',
-        'getXEmployeeStatusIdAttribute' => 'employee_status_id'
+        'getXEmployeeStatusIdAttribute' => 'employee_status_id',
+        'getXShftIdListAttribute' => 'shft_id_list',
+
     ];
 
     protected $casts = [
@@ -76,10 +78,21 @@ class User extends BaseModel implements AuthenticatableContract, JWTSubject
         'philhealth_no' => 'string',
         'pagibig_no' => 'string',
         'tin_no' => 'string',
-        'shft_id_list' => 'array'
+        'shft_id_list' => 'string'
     ];
 
     protected $permissions = ['salary_settings', 'leaves_view', 'assets_view', 'leave_types_view'];
+
+    public function getXShftIdListAttribute()
+    {
+        if ($this->shft_id_list) {
+            $shiftIdList = explode(',', $this->shft_id_list);
+            $arrIDdecode = Common::getHashArrayFromId($shiftIdList);
+            $joinEnc = implode(',', $arrIDdecode);
+            return $arrIDdecode;
+        }
+        return null;
+    }
 
     protected static function boot()
     {

@@ -433,7 +433,7 @@
                             </a-form-item>
                         </a-col> -->
 
-
+                        <!-- <h1>here, {{ formData }}</h1> -->
                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
                             <a-form-item
                                 :label="$t('user.shift_id')"
@@ -443,7 +443,7 @@
                             >
                                 <span style="display: flex">
                                     <a-select
-                                        v-model:value="formData.shift_id_list"
+                                        v-model:value="formData.shft_id_list"
                                         :placeholder="$t('common.select_default_text', [$t('user.shift_id')])"
                                         :allowClear="true"
                                         optionFilterProp="title"
@@ -983,12 +983,11 @@ export default defineComponent({
                 visibility: selectedVisibility.value,
                 employee_number: employeeId.value,
                 ...newData.value,
-                shift_id_list: JSON.stringify(props.formData.shift_id_list
-                    ? props.formData.shift_id_list.map((item) => item)
-                    : [])
+                shft_id_list: props.formData.shift_id_list
+                    ? props.formData.shift_id_list.join(",")
+                    : "",
             };
 
-            console.log("newFormData", newFormData);
             addEditRequestAdmin({
                 id: "add_edit_user_form",
                 url: props.url,

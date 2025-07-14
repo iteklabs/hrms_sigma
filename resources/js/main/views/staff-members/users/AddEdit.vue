@@ -983,8 +983,8 @@ export default defineComponent({
                 visibility: selectedVisibility.value,
                 employee_number: employeeId.value,
                 ...newData.value,
-                shft_id_list: props.formData.shift_id_list
-                    ? props.formData.shift_id_list.join(",")
+                shft_id_list: props.formData.shft_id_list
+                    ? props.formData.shft_id_list.join(",")
                     : "",
             };
 

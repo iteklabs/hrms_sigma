@@ -3,7 +3,7 @@ import { useI18n } from "vue-i18n";
 
 const fields = () => {
     const url =
-        "shifts?fields=id,xid,name,clock_in_time,clock_out_time,late_mark_after,early_clock_in_till,allow_clock_out_till,self_clocking,allowed_ip_address,early_clock_in_time";
+        "shifts?fields=id,xid,name,clock_in_time,clock_out_time,late_mark_after,early_clock_in_till,allow_clock_out_till,self_clocking,allowed_ip_address,early_clock_in_time,weekdays_day_off";
     const addEditUrl = "shifts";
     const { t } = useI18n();
     const hashableColumns = [];
@@ -16,6 +16,7 @@ const fields = () => {
         self_clocking: 1,
         allowed_ip_address: "",
         early_clock_in_time: "",
+        weekdays_day_off: "",
         allow_clock_out_till: "",
         time: [],
     };

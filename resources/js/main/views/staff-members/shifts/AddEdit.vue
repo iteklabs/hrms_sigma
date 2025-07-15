@@ -184,15 +184,14 @@
                     <MinusSquareOutlined @click="removeFormField(formField)" />
                 </a-col>
             </a-row>
-
             <a-row :gutter="16" style="margin-top: 10px">
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
                     <a-form-item :label="$t('shift.weekdays_dayt_off')" name="weekdays_day_off">
-                        <a-checkbox-group v-model:value="newFormData.weekdays">
-                            <a-checkbox v-for="day in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']"
-                                        :key="day"
-                                        :value="day">
-                                {{ $t('common.' + day) }}
+                        <a-checkbox-group v-model:value="newFormData.weekdays_day_off">
+                            <a-checkbox v-for="day in days"
+                                        :key="day.key"
+                                        :value="day.key">
+                                {{ $t('common.' + day.label) }}
                             </a-checkbox>
                         </a-checkbox-group>
                     </a-form-item>
@@ -285,9 +284,10 @@ export default defineComponent({
                 clock_in_time: time_in ? clockInTime : "",
                 clock_out_time: time_out ? clockOutTime : "",
                 allowed_ip_address: ipAddressFilter(),
+                weekdays_day_off: newFormData.value.weekdays_day_off.join(","),
             };
 
-            // console.log('dataObject',newFormData.value);
+            // console.log('dataObject',dataObject);
             addEditRequestAdmin({
                 url: props.url,
                 data: dataObject,
@@ -298,6 +298,17 @@ export default defineComponent({
                 },
             });
         };
+
+        const days = [
+            { key: 'M', label: 'monday' },
+            { key: 'T', label: 'tuesday' },
+            { key: 'W', label: 'wednesday' },
+            { key: 'TH', label: 'thursday' },
+            { key: 'F', label: 'friday' },
+            { key: 'S', label: 'saturday' },
+            { key: 'SU', label: 'sunday' }
+        ];
+
 
         const onClose = () => {
             rules.value = {};
@@ -381,7 +392,7 @@ export default defineComponent({
             removeFormField,
             formFields,
             newFormData,
-
+            days,
             drawerWidth: window.innerWidth <= 991 ? "90%" : "45%",
         };
     },

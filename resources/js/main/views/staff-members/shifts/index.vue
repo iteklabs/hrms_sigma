@@ -259,7 +259,7 @@ export default {
 
             crudVariables.tableUrl.value = {
                 url:
-                    "shifts?fields=id,xid,name,clock_in_time,clock_out_time,late_mark_after,allow_clock_out_till,self_clocking,allowed_ip_address,early_clock_in_time,employee_count",
+                    "shifts?fields=id,xid,name,clock_in_time,clock_out_time,late_mark_after,allow_clock_out_till,self_clocking,allowed_ip_address,early_clock_in_time,employee_count,weekdays_day_off",
             };
             crudVariables.table.filterableColumns = filterableColumns;
 

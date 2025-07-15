@@ -9,7 +9,7 @@ class Shift extends BaseModel
 {
     protected $table = 'shifts';
 
-    protected $default = ['xid', 'name', 'clock_in_time', 'clock_out_time', 'late_mark_after', 'early_clock_in_time', 'allow_clock_out_till', 'self_clocking', 'allowed_ip_address'];
+    protected $default = ['xid', 'name', 'clock_in_time', 'clock_out_time', 'late_mark_after', 'early_clock_in_time', 'allow_clock_out_till', 'self_clocking', 'allowed_ip_address', 'weekdays_day_off'];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
@@ -25,6 +25,7 @@ class Shift extends BaseModel
         'self_clocking' => 'integer',
         'early_clock_in_time' => 'integer',
         'allow_clock_out_till' => 'integer',
+        'weekdays_day_off' => 'string',
     ];
 
     protected static function boot()

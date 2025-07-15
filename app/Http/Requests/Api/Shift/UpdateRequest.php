@@ -28,6 +28,7 @@ class UpdateRequest extends FormRequest
             'clock_in_time' => 'required',
             'clock_out_time' => 'required',
             'self_clocking' => 'required',
+            'weekdays_day_off' => 'nullable|string',
         ];
 
         return $rules;

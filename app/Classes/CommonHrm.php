@@ -1359,7 +1359,7 @@ class CommonHrm
             $time_in = Carbon::parse($attendanceRecord->clock_in_date_time)->setTimezone('Asia/Manila');
             $time_out = Carbon::parse($attendanceRecord->clock_out_date_time)->setTimezone('Asia/Manila');
             // $arrshift = explode(',', $user_data->x_shft_id_list);
-            if($user_id == "12"){
+            // if($user_id == "12"){
                 if(!empty($user_data->x_shft_id_list)){
                     $bestShift = null;
                     $smallestDifference = null;
@@ -1433,7 +1433,7 @@ class CommonHrm
 
                     \Log::info("In: ". $actualClockIn . " <> " ."Late hours: " . $lateHours. " <> " . "Out: " . $actualClockOut . " <> " . "Undertime hours: " . $undertimeHours . " <> " . "Shift: " . $bestShift->name . " <> " . "Shift Start: " . $shiftStartTime . " <> " . "Shift End: " . $shiftEndTime);
 
-                }
+                // }
             }
         }
 

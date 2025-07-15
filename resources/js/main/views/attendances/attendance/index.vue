@@ -377,14 +377,14 @@ export default {
             // Swal.fire('Info!', dateFrom + ' <> ' + dateTo + ' <> ' + user_id, 'info')
             Swal.fire({
                 title: 'Processing...',
-                html: `Date From: <b>${dateFrom}</b><br>Date To: <b>${dateTo}</b><br>User ID: <b>${user_id || 'All Users'}</b>`,
+                html: `Date From: <b>${dateFrom}</b><br>Date To: <b>${dateTo}</b></b>`,
                 allowOutsideClick: false,
                 didOpen: () => {
                     Swal.showLoading();
                 }
             });
 
-
+            crudVariables.table.loading = true;
             axiosAdmin
                 .post("attendances/reprocess", {
                     date_from: dateFrom,
@@ -393,16 +393,16 @@ export default {
                     status: status,
                 })
                 .then((response) => {
-                    // crudVariables.table.fetch();
-                    // crudVariables.showSuccess(response.data.message);
+                    crudVariables.table.fetch();
+                    crudVariables.showSuccess(response.data.message);
                 })
                 .catch((error) => {
-                    // crudVariables.showError(error);
+                    crudVariables.showError(error);
                 })
                 .finally(() => {
                     reprocessLoading.value = false;  // Stop loading
+                    crudVariables.table.loading = false;  // Stop table loading
                     Swal.close();  // Close the Swal loading
-
                     Swal.fire('Attendance', 'Done!', 'success');
                 });
         };

@@ -402,6 +402,8 @@ export default {
                 .finally(() => {
                     reprocessLoading.value = false;  // Stop loading
                     crudVariables.table.loading = false;  // Stop table loading
+                    setUrlData();
+                    // crudVariables.table.fetch();
                     Swal.close();  // Close the Swal loading
                     Swal.fire('Attendance', 'Done!', 'success');
                 });

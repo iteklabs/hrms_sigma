@@ -143,6 +143,33 @@ class AttendanceController extends ApiBaseController
         ]);
     }
 
+    public function reprocessAttendance()
+    {
+        try {
+            $request = request();
+            $user = user();
+            $validated = $request->validate([
+                'date_from' => 'required|date_format:Y-m-d',
+                'date_to' => 'required|date_format:Y-m-d',
+                'user_id' => 'nullable',
+                'status' => 'nullable',
+            ]);
+            
+        $validated['user_id'] = !empty($validated['user_id']) ? $this->getIdFromHash($validated['user_id']) : null;
+        // $query = Attendance::with()
+            // ->where('user_id', $validated['user_id'])
+            // ->whereBetween('date', [$validated['date_from'], $validated['date_to']]);
+        echo "<pre>";
+        $result = CommonHrm::reprocessAttendance($validated['date_from'], $validated['date_to'], $validated['user_id'], $validated['status']);
+        
+        // print_r($validated);
+        exit;
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+        
+    }
+
     public function attendanceSummaryByMonth()
     {
         $result = CommonHrm::attendanceDetailByMonth();

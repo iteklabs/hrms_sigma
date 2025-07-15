@@ -1,14 +1,17 @@
-import "./common/plugins";
+import "ant-design-vue/dist/reset.css";
+import "../less/custom.less";
 import "../less/pos_invoice.css";
 import "../less/tailwind.css";
-import "../less/custom.less";
-import "ant-design-vue/dist/reset.css";
+import "./common/plugins";
 
 import { createApp, defineAsyncComponent } from "vue";
 import PerfectScrollbar from "vue3-perfect-scrollbar";
-import App from "./main/views/App.vue";
+import { loadLocaleMessages, setupI18n } from "./common/i18n";
 import routes from "./main/router";
-import { setupI18n, loadLocaleMessages } from "./common/i18n";
+import App from "./main/views/App.vue";
+
+import 'sweetalert2/dist/sweetalert2.min.css';
+import VueSweetalert2 from 'vue-sweetalert2';
 
 import "vue3-perfect-scrollbar/dist/vue3-perfect-scrollbar.css";
 
@@ -29,6 +32,7 @@ import { useAuthStore } from "./main/store/authStore";
 async function bootstrap() {
 
     const app = createApp(App);
+    app.use(VueSweetalert2);
     app.use(createPinia());
     const authStore = useAuthStore();
 

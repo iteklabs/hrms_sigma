@@ -1269,6 +1269,10 @@ class CommonHrm
     }
 
 
+
+
+
+
     /**
      * Get the number of attendance hours by holiday type for a given attendance period.
      * Handles night shift crossing into a holiday.
@@ -1321,6 +1325,47 @@ class CommonHrm
         }
 
         return $result;
+    }
+
+
+
+
+    public static function reprocessAttendance($date_from, $date_to, $user_id = null, $status){
+        $company = company();
+        $user = StaffMember::find($user_id);
+
+        // if (!$user) {
+        //     throw new ApiException("User not found");
+        // }
+
+        $startDate = Carbon::createFromFormat('Y-m-d', $date_from, $company->timezone)->startOfDay();
+        $endDate = Carbon::createFromFormat('Y-m-d', $date_to, $company->timezone)->endOfDay();
+
+        // Fetch attendance records for the specified date range and user
+        $attendances = Attendance::when($user_id, function ($query, $user_id) {
+                return $query->where('user_id', $user_id);
+            })
+            ->whereBetween('date', [$startDate, $endDate])
+            ->get();
+
+            
+        foreach ($attendances->toArray() as $attendance) {
+            $attendance_id = Common::getIdFromHash($attendance['xid']);
+            $user_id = Common::getIdFromHash($attendance['x_user_id']);
+            $attendanceRecord = Attendance::find($attendance_id);
+
+            if($user_id == "12"){
+                \Log::info("<pre>".$attendanceRecord);
+            }
+        }
+
+        print_r($attendances->toArray());
+        exit;
+
+        // return [
+        //     'message' => 'Attendance records updated successfully',
+        //     'count' => count($attendances)
+        // ];
     }
 
 }

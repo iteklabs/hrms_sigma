@@ -34,14 +34,15 @@
                             <PlusOutlined />
                             {{ $t("attendance.add") }}
                         </a-button>
-
-                       
                     </template>
 
-                     <a-button type="primary" @click="addItem">
-                            <CheckCircleOutlined />
-                            {{ $t("attendance.process") }}
-                        </a-button>
+                    <a-button type="primary"
+                    :loading="reprocessLoading"
+                    @click="reprocessAttendance"
+                    >
+                        <CheckCircleOutlined />
+                        {{ $t("attendance.process") }}
+                    </a-button>
 
                         
                     <a-button
@@ -237,6 +238,7 @@
 </template>
 <script>
 import { CheckCircleOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons-vue";
+import Swal from 'sweetalert2';
 import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import UserInfo from "../../../../common/components/user/UserInfo.vue";
@@ -248,6 +250,7 @@ import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
 import AddEdit from "./AddEdit.vue";
 import AttendanceStatus from "./AttendanceStatus.vue";
 import fields from "./fields";
+
 
 export default {
     components: {
@@ -289,6 +292,8 @@ export default {
         const { formatMinutes } = hrmManagement();
         const userOpen = ref(false);
         const userId = ref(undefined);
+        const reprocessLoading = ref(false);
+
 
         const openUserView = (item) => {
             userId.value = item.x_user_id;
@@ -354,10 +359,58 @@ export default {
             }
         };
 
+        const reprocessAttendance = () => {
+            const { date, user_id, status } = extraFilters.value;
+            if(date === undefined || date === null) {
+                Swal.fire({
+                    title: "Please select a date",
+                    icon: "warning",
+                });
+                return;
+            }
+            // console.log(table.loading);
+            const dateFrom = date[0];
+            const dateTo = date[1];
+
+            reprocessLoading.value = true;
+            // console.log(dateFrom)
+            // Swal.fire('Info!', dateFrom + ' <> ' + dateTo + ' <> ' + user_id, 'info')
+            Swal.fire({
+                title: 'Processing...',
+                html: `Date From: <b>${dateFrom}</b><br>Date To: <b>${dateTo}</b><br>User ID: <b>${user_id || 'All Users'}</b>`,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+
+            axiosAdmin
+                .post("attendances/reprocess", {
+                    date_from: dateFrom,
+                    date_to: dateTo,
+                    user_id: user_id,
+                    status: status,
+                })
+                .then((response) => {
+                    // crudVariables.table.fetch();
+                    // crudVariables.showSuccess(response.data.message);
+                })
+                .catch((error) => {
+                    // crudVariables.showError(error);
+                })
+                .finally(() => {
+                    reprocessLoading.value = false;  // Stop loading
+                    Swal.close();  // Close the Swal loading
+                    Swal.fire('Attendance', 'Done!', 'success');
+                });
+        };
+
         return {
             extraFilters,
             users,
             columns,
+            reprocessLoading,
             ...crudVariables,
             filterableColumns,
             permsArray,
@@ -371,6 +424,7 @@ export default {
             userOpen,
             userId,
             openUserView,
+            reprocessAttendance,
             closeUser,
         };
     },

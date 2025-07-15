@@ -31,14 +31,14 @@
 </template>
 
 <script>
-import { watch, onMounted, computed } from "vue";
 import { theme } from "ant-design-vue";
-import { ThemeProvider } from "vue3-styled-components";
-import { themeVars } from "../config/theme/themeVariables";
+import { computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { ThemeProvider } from "vue3-styled-components";
 import common from "../../common/composable/common";
-import LoadingApp from "./LoadingApp.vue";
+import { themeVars } from "../config/theme/themeVariables";
 import { useAuthStore } from "../store/authStore";
+import LoadingApp from "./LoadingApp.vue";
 
 export default {
     name: "App",

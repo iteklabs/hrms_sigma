@@ -71,6 +71,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::get('attendances/summary-month', ['as' => 'api.attendances.summary-month', 'uses' => 'AttendanceController@attendanceSummaryByMonth']);
         ApiRoute::get('attendances/summary', ['as' => 'api.attendances.summary', 'uses' => 'AttendanceController@attendanceSummary']);
         ApiRoute::resource('attendances', 'AttendanceController', $options);
+        ApiRoute::post('attendances/reprocess', ['as' => 'api.attendances.reprocess', 'uses' => 'AttendanceController@reprocessAttendance']);
 
         ApiRoute::post('add-quick-holiday', ['as' => 'api.add-quick-holiday', 'uses' => 'HolidayController@addQuickHoliday']);
         ApiRoute::post('get-holiday-year-data', ['as' => 'api.get-holiday-year-data', 'uses' => 'HolidayController@getHolidayDataByYear']);

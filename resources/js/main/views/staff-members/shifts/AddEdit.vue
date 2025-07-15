@@ -184,6 +184,21 @@
                     <MinusSquareOutlined @click="removeFormField(formField)" />
                 </a-col>
             </a-row>
+
+            <a-row :gutter="16" style="margin-top: 10px">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item :label="$t('shift.weekdays_dayt_off')" name="weekdays_day_off">
+                        <a-checkbox-group v-model:value="newFormData.weekdays">
+                            <a-checkbox v-for="day in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']"
+                                        :key="day"
+                                        :value="day">
+                                {{ $t('common.' + day) }}
+                            </a-checkbox>
+                        </a-checkbox-group>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+
             <a-col :xs="24" :sm="24" :md="24" :lg="24">
                 <a-form-item>
                     <a-button type="dashed" block @click="addFormField">

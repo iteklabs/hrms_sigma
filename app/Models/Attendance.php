@@ -34,6 +34,8 @@ class Attendance extends BaseModel
         'rest_day_special_holiday',
         'rest_day_special_holiday_ot',
         'night_differential',
+        'no_of_hrs_undertime',
+        'no_of_hrs_late',
         // 'date_out'
     ];
 

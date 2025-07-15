@@ -19,8 +19,9 @@ use App\Models\Generate;
 use App\Models\Leave;
 use App\Models\Payroll;
 use App\Models\PrePayment;
+use App\Models\Shift;
 use App\Models\Company;
-
+use App\Models\Attendance_detl;
 class CommonHrm
 {
     // public static function getMinutesFromTimes($startTime, $endTime)
@@ -226,8 +227,7 @@ class CommonHrm
         return $isLate;
     }
 
-    public static function
-    getUserClockingTime($userId)
+    public static function getUserClockingTime($userId)
     {
         $company = company();
 
@@ -1352,14 +1352,92 @@ class CommonHrm
         foreach ($attendances->toArray() as $attendance) {
             $attendance_id = Common::getIdFromHash($attendance['xid']);
             $user_id = Common::getIdFromHash($attendance['x_user_id']);
+            $user_data = StaffMember::find($user_id);
             $attendanceRecord = Attendance::find($attendance_id);
 
+
+            $time_in = Carbon::parse($attendanceRecord->clock_in_date_time)->setTimezone('Asia/Manila');
+            $time_out = Carbon::parse($attendanceRecord->clock_out_date_time)->setTimezone('Asia/Manila');
+            // $arrshift = explode(',', $user_data->x_shft_id_list);
             if($user_id == "12"){
-                \Log::info("<pre>".$attendanceRecord);
+                if(!empty($user_data->x_shft_id_list)){
+                    $bestShift = null;
+                    $smallestDifference = null;
+                    foreach ($user_data->x_shft_id_list as $key => $value) {
+                        $shiftid = Common::getIdFromHash($value);
+                        $shift = Shift::find($shiftid);
+
+                        $shiftHoursBreak = 60; // Default break time in minutes
+                        $shiftStartTime = Carbon::parse($time_in->format('Y-m-d') . ' ' . $shift->clock_in_time);
+                        $shiftEndTime = Carbon::parse($time_in->format('Y-m-d') . ' ' . $shift->clock_out_time);
+
+                        // Handle overnight shift
+                        if ($shiftEndTime->lessThan($shiftStartTime)) {
+                            $shiftEndTime->addDay();
+                        }
+
+                        $diffInMinutes = abs($time_in->diffInMinutes($shiftStartTime));
+
+                        if ($smallestDifference === null || $diffInMinutes < $smallestDifference) {
+                            $smallestDifference = $diffInMinutes;
+                            $bestShift = $shift;
+                        }
+
+                        // \Log::info($shiftStartTime  . " - " . $shiftEndTime . " - " . $time_in . " - " . $time_out );
+                    }
+                    $shiftStartTime = Carbon::parse($time_in->format('Y-m-d') . ' ' . $bestShift->clock_in_time);
+                    $shiftEndTime = Carbon::parse($time_in->format('Y-m-d') . ' ' . $bestShift->clock_out_time);
+
+                    if ($shiftEndTime->lessThan($shiftStartTime)) {
+                        $shiftEndTime->addDay();
+                    }
+
+                    $actualClockOut = $time_out;
+
+                    if ($actualClockOut->lessThan($shiftEndTime)) {
+                        $undertimeSeconds = $shiftEndTime->timestamp - $actualClockOut->timestamp;
+                        $undertimeHours = round($undertimeSeconds / 3600, 4);
+                    } else {
+                        $undertimeHours = 0;
+                    }
+                    
+                    // Handle overnight shifts
+                    if (Carbon::parse($bestShift->clock_out_time)->lessThan(Carbon::parse($bestShift->clock_in_time))) {
+                        $shiftStartTime = $shiftStartTime; // remains same, start time doesn't shift to next day
+                    }
+                    $actualClockIn = $time_in;
+                    $graceShiftStartTime = $shiftStartTime->copy()->addMinutes(15);
+
+                    if ($actualClockIn->greaterThan($graceShiftStartTime)) {
+                        $lateSeconds = $actualClockIn->timestamp - $graceShiftStartTime->timestamp;
+                        // $lateHours = ($lateSeconds > 0) ? round($lateSeconds / 3600, 4) : 0;
+                        $lateHours = round($lateSeconds / 3600, 4);
+
+                    } else {
+                        $lateHours = 0;
+                    }
+
+
+
+                    
+
+                    // Update attendance record
+                    $attendanceRecord->is_late = $lateHours > 0 ? 1 : 0;
+                    $attendanceRecord->no_of_hrs_late = $lateHours;
+                    $attendanceRecord->no_of_hrs_undertime = $undertimeHours;
+                    // $attendanceRecord->shift_id = $bestShift->id;
+                    // $attendanceRecord->shift_start_time = $shiftStartTime;
+                    // $attendanceRecord->shift_end_time = $shiftEndTime;
+                    $attendanceRecord->save();
+
+
+                    \Log::info("In: ". $actualClockIn . " <> " ."Late hours: " . $lateHours. " <> " . "Out: " . $actualClockOut . " <> " . "Undertime hours: " . $undertimeHours . " <> " . "Shift: " . $bestShift->name . " <> " . "Shift Start: " . $shiftStartTime . " <> " . "Shift End: " . $shiftEndTime);
+
+                }
             }
         }
 
-        print_r($attendances->toArray());
+        // print_r($attendances->toArray());
         exit;
 
         // return [

@@ -402,6 +402,7 @@ export default {
                 .finally(() => {
                     reprocessLoading.value = false;  // Stop loading
                     Swal.close();  // Close the Swal loading
+
                     Swal.fire('Attendance', 'Done!', 'success');
                 });
         };

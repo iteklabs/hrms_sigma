@@ -159,11 +159,11 @@ class AttendanceController extends ApiBaseController
         // $query = Attendance::with()
             // ->where('user_id', $validated['user_id'])
             // ->whereBetween('date', [$validated['date_from'], $validated['date_to']]);
-        echo "<pre>";
+            
         $result = CommonHrm::reprocessAttendance($validated['date_from'], $validated['date_to'], $validated['user_id'], $validated['status']);
-        
+        return ApiResponse::make('Attendance reprocessed successfully', $result);
         // print_r($validated);
-        exit;
+        // exit;
         } catch (\Throwable $th) {
             throw $th;
         }

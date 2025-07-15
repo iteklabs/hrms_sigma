@@ -1438,12 +1438,12 @@ class CommonHrm
         }
 
         // print_r($attendances->toArray());
-        exit;
+        // exit;
 
-        // return [
-        //     'message' => 'Attendance records updated successfully',
-        //     'count' => count($attendances)
-        // ];
+        return [
+            'message' => 'Attendance records updated successfully',
+            'count' => count($attendances)
+        ];
     }
 
 }

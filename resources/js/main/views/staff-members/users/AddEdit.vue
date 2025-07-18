@@ -1397,7 +1397,7 @@ export default defineComponent({
                     resetSchedulePlotModal();
                     loadOverrideShift();
                     // Emit an event or call a method to refresh the schedule plot data
-                    emit("setUrlData");
+                    // emit("setUrlData");
                 }).catch(error => {
                     console.error("Error updating schedule plot:", error);
                 });
@@ -1430,6 +1430,8 @@ export default defineComponent({
                     Swal.fire('Other Schedule', 'Other Schedule added!', 'success');
                     showSchedulePlotModal.value = false;
                     resetSchedulePlotModal();
+                    loadOverrideShift();
+
                 }).catch(error => {
                     console.error("Error adding schedule plot:", error);
                 });

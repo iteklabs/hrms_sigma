@@ -925,6 +925,7 @@
                                 <a-button
                                     type="primary"
                                     size="small"
+                                    ghost
                                     @click="editSchedulePlot(record)"
                                 >
                                     {{ $t('common.edit') }}
@@ -933,9 +934,12 @@
                                     title="Are you sure you want to delete this schedule plot?"
                                     @confirm="deleteSchedulePlot(record.xid)"
                                 >
-                                    <a-button type="danger" size="small">
+                                    <a-button type="primary" danger ghost size="small">
                                         {{ $t('common.delete') }}
+                                    <template #icon><DeleteOutlined /></template>
+
                                     </a-button>
+                                    
                                 </a-popconfirm>
                             </a-space>
                         </template>
@@ -1028,7 +1032,7 @@
 </template>
 
 <script>
-import { LoadingOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons-vue";
+import { DeleteOutlined, LoadingOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons-vue";
 import { forEach } from "lodash-es";
 import Swal from 'sweetalert2';
 import { computed, defineComponent, nextTick, onMounted, ref, watch } from "vue";
@@ -1075,6 +1079,7 @@ export default defineComponent({
         FormItemHeading,
         BasicSalary,
         EmployeeWorkStatusAddButton,
+        DeleteOutlined
     },
     setup(props, { emit }) {
         const { t } = useI18n();
@@ -1334,11 +1339,23 @@ export default defineComponent({
                 cancelButtonText: t("common.no_cancel"),
             }).then((result) => {
                 if (result.isConfirmed) {
+
+                    Swal.fire({
+                        title: 'Processing...',
+                        // html: `Date From: <b>${dateFrom}</b><br>Date To: <b>${dateTo}</b></b>`,
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+
                     axiosAdmin
                         .delete(`/schedule_plot/delete_override/${xid}`)
                         .then((response) => {
+                            Swal.close();
                             Swal.fire(
-                                t("common.deleted"),
+                                "Delted!",
                                 response.message,
                                 "success"
                             );

@@ -250,4 +250,11 @@ class User extends BaseModel implements AuthenticatableContract, JWTSubject
     {
         return $this->hasOne(BasicSalaryDetails::class, 'id', 'user_id');
     }
+
+    public function OverideShift()
+    {
+        return $this->hasMany(OverideShift::class, 'user_id', 'id');
+    }
+
+
 }

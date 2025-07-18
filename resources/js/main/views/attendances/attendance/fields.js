@@ -46,14 +46,14 @@ const fields = () => {
             title: t("attendance.clock_out_date_time"),
             dataIndex: "clock_out_date_time",
         },
-        {
-            title: t("attendance.clock_in_ip_address"),
-            dataIndex: "clock_in_ip_address",
-        },
-        {
-            title: t("attendance.clock_out_ip_address"),
-            dataIndex: "clock_out_ip_address",
-        },
+        // {
+        //     title: t("attendance.clock_in_ip_address"),
+        //     dataIndex: "clock_in_ip_address",
+        // },
+        // {
+        //     title: t("attendance.clock_out_ip_address"),
+        //     dataIndex: "clock_out_ip_address",
+        // },
         {
             title: t("attendance.total_duration"),
             dataIndex: "total_duration",

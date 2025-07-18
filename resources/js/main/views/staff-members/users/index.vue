@@ -391,6 +391,8 @@ export default {
             );
         });
 
+        
+
         const addItems = () => {
             detailsVisibles.value = true;
         };

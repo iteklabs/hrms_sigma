@@ -218,16 +218,16 @@ trait UserTraits
             $user->role_id = $user->role_id;
         }
 
-        if ($request->has('shft_id_list') && $request->shft_id_list != '') {
-            $shiftIdList = explode(',', $user->shft_id_list);
-            $arrIDdecode = $this->getIdArrayFromHash($shiftIdList);
-            $user->shft_id_list = implode(',', $arrIDdecode);
-            // print_r($arrIDdecode);
+        // if ($request->has('shft_id_list') && $request->shft_id_list != '') {
+        //     $shiftIdList = explode(',', $user->shft_id_list);
+        //     $arrIDdecode = $this->getIdArrayFromHash($shiftIdList);
+        //     $user->shft_id_list = implode(',', $arrIDdecode);
+        //     // print_r($arrIDdecode);
             
-            // $user->shift_id_list = is_array($request->shft_id_list) ? json_encode($request->shft_id_list) : $request->shft_id_list;
-        } else {
-            $user->shift_id_list = null;
-        }
+        //     // $user->shift_id_list = is_array($request->shft_id_list) ? json_encode($request->shft_id_list) : $request->shft_id_list;
+        // } else {
+        //     $user->shift_id_list = null;
+        // }
 // exit;
         if ($request->has('annual_ctc') && $request->annual_ctc != '') {
             if ($user->user_type == 'staff_members' && $loggedUser->ability('admin', 'salary_settings')) {

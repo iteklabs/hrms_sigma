@@ -366,40 +366,7 @@
                 </a-tab-pane>
                 <a-tab-pane key="company" :tab="$t('user.company_relation')" force-render>
                     <a-row :gutter="16">
-                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
-                            <a-form-item
-                                :label="$t('user.location_id')"
-                                name="location_id"
-                                :help="
-                                    rules.location_id ? rules.location_id.message : null
-                                "
-                                :validateStatus="rules.location_id ? 'error' : null"
-                            >
-                                <span style="display: flex">
-                                    <a-select
-                                        v-model:value="formData.location_id"
-                                        :placeholder="
-                                            $t('common.select_default_text', [
-                                                $t('user.location_id'),
-                                            ])
-                                        "
-                                        :allowClear="true"
-                                        optionFilterProp="title"
-                                        show-search
-                                    >
-                                        <a-select-option
-                                            v-for="location in locations"
-                                            :key="location.xid"
-                                            :value="location.xid"
-                                            :title="location.name"
-                                        >
-                                            {{ location.name }}
-                                        </a-select-option>
-                                    </a-select>
-                                    <LocationAddButton @onAddSuccess="locationAdded" />
-                                </span>
-                            </a-form-item>
-                        </a-col>
+                        
                         <!-- <a-col :xs="24" :sm="24" :md="12" :lg="12">
                             <a-form-item
                                 :label="$t('user.shift_id')"
@@ -434,7 +401,7 @@
                         </a-col> -->
 
                         <!-- <h1>here, {{ formData }}</h1> -->
-                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                        <!-- <a-col :xs="24" :sm="24" :md="12" :lg="12">
                             <a-form-item
                                 :label="$t('user.shift_id')"
                                 name="shift_id"
@@ -463,7 +430,7 @@
                                     <ShiftAddButton @onAddSuccess="shiftAdded" />
                                 </span>
                             </a-form-item>
-                        </a-col>
+                        </a-col> -->
                     </a-row>
                     <a-row :gutter="16">
                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
@@ -845,6 +812,205 @@
                         @updateSalaryData="updateSalaryData"
                     />
                 </a-tab-pane>
+                <a-tab-pane
+                    key="schedule_plot"
+                    :tab="$t('user.schedule_plot')"
+                    v-if="
+                        permsArray.includes('schedule_plot') ||
+                        permsArray.includes('admin')
+                    "
+                    force-render
+                >
+
+
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-form-item
+                        :label="$t('user.main_shift_id')"
+                        name="shift_id"
+                        :help="rules.shift_id ? rules.shift_id.message : null"
+                        :validateStatus="rules.shift_id ? 'error' : null"
+                    >
+                        <span style="display: flex">
+                            <a-select
+                                v-model:value="schedulePlotModalData.shift_id"
+                                :placeholder="
+                                    $t('common.select_default_text', [
+                                        $t('user.shift_id'),
+                                    ])
+                                "
+                                :allowClear="true"
+                                optionFilterProp="title"
+                                show-search
+                            >
+                                <a-select-option
+                                    v-for="shift in shifts"
+                                    :key="shift.xid"
+                                    :value="shift.xid"
+                                    :title="shift.name"
+                                >
+                                    {{ shift.name }}
+                                </a-select-option>
+                            </a-select>
+                            <ShiftAddButton @onAddSuccess="shiftAdded" />
+                        </span>
+                    </a-form-item>
+                </a-col>
+
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                            <a-form-item
+                                :label="$t('user.location_id')"
+                                name="location_id"
+                                :help="
+                                    rules.location_id ? rules.location_id.message : null
+                                "
+                                :validateStatus="rules.location_id ? 'error' : null"
+                            >
+                                <span style="display: flex">
+                                    <a-select
+                                        v-model:value="formData.location_id"
+                                        :placeholder="
+                                            $t('common.select_default_text', [
+                                                $t('user.location_id'),
+                                            ])
+                                        "
+                                        :allowClear="true"
+                                        optionFilterProp="title"
+                                        show-search
+                                    >
+                                        <a-select-option
+                                            v-for="location in locations"
+                                            :key="location.xid"
+                                            :value="location.xid"
+                                            :title="location.name"
+                                        >
+                                            {{ location.name }}
+                                        </a-select-option>
+                                    </a-select>
+                                    <LocationAddButton @onAddSuccess="locationAdded" />
+                                </span>
+                            </a-form-item>
+                        </a-col>
+
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <!-- {{ formData.overide_shift }} -->
+                    <a-table
+                        :columns="schedulePlotColumns"
+                        :data-source="formData.overide_shift ? formData.overide_shift : []"
+                        :pagination="false"
+                        bordered
+                    >
+                    <template #bodyCell="{ column, record }">
+                        <!-- {{ column.dataIndex }} -->
+                        <template v-if="column.dataIndex === 'date'">
+                            {{ dayjs(record.date).format('YYYY-MM-DD') }}
+                        </template>
+
+                        <template v-if="column.dataIndex === 'schedule_type'">
+                            {{ record.schedule_type === 'RVR' ? 'Reliever' : 'Overide Schedule' }}
+                            <!-- {{ record.date }} -->
+                        </template>
+
+                        <template v-if="column.dataIndex === 'time_in'">
+                            {{ record.time_in }}
+                        </template>
+                        <template v-if="column.dataIndex === 'time_out'">
+                            {{ record.time_out }}
+                        </template>
+                        <template v-if="column.dataIndex === 'location_id'">
+                            {{ record.schedule_location.name }}
+                        </template>
+
+                        <template v-if="column.dataIndex === 'actions'">
+                            <a-space>
+                                <a-button
+                                    type="primary"
+                                    size="small"
+                                    @click="editSchedulePlot(record)"
+                                >
+                                    {{ $t('common.edit') }}
+                                </a-button>
+                                <a-popconfirm
+                                    title="Are you sure you want to delete this schedule plot?"
+                                    @confirm="deleteSchedulePlot(record.xid)"
+                                >
+                                    <a-button type="danger" size="small">
+                                        {{ $t('common.delete') }}
+                                    </a-button>
+                                </a-popconfirm>
+                            </a-space>
+                        </template>
+
+                    </template>
+                        <template #footer>
+                            <a-button type="dashed" block @click="showSchedulePlotModal = true">
+                                {{ $t('common.add_row') }}
+                            </a-button>
+                        </template>
+                    </a-table>
+
+                    <a-modal
+                        v-model:open="showSchedulePlotModal"
+                        :title="schedulePlotModalTitle"
+                        @ok="handleAddSchedulePlot"
+                        @cancel="resetSchedulePlotModal"
+                        :destroyOnClose="true"
+                    >
+                    <!-- <pre>{{ schedulePlotModalData }}</pre> -->
+                        <a-form layout="vertical">
+                            <a-form-item :label="$t('user.date')" required>
+                                <a-date-picker
+                                    v-model:value="schedulePlotModalData.date"
+                                    :format="appSetting.date_format"
+                                    valueFormat="YYYY-MM-DD"
+                                    style="width: 100%"
+                                />
+                            </a-form-item>
+                            <a-form-item :label="$t('user.schedule_type')" required>
+                                <a-radio-group v-model:value="schedulePlotModalData.schedule_type">
+                                    <a-radio :value="'RVR'">{{ $t('user.is_reliever') }}</a-radio>
+                                    <a-radio :value="'OVD'">{{ $t('user.override_schedule') }}</a-radio>
+                                </a-radio-group>
+                            </a-form-item>
+                            <a-form-item :label="$t('user.time_in')" required>
+                                <a-time-picker
+                                    v-model:value="schedulePlotModalData.time_in"
+                                    format="HH:mm"
+                                    valueFormat="HH:mm"
+                                    style="width: 100%"
+                                />
+                            </a-form-item>
+                            <a-form-item :label="$t('user.time_out')" required>
+                                <a-time-picker
+                                    v-model:value="schedulePlotModalData.time_out"
+                                    format="HH:mm"
+                                    valueFormat="HH:mm"
+                                    style="width: 100%"
+                                />
+                            </a-form-item>
+
+                            <a-form-item :label="$t('user.location_id')" required>
+                                <a-select
+                                    v-model:value="schedulePlotModalData.schedule_location_id"
+                                    :placeholder="$t('common.select_default_text', [$t('user.location_id')])"
+                                    :allowClear="true"
+                                    optionFilterProp="title"
+                                    show-search
+                                    style="width: 100%"
+                                >
+                                    <a-select-option
+                                        v-for="location in locations"
+                                        :key="location.xid"
+                                        :value="location.xid"
+                                        :title="location.name"
+                                    >
+                                        {{ location.name }}
+                                    </a-select-option>
+                                </a-select>
+                            </a-form-item>
+                        </a-form>
+                    </a-modal>
+                </a-col>
+                </a-tab-pane>
             </a-tabs>
         </a-form>
         <template #footer>
@@ -864,7 +1030,9 @@
 <script>
 import { LoadingOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons-vue";
 import { forEach } from "lodash-es";
-import { defineComponent, nextTick, onMounted, ref, watch } from "vue";
+import Swal from 'sweetalert2';
+import { computed, defineComponent, nextTick, onMounted, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import FormItemHeading from "../../../../common/components/common/typography/FormItemHeading.vue";
 import apiAdmin from "../../../../common/composable/apiAdmin";
 import common from "../../../../common/composable/common";
@@ -875,6 +1043,10 @@ import RoleAddButton from "../../settings/roles/AddButton.vue";
 import DepartmentAddButton from "../departments/AddButton.vue";
 import DesignationAddButton from "../designations/AddButton.vue";
 import ShiftAddButton from "../shifts/AddButton.vue";
+
+// import dayjs from "dayjs";
+
+
 
 import { useAuthStore } from "../../../../main/store/authStore";
 import EmployeeWorkStatusAddButton from "../../settings/employee-work-status/AddButton.vue";
@@ -905,6 +1077,7 @@ export default defineComponent({
         EmployeeWorkStatusAddButton,
     },
     setup(props, { emit }) {
+        const { t } = useI18n();
         const { permsArray, user, appSetting, dayjs } = common();
         const { addEditRequestAdmin, loading, rules, addEditActiveTab } = apiAdmin(
             "basic"
@@ -934,6 +1107,50 @@ export default defineComponent({
         const basicSalaryRef = ref(null);
         const employeeWorkStatusUrl = "employee-work-status?limit=10000";
         const employeeWorkStatus = ref([]);
+        const showSchedulePlotModal = ref(false);
+        const schedulePlotData = ref([]);
+        const isEditMode = ref(false);
+        const localOverrideShift = ref([]);
+
+        const schedulePlotColumns = [
+                {
+                    title: 'Date',
+                    dataIndex: 'date',
+                    key: 'date'
+                },
+                {
+                    title: 'Schedule Type',
+                    dataIndex: 'schedule_type',
+                    key: 'schedule_type'
+                },
+                {
+                    title: 'Time In',
+                    dataIndex: 'time_in',
+                    key: 'time_in'
+                },
+                {
+                    title: 'Time Out',
+                    dataIndex: 'time_out',
+                    key: 'time_out'
+                },
+                {
+                    title: 'Location',   // New Column
+                    dataIndex: 'location_id',
+                    key: 'location_id'
+                },
+                {
+                    title: 'Actions',
+                    dataIndex: 'actions',
+                    key: 'actions',
+                    scopedSlots: { customRender: 'actions' }
+                }
+            ];
+
+
+        
+
+            
+
 
         onMounted(() => {
             const rolesPromise = axiosAdmin.get(roleUrl);
@@ -972,8 +1189,20 @@ export default defineComponent({
                 appSetting.value.employee_id_prefix +
                 "-" +
                 appSetting.value.employee_id_start;
+
         });
 
+        const schedulePlotModalData = ref({
+            user_id: props.data.xid,
+            shift_id: props.formData.shift_id ? props.formData.shift_id : null,
+            date: null,
+            time_in: null,
+            time_out: null,
+            schedule_type: null,
+            schedule_location_id: null,
+            xid: null // Reset xid for new entries
+        });
+        // console.log(props.formData.shift_id)
         const onSubmit = () => {
             var newFormData = {
                 ...props.formData,
@@ -983,9 +1212,9 @@ export default defineComponent({
                 visibility: selectedVisibility.value,
                 employee_number: employeeId.value,
                 ...newData.value,
-                shft_id_list: props.formData.shft_id_list
-                    ? props.formData.shft_id_list.join(",")
-                    : "",
+                // shft_id: props.formData.shft_id
+                //     ? props.formData.shft_id_list.join(",")
+                //     : "",
             };
 
             addEditRequestAdmin({
@@ -1079,6 +1308,134 @@ export default defineComponent({
             });
         };
 
+        const loadOverrideShift = () => {
+            axiosAdmin.get(`/schedule_plot/list_override?user_id=${props.data.xid}`).then(response => {
+
+                // forEach(response.data, (item) => {
+                //     item.date = dayjs(item.date).format("YYYY-MM-DD");
+                //     item.time_in = dayjs(item.time_in, "HH:mm").format("HH:mm");
+                //     item.time_out = dayjs(item.time_out, "HH:mm").format("HH:mm");
+                //     item.schedule_location = item.schedule_location || {};
+                //     item.schedule_location.name = item.schedule_location.name || 'N/A'; // Default value if name is not present
+                //     props.formData.overide_shift = item
+                // });
+                props.formData.overide_shift = response.data;
+            });
+        };
+
+
+        const resetSchedulePlotModal = () => {
+            showSchedulePlotModal.value = false;
+            isEditMode.value = false; 
+            schedulePlotModalData.value = {
+                user_id: props.data.xid,
+                shift_id: props.formData.shift_id ? props.formData.shift_id : null,
+                date: null,
+                time_in: null,
+                time_out: null,
+                schedule_type: null,
+                schedule_location_id: null,
+                xid: null // Reset xid for new entries
+            };
+        }
+
+
+        
+        const schedulePlotModalTitle = computed(() => {
+            return isEditMode.value
+                ? t('user.edit_schedule_plot')
+                : t('user.add_schedule_plot');
+        });
+
+        const editSchedulePlot = (record) => {
+            isEditMode.value = true;
+            console.log("Editing schedule plot:", record);
+            schedulePlotModalData.value = {
+                user_id: props.data.xid,
+                shift_id: record.shift.xid,
+                date: dayjs(record.date).format("YYYY-MM-DD"),
+                time_in: record.time_in,
+                time_out: record.time_out,
+                schedule_type: record.schedule_type,
+                schedule_location_id: record.schedule_location.xid,
+                xid: record.xid // Assuming you have an xid for the record to update
+            };
+
+            console.log(schedulePlotModalData.value);
+            showSchedulePlotModal.value = true;
+        };
+
+        const handleAddSchedulePlot = () => {
+            if (isEditMode.value) {
+                Swal.fire({
+                    title: 'Processing...',
+                    // html: `Date From: <b>${dateFrom}</b><br>Date To: <b>${dateTo}</b></b>`,
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+
+                const newObjectUpdate = {
+                    user_id: props.data.xid,
+                    shift_id: schedulePlotModalData.value.shift_id,
+                    schedule_type: schedulePlotModalData.value.schedule_type,
+                    date: schedulePlotModalData.value.date,
+                    time_in: schedulePlotModalData.value.time_in,
+                    time_out: schedulePlotModalData.value.time_out,
+                    schedule_location_id: schedulePlotModalData.value.schedule_location_id,
+                    xid: schedulePlotModalData.value.xid // Assuming you have an xid for the record to update
+                };
+
+                axiosAdmin.post('/schedule_plot/edit_override', newObjectUpdate).then(response => {
+
+                    console.log(response)
+                    Swal.close();  // Close the Swal loading
+                    Swal.fire('Other Schedule', response.message, 'success');
+                    showSchedulePlotModal.value = false;
+                    resetSchedulePlotModal();
+                    loadOverrideShift();
+                    // Emit an event or call a method to refresh the schedule plot data
+                    emit("setUrlData");
+                }).catch(error => {
+                    console.error("Error updating schedule plot:", error);
+                });
+
+                
+
+            }else{
+                Swal.fire({
+                    title: 'Processing...',
+                    // html: `Date From: <b>${dateFrom}</b><br>Date To: <b>${dateTo}</b></b>`,
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                const newObject = {
+                    user_id: props.data.xid,
+                    shift_id: schedulePlotModalData.value.shift_id,
+                    schedule_type: schedulePlotModalData.value.schedule_type,
+                    date: schedulePlotModalData.value.date,
+                    time_in: schedulePlotModalData.value.time_in,
+                    time_out: schedulePlotModalData.value.time_out,
+                    schedule_location_id: schedulePlotModalData.value.schedule_location_id,
+                    xid: null // No xid for new records
+                };
+
+            
+                axiosAdmin.post('/schedule_plot/add_override', newObject).then(response => {
+                    Swal.close();  // Close the Swal loading
+                    Swal.fire('Other Schedule', 'Other Schedule added!', 'success');
+                    showSchedulePlotModal.value = false;
+                    resetSchedulePlotModal();
+                }).catch(error => {
+                    console.error("Error adding schedule plot:", error);
+                });
+            }
+        };
+
         watch(
             () => staffRole.value,
             (newVal, oldVal) => {
@@ -1135,6 +1492,8 @@ export default defineComponent({
                         adjustedVisible.value = false;
                     }
                 }
+
+                loadOverrideShift();
             }
         );
 
@@ -1163,13 +1522,16 @@ export default defineComponent({
             }
         );
 
+
+        
+
         return {
             loading,
             rules,
             onClose,
             onSubmit,
             roles,
-
+            schedulePlotModalTitle,
             roleAdded,
             permsArray,
             appSetting,
@@ -1196,7 +1558,15 @@ export default defineComponent({
             onTabChange,
             basicSalaryRef,
             employeeWorkStatusAdded,
+            resetSchedulePlotModal,
             employeeWorkStatus,
+            showSchedulePlotModal,
+            handleAddSchedulePlot,
+            schedulePlotColumns,
+            schedulePlotModalData,
+            schedulePlotData,
+            dayjs,
+            editSchedulePlot,
             drawerWidth: window.innerWidth <= 991 ? "90%" : "65%",
         };
     },

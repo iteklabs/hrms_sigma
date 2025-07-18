@@ -19,6 +19,10 @@ class Location extends BaseModel
 
     protected $filterable = ['name'];
 
+    protected $hashableGetterFunctions = [
+        'getXidAttribute' => 'id',
+    ];
+
     protected static function boot()
     {
         parent::boot();

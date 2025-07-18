@@ -36,6 +36,7 @@ class Attendance extends BaseModel
         'night_differential',
         'no_of_hrs_undertime',
         'no_of_hrs_late',
+        'regular_hrs',
         // 'date_out'
     ];
 

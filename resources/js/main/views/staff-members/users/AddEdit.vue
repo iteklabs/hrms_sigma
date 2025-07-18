@@ -1444,6 +1444,7 @@ export default defineComponent({
                     // emit("setUrlData");
                 }).catch(error => {
                     console.error("Error updating schedule plot:", error);
+                    Swal.close();
                 });
 
                 
@@ -1478,6 +1479,7 @@ export default defineComponent({
 
                 }).catch(error => {
                     console.error("Error adding schedule plot:", error);
+                    Swal.close();
                 });
             }
         };

@@ -22,6 +22,9 @@ use App\Models\PrePayment;
 use App\Models\Shift;
 use App\Models\Company;
 use App\Models\Attendance_detl;
+use App\Models\OverideShift;
+use DateTime;
+
 class CommonHrm
 {
     // public static function getMinutesFromTimes($startTime, $endTime)
@@ -1328,122 +1331,229 @@ class CommonHrm
     }
 
 
+    public static function getOverideShift($user_id, $date)
+    {
 
+        $shift = OverideShift::where('user_id', $user_id)->where('date', $date)->first();
+        $shift_main = StaffMember::with('shift')->find($user_id);
 
-    public static function reprocessAttendance($date_from, $date_to, $user_id = null, $status){
-        $company = company();
-        $user = StaffMember::find($user_id);
+        if ($shift) {
+            return [
+                'shift' => $shift->toArray(),
+                'message' => 'Shift found for the user.',
+                'bool' => true,
+            ];
+        } else {
+            return [
+                'shift' => $shift_main->shift ? $shift_main->shift->toArray() : null,
+                'message' => 'Main Shift used as no override shift found.',
+                'bool' => false,
+            ];
+        }
+    }
 
-        // if (!$user) {
-        //     throw new ApiException("User not found");
-        // }
+    // public static function reprocessAttendance($date_from, $date_to, $user_id = null, $status){
+    //     $company = company();
+    //     $user = StaffMember::find($user_id);
 
-        $startDate = Carbon::createFromFormat('Y-m-d', $date_from, $company->timezone)->startOfDay();
-        $endDate = Carbon::createFromFormat('Y-m-d', $date_to, $company->timezone)->endOfDay();
+    //     // if (!$user) {
+    //     //     throw new ApiException("User not found");
+    //     // }
 
-        // Fetch attendance records for the specified date range and user
-        $attendances = Attendance::when($user_id, function ($query, $user_id) {
-                return $query->where('user_id', $user_id);
-            })
-            ->whereBetween('date', [$startDate, $endDate])
-            ->get();
+    //     $startDate = Carbon::createFromFormat('Y-m-d', $date_from, $company->timezone)->startOfDay();
+    //     $endDate = Carbon::createFromFormat('Y-m-d', $date_to, $company->timezone)->endOfDay();
+
+    //     // Fetch attendance records for the specified date range and user
+    //     $attendances = Attendance::when($user_id, function ($query, $user_id) {
+    //             return $query->where('user_id', $user_id);
+    //         })
+    //         ->whereBetween('date', [$startDate, $endDate])
+    //         ->get();
 
             
-        foreach ($attendances->toArray() as $attendance) {
-            $attendance_id = Common::getIdFromHash($attendance['xid']);
-            $user_id = Common::getIdFromHash($attendance['x_user_id']);
-            $user_data = StaffMember::find($user_id);
-            $attendanceRecord = Attendance::find($attendance_id);
+    //     foreach ($attendances->toArray() as $attendance) {
+    //         $attendance_id = Common::getIdFromHash($attendance['xid']);
+    //         $user_id = Common::getIdFromHash($attendance['x_user_id']);
+    //         $user_data = StaffMember::with('shift')->find($user_id);
+    //         $attendanceRecord = Attendance::find($attendance_id);
+
+    //         $time_in = Carbon::parse($attendanceRecord->clock_in_date_time)->setTimezone('Asia/Manila');
+    //         $time_out = Carbon::parse($attendanceRecord->clock_out_date_time)->setTimezone('Asia/Manila');
 
 
-            $time_in = Carbon::parse($attendanceRecord->clock_in_date_time)->setTimezone('Asia/Manila');
-            $time_out = Carbon::parse($attendanceRecord->clock_out_date_time)->setTimezone('Asia/Manila');
-            // $arrshift = explode(',', $user_data->x_shft_id_list);
-            // if($user_id == "12"){
-                if(!empty($user_data->x_shft_id_list)){
-                    $bestShift = null;
-                    $smallestDifference = null;
-                    foreach ($user_data->x_shft_id_list as $key => $value) {
-                        $shiftid = Common::getIdFromHash($value);
-                        $shift = Shift::find($shiftid);
+    //         $main_shift_in = Carbon::parse($user_data->shift->clock_in_time)->setTimezone('Asia/Manila');
+    //         $main_shift_out = Carbon::parse($user_data->shift->clock_out_time)->setTimezone('Asia/Manila');
 
-                        $shiftHoursBreak = 60; // Default break time in minutes
-                        $shiftStartTime = Carbon::parse($time_in->format('Y-m-d') . ' ' . $shift->clock_in_time);
-                        $shiftEndTime = Carbon::parse($time_in->format('Y-m-d') . ' ' . $shift->clock_out_time);
+    //         // $arrshift = explode(',', $user_data->x_shft_id_list);
+    //             if($user_id == "12"){
+    //                 $override_sift = self::getOverideShift($user_id, Carbon::parse($attendanceRecord->date)->format('Y-m-d'));
+    //                 // \Log::info($override_sift);
 
-                        // Handle overnight shift
-                        if ($shiftEndTime->lessThan($shiftStartTime)) {
-                            $shiftEndTime->addDay();
-                        }
+    //                 if($override_sift['bool']){
+    //                     if($override_sift['shift']['schedule_type'] == 'RVR'){
+    //                         $shift = $override_sift['shift'];
+    //                         $shiftClockInTime = $shift['time_in'];
+    //                         $shiftClockOutTime = $shift['time_out'];
 
-                        $diffInMinutes = abs($time_in->diffInMinutes($shiftStartTime));
+    //                         $shiftStart = new \DateTime(substr($time_in, 0, 10) . ' ' . $shiftClockInTime);
+    //                         $shiftEnd = (new \DateTime(substr($time_in, 0, 10) . ' ' . $shiftClockOutTime))->modify('+1 day');
 
-                        if ($smallestDifference === null || $diffInMinutes < $smallestDifference) {
-                            $smallestDifference = $diffInMinutes;
-                            $bestShift = $shift;
-                        }
+    //                         $actualIn = new \DateTime($time_in);
+    //                         $actualOut = new \DateTime($time_out);
 
-                        // \Log::info($shiftStartTime  . " - " . $shiftEndTime . " - " . $time_in . " - " . $time_out );
-                    }
-                    $shiftStartTime = Carbon::parse($time_in->format('Y-m-d') . ' ' . $bestShift->clock_in_time);
-                    $shiftEndTime = Carbon::parse($time_in->format('Y-m-d') . ' ' . $bestShift->clock_out_time);
+    //                         $totalWorkedMinutes = ($actualOut->getTimestamp() - $actualIn->getTimestamp()) / 60;
 
-                    if ($shiftEndTime->lessThan($shiftStartTime)) {
-                        $shiftEndTime->addDay();
-                    }
+    //                         $lateMinutes = max(0, ($actualIn->getTimestamp() - $shiftStart->getTimestamp()) / 60);
+    //                         $undertimeMinutes = max(0, ($shiftEnd->getTimestamp() - $actualOut->getTimestamp()) / 60);
 
-                    $actualClockOut = $time_out;
+    //                         // Base computation
+    //                         $regularMinutes = min($totalWorkedMinutes, 480);  // 8 hours
+    //                         $remainingMinutes = max(0, $totalWorkedMinutes - $regularMinutes);
 
-                    if ($actualClockOut->lessThan($shiftEndTime)) {
-                        $undertimeSeconds = $shiftEndTime->timestamp - $actualClockOut->timestamp;
-                        $undertimeHours = round($undertimeSeconds / 3600, 4);
-                    } else {
-                        $undertimeHours = 0;
-                    }
-                    
-                    // Handle overnight shifts
-                    if (Carbon::parse($bestShift->clock_out_time)->lessThan(Carbon::parse($bestShift->clock_in_time))) {
-                        $shiftStartTime = $shiftStartTime; // remains same, start time doesn't shift to next day
-                    }
-                    $actualClockIn = $time_in;
-                    $graceShiftStartTime = $shiftStartTime->copy()->addMinutes(15);
+    //                         $regularOTMinutes = min($remainingMinutes, 240);  // 4 hours regular OT
+    //                         $remainingMinutes -= $regularOTMinutes;
 
-                    if ($actualClockIn->greaterThan($graceShiftStartTime)) {
-                        $lateSeconds = $actualClockIn->timestamp - $graceShiftStartTime->timestamp;
-                        // $lateHours = ($lateSeconds > 0) ? round($lateSeconds / 3600, 4) : 0;
-                        $lateHours = round($lateSeconds / 3600, 4);
+    //                         // Add RVR shift as extra Regular OT
+    //                         $rvrShiftMinutes = ($shiftEnd->getTimestamp() - $shiftStart->getTimestamp()) / 60;
+    //                         $regularOTMinutes += $rvrShiftMinutes;   // Add RVR to regular OT
 
-                    } else {
-                        $lateHours = 0;
-                    }
+    //                         // Remaining time after RVR is other OT
+    //                         $otherOTMinutes = max(0, $remainingMinutes);
 
+    //                         // \Log::info("Regular OT (Including RVR Shift): " . round($regularOTMinutes / 60, 2) . " hours");
+    //                         $regOTOthOT = round((($regularOTMinutes + $otherOTMinutes)/60),2);
 
+    //                         \Log::info("-----------------------------------------------------------");
+    //                         \Log::info("Date: " . $attendanceRecord->date);
+    //                         \Log::info("Regular Hours: " . round($regularMinutes / 60, 2) . " hours");
+    //                         \Log::info("Regular OT (Including RVR Shift): " . round($regularOTMinutes / 60, 2) . " hours");
+    //                         \Log::info("Other OT: " . round($otherOTMinutes / 60, 2) . " hours");
+    //                         \Log::info("Total OT: " . round($regOTOthOT / 60, 2) . " hours");
+    //                         \Log::info("Late: " . round($lateMinutes) . " minutes");
+    //                         \Log::info("Undertime: " . round($undertimeMinutes) . " minutes");
+    //                         \Log::info("-----------------------------------------------------------");
 
-                    
+    //                     }
+                        
+    //                 }else{
+    //                     //Use main shift
+    //                 }
+    //             }
+    //     }
 
-                    // Update attendance record
-                    $attendanceRecord->is_late = $lateHours > 0 ? 1 : 0;
-                    $attendanceRecord->no_of_hrs_late = $lateHours;
-                    $attendanceRecord->no_of_hrs_undertime = $undertimeHours;
-                    // $attendanceRecord->shift_id = $bestShift->id;
-                    // $attendanceRecord->shift_start_time = $shiftStartTime;
-                    // $attendanceRecord->shift_end_time = $shiftEndTime;
-                    $attendanceRecord->save();
+    //     // print_r($attendances->toArray());
+    //     exit;
+
+    //     return [
+    //         'message' => 'Attendance records updated successfully',
+    //         'count' => count($attendances)
+    //     ];
+    // }
 
 
-                    \Log::info("In: ". $actualClockIn . " <> " ."Late hours: " . $lateHours. " <> " . "Out: " . $actualClockOut . " <> " . "Undertime hours: " . $undertimeHours . " <> " . "Shift: " . $bestShift->name . " <> " . "Shift Start: " . $shiftStartTime . " <> " . "Shift End: " . $shiftEndTime);
 
-                // }
-            }
+        public static function reprocessAttendance($date_from, $date_to, $user_id = null, $status)
+{
+    $company = company();
+    $user = StaffMember::find($user_id);
+
+    $startDate = Carbon::createFromFormat('Y-m-d', $date_from, $company->timezone)->startOfDay();
+    $endDate = Carbon::createFromFormat('Y-m-d', $date_to, $company->timezone)->endOfDay();
+
+    $attendances = Attendance::when($user_id, function ($query, $user_id) {
+            return $query->where('user_id', $user_id);
+        })
+        ->whereBetween('date', [$startDate, $endDate])
+        ->get();
+
+    foreach ($attendances as $attendanceRecord) {
+        $attendance_id = Common::getIdFromHash($attendanceRecord->xid);
+        $user_data = StaffMember::with('shift')->find($user_id);
+        \Log::info($user_data->shift);
+        $time_in = Carbon::parse($attendanceRecord->clock_in_date_time)->setTimezone('Asia/Manila');
+        $time_out = Carbon::parse($attendanceRecord->clock_out_date_time)->setTimezone('Asia/Manila');
+
+        // Prepare shift base date
+        $shiftDate = Carbon::parse($attendanceRecord->date)->format('Y-m-d');
+
+        // MAIN SHIFT TIMES (No timezone conversion)
+        $main_shift_in = Carbon::parse($shiftDate . ' ' . $user_data->shift->clock_in_time);
+        $main_shift_out = Carbon::parse($shiftDate . ' ' . $user_data->shift->clock_out_time);
+        if ($main_shift_out->lessThanOrEqualTo($main_shift_in)) {
+            $main_shift_out->addDay();
         }
 
-        // print_r($attendances->toArray());
-        // exit;
+        // Actual worked times
+        $actualIn = new \DateTime($time_in);
+        $actualOut = new \DateTime($time_out);
 
-        return [
-            'message' => 'Attendance records updated successfully',
-            'count' => count($attendances)
-        ];
+        $totalWorkedMinutes = ($actualOut->getTimestamp() - $actualIn->getTimestamp()) / 60;
+
+        // Late and Undertime
+        $lateMinutes = max(0, ($actualIn->getTimestamp() - $main_shift_in->getTimestamp()) / 60);
+        $undertimeMinutes = max(0, ($main_shift_out->getTimestamp() - $actualOut->getTimestamp()) / 60);
+
+        // 8 hours Regular Hours
+        $regularMinutes = min($totalWorkedMinutes, 480);
+
+        // Next 4 hours Regular OT
+        $remainingMinutes = max(0, $totalWorkedMinutes - $regularMinutes);
+        $regularOTMinutes = min($remainingMinutes, 240);
+        $remainingMinutes -= $regularOTMinutes;
+
+        // Check for RVR shift
+        $override_sift = self::getOverideShift($user_id, $shiftDate);
+
+        $rvrShiftMinutes = 0;
+        if ($override_sift['bool'] && $override_sift['shift']['schedule_type'] == 'RVR') {
+            $shift = $override_sift['shift'];
+            $shiftClockInTime = $shift['time_in'];
+            $shiftClockOutTime = $shift['time_out'];
+
+            $rvrShiftStart = Carbon::parse($shiftDate . ' ' . $shiftClockInTime);
+            $rvrShiftEnd = Carbon::parse($shiftDate . ' ' . $shiftClockOutTime);
+            if ($rvrShiftEnd->lessThanOrEqualTo($rvrShiftStart)) {
+                $rvrShiftEnd->addDay();
+            }
+
+            $rvrShiftMinutes = ($rvrShiftEnd->getTimestamp() - $rvrShiftStart->getTimestamp()) / 60;
+
+            $regularOTMinutes += $rvrShiftMinutes; // Add RVR as Regular OT
+        }
+
+        $otherOTMinutes = max(0, $remainingMinutes);
+
+
+        $attendanceRecord->regular_hrs = round(($regularMinutes - ($lateMinutes+$undertimeMinutes)) / 60, 2);
+        $attendanceRecord->regular_ot = round($regularOTMinutes / 60, 2);
+        $attendanceRecord->no_of_hrs_undertime = round($undertimeMinutes / 60, 2);
+        $attendanceRecord->no_of_hrs_late = round($lateMinutes / 60, 2);
+        $attendanceRecord->save();
+        // Logs
+        \Log::info("-----------------------------------------------------------");
+        \Log::info("Date: " . $attendanceRecord->date);
+        \Log::info("Main Shift: " . $main_shift_in->format('H:i') . " - " . $main_shift_out->format('H:i'));
+        if ($rvrShiftMinutes > 0) {
+            \Log::info("RVR Shift: " . $shiftClockInTime . " - " . $shiftClockOutTime . " (" . round($rvrShiftMinutes / 60, 2) . " hrs added to Regular OT)");
+        }
+        \Log::info("Clock In: " . $time_in->format('Y-m-d H:i:s'));
+        \Log::info("Clock Out: " . $time_out->format('Y-m-d H:i:s'));
+        \Log::info("Total Worked Hours: " . round($totalWorkedMinutes / 60, 2) . " hours");
+        \Log::info("Regular Hours: " . round($regularMinutes / 60, 2) . " hours");
+        \Log::info("Regular OT (Including RVR Shift): " . round($regularOTMinutes / 60, 2) . " hours");
+        \Log::info("Other OT: " . round($otherOTMinutes / 60, 2) . " hours");
+        \Log::info("Late: " . round($lateMinutes) . " minutes");
+        \Log::info("Undertime: " . round($undertimeMinutes) . " minutes");
+        \Log::info("-----------------------------------------------------------");
     }
+
+    exit;
+
+    return [
+        'message' => 'Attendance records updated successfully',
+        'count' => count($attendances)
+    ];
+}
+
 
 }

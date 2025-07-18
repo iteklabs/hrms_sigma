@@ -75,6 +75,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::post('schedule_plot/add_override', ['as' => 'api.schedule_plot.add_override', 'uses' => 'SchedulePlotController@addOverrideShift']);
         ApiRoute::post('schedule_plot/edit_override', ['as' => 'api.schedule_plot.edit_override', 'uses' => 'SchedulePlotController@editOverrideShift']);
         ApiRoute::get('schedule_plot/list_override', ['as' => 'api.schedule_plot.list_override', 'uses' => 'SchedulePlotController@getOverideShiftByUser']);
+        ApiRoute::delete('schedule_plot/delete_override/{id}', ['as' => 'api.schedule_plot.delete_override', 'uses' => 'SchedulePlotController@deleteOverrideShift']);
         ApiRoute::post('add-quick-holiday', ['as' => 'api.add-quick-holiday', 'uses' => 'HolidayController@addQuickHoliday']);
         ApiRoute::post('get-holiday-year-data', ['as' => 'api.get-holiday-year-data', 'uses' => 'HolidayController@getHolidayDataByYear']);
         ApiRoute::post('mark-holidays', ['as' => 'api.mark-holidays', 'uses' => 'HolidayController@markHoliday']);

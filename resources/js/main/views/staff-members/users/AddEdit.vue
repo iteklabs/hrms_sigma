@@ -1324,6 +1324,33 @@ export default defineComponent({
         };
 
 
+        const deleteSchedulePlot = (xid) => {
+            Swal.fire({
+                title: t("common.are_you_sure"),
+                text: t("common.delete_confirmation_text"),
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: t("common.yes_delete_it"),
+                cancelButtonText: t("common.no_cancel"),
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axiosAdmin
+                        .delete(`/schedule_plot/delete_override/${xid}`)
+                        .then((response) => {
+                            Swal.fire(
+                                t("common.deleted"),
+                                response.message,
+                                "success"
+                            );
+                            loadOverrideShift();
+                        })
+                        .catch((error) => {
+                            console.error("Error deleting schedule plot:", error);
+                        });
+                }
+            });
+        };
+
         const resetSchedulePlotModal = () => {
             showSchedulePlotModal.value = false;
             isEditMode.value = false; 
@@ -1569,6 +1596,7 @@ export default defineComponent({
             schedulePlotData,
             dayjs,
             editSchedulePlot,
+            deleteSchedulePlot,
             drawerWidth: window.innerWidth <= 991 ? "90%" : "65%",
         };
     },

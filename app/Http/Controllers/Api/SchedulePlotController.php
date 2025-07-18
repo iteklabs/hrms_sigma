@@ -93,4 +93,20 @@ class SchedulePlotController extends ApiBaseController
             ], 400);
         }
     }
+
+
+    public function deleteOverrideShift($id)
+    {
+        try {
+            $overrideShift = OverideShift::findOrFail(Common::getIdFromHash($id));
+            $overrideShift->delete();
+            return response()->json(['message' => 'Override shift deleted successfully'], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => 'Failed to delete override shift',
+                'message' => $th->getMessage(),
+                'line' => $th->getLine()
+            ], 400);
+        }
+    }
 }

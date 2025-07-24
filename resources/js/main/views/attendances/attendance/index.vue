@@ -170,6 +170,17 @@
                             <template v-if="column.dataIndex === 'total_duration'">
                                 {{ formatMinutes(record.total_duration) }}
                             </template>
+                            <!-- <template v-if="column.dataIndex === 'regular_hrs'" color="green">
+                                {{ record.regular_hrs }}
+                            </template> -->
+
+                            <template v-if="column.dataIndex === 'regular_hrs'">
+                                <span :class="{ 'text-green-600 font-bold': record.regular_hrs > 0 }">
+                                    {{ record.regular_hrs }}
+                                </span>
+                            </template>
+
+
                             <template v-if="column.dataIndex === 'is_late'">
                                 <a-tag v-if="record.is_late == 0" color="success">
                                     {{ $t("common.no") }}
@@ -313,10 +324,10 @@ export default {
             ) {
                 columns.value = [
                     ...columns.value,
-                    {
-                        title: t("common.action"),
-                        dataIndex: "action",
-                    },
+                    // {
+                    //     title: t("common.action"),
+                    //     dataIndex: "action",
+                    // },
                 ];
             }
 
@@ -350,13 +361,23 @@ export default {
         };
 
         const getAttendanceStatus = (record) => {
-            if (record.is_half_day) {
-                return "half_day";
-            } else if (record.x_leave_type_id) {
-                return "on_leave";
-            } else if (record.clock_in_date_time && record.clock_out_date_time) {
-                return "present";
+            // if (record.is_half_day) {
+            //     return "half_day";
+            // } else if (record.x_leave_type_id) {
+            //     return "on_leave";
+            // } else if (record.clock_in_date_time && record.clock_out_date_time) {
+            //     return "present";
+            // }
+            // console.log(record)
+            if (record.status === 'present') {
+                return 'present';
+            } else if (record.status === 'rest_day') {
+                return 'rest_day';
+            } else if (record.status === 'absent') {
+                return 'absent';
             }
+
+            
         };
 
         const reprocessAttendance = () => {

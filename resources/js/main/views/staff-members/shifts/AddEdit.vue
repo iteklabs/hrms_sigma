@@ -305,7 +305,7 @@ export default defineComponent({
             { key: 'W', label: 'wednesday' },
             { key: 'TH', label: 'thursday' },
             { key: 'F', label: 'friday' },
-            { key: 'S', label: 'saturday' },
+            { key: 'SA', label: 'saturday' },
             { key: 'SU', label: 'sunday' }
         ];
 

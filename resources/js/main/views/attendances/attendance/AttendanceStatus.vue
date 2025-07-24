@@ -35,18 +35,24 @@
         </template>
         {{ $t("attendance.half_day") }}
     </a-tag>
+    <a-tag v-else-if="status == 'rest_day'" color="processing">
+        <template #icon>
+            <CarOutlined />
+        </template>
+        Rest Day
+    </a-tag>
 </template>
 
 <script>
-import { defineComponent, onMounted, ref } from "vue";
 import {
-    ClockCircleOutlined,
-    CheckCircleOutlined,
-    ExclamationCircleOutlined,
-    CloseCircleOutlined,
     CalendarOutlined,
     CarOutlined,
+    CheckCircleOutlined,
+    ClockCircleOutlined,
+    CloseCircleOutlined,
+    ExclamationCircleOutlined,
 } from "@ant-design/icons-vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
     props: ["status"],

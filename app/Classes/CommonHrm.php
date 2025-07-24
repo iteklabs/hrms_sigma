@@ -1334,22 +1334,29 @@ class CommonHrm
     public static function getOverideShift($user_id, $date)
     {
 
-        $shift = OverideShift::where('user_id', $user_id)->where('date', $date)->first();
+        $shift = OverideShift::where('user_id', $user_id)->where('date', $date)->get();
         $shift_main = StaffMember::with('shift')->find($user_id);
-
-        if ($shift) {
+        // \Log::info($date . " <> " .count($shift));
+        if (count($shift) > 0) {
             return [
-                'shift' => $shift->toArray(),
+                'shift' => $shift,
                 'message' => 'Shift found for the user.',
                 'bool' => true,
             ];
-        } else {
+        }else{
             return [
-                'shift' => $shift_main->shift ? $shift_main->shift->toArray() : null,
+                'shift' => [],
                 'message' => 'Main Shift used as no override shift found.',
                 'bool' => false,
             ];
         }
+        // else {
+        //     return [
+        //         'shift' => $shift_main->shift ? $shift_main->shift->toArray() : null,
+        //         'message' => 'Main Shift used as no override shift found.',
+        //         'bool' => false,
+        //     ];
+        // }
     }
 
     // public static function reprocessAttendance($date_from, $date_to, $user_id = null, $status){
@@ -1450,110 +1457,496 @@ class CommonHrm
     //     ];
     // }
 
-
-
-        public static function reprocessAttendance($date_from, $date_to, $user_id = null, $status)
+    public static function getWeekDay($date, $userRestDay = null)
 {
-    $company = company();
-    $user = StaffMember::find($user_id);
+    $dateparse = Carbon::parse($date);
+    $dayOfWeek = $dateparse->dayOfWeek; // 0 (Sunday) to 6 (Saturday)
 
-    $startDate = Carbon::createFromFormat('Y-m-d', $date_from, $company->timezone)->startOfDay();
-    $endDate = Carbon::createFromFormat('Y-m-d', $date_to, $company->timezone)->endOfDay();
+    // Map Carbon day index to your keys
+    $dayKeyMap = [
+        0 => 'SU',  // Sunday
+        1 => 'M',   // Monday
+        2 => 'T',   // Tuesday
+        3 => 'W',   // Wednesday
+        4 => 'TH',  // Thursday
+        5 => 'F',   // Friday
+        6 => 'SA',  // Saturday
+    ];
 
-    $attendances = Attendance::when($user_id, function ($query, $user_id) {
-            return $query->where('user_id', $user_id);
-        })
-        ->whereBetween('date', [$startDate, $endDate])
-        ->get();
+    $dayKey = $dayKeyMap[$dayOfWeek];
 
-    foreach ($attendances as $attendanceRecord) {
-        $attendance_id = Common::getIdFromHash($attendanceRecord->xid);
-        $user_data = StaffMember::with('shift')->find($user_id);
-        \Log::info($user_data->shift);
-        $time_in = Carbon::parse($attendanceRecord->clock_in_date_time)->setTimezone('Asia/Manila');
-        $time_out = Carbon::parse($attendanceRecord->clock_out_date_time)->setTimezone('Asia/Manila');
+    // Example: Define your rest days (could come from database)
+    $restDays = [$userRestDay];
 
-        // Prepare shift base date
-        $shiftDate = Carbon::parse($attendanceRecord->date)->format('Y-m-d');
-
-        // MAIN SHIFT TIMES (No timezone conversion)
-        $main_shift_in = Carbon::parse($shiftDate . ' ' . $user_data->shift->clock_in_time);
-        $main_shift_out = Carbon::parse($shiftDate . ' ' . $user_data->shift->clock_out_time);
-        if ($main_shift_out->lessThanOrEqualTo($main_shift_in)) {
-            $main_shift_out->addDay();
-        }
-
-        // Actual worked times
-        $actualIn = new \DateTime($time_in);
-        $actualOut = new \DateTime($time_out);
-
-        $totalWorkedMinutes = ($actualOut->getTimestamp() - $actualIn->getTimestamp()) / 60;
-
-        // Late and Undertime
-        $lateMinutes = max(0, ($actualIn->getTimestamp() - $main_shift_in->getTimestamp()) / 60);
-        $undertimeMinutes = max(0, ($main_shift_out->getTimestamp() - $actualOut->getTimestamp()) / 60);
-
-        // 8 hours Regular Hours
-        $regularMinutes = min($totalWorkedMinutes, 480);
-
-        // Next 4 hours Regular OT
-        $remainingMinutes = max(0, $totalWorkedMinutes - $regularMinutes);
-        $regularOTMinutes = min($remainingMinutes, 240);
-        $remainingMinutes -= $regularOTMinutes;
-
-        // Check for RVR shift
-        $override_sift = self::getOverideShift($user_id, $shiftDate);
-
-        $rvrShiftMinutes = 0;
-        if ($override_sift['bool'] && $override_sift['shift']['schedule_type'] == 'RVR') {
-            $shift = $override_sift['shift'];
-            $shiftClockInTime = $shift['time_in'];
-            $shiftClockOutTime = $shift['time_out'];
-
-            $rvrShiftStart = Carbon::parse($shiftDate . ' ' . $shiftClockInTime);
-            $rvrShiftEnd = Carbon::parse($shiftDate . ' ' . $shiftClockOutTime);
-            if ($rvrShiftEnd->lessThanOrEqualTo($rvrShiftStart)) {
-                $rvrShiftEnd->addDay();
-            }
-
-            $rvrShiftMinutes = ($rvrShiftEnd->getTimestamp() - $rvrShiftStart->getTimestamp()) / 60;
-
-            $regularOTMinutes += $rvrShiftMinutes; // Add RVR as Regular OT
-        }
-
-        $otherOTMinutes = max(0, $remainingMinutes);
+    $isRestDay = in_array($dayKey, $restDays);
+    return $isRestDay;
+}
 
 
-        $attendanceRecord->regular_hrs = round(($regularMinutes - ($lateMinutes+$undertimeMinutes)) / 60, 2);
-        $attendanceRecord->regular_ot = round($regularOTMinutes / 60, 2);
-        $attendanceRecord->no_of_hrs_undertime = round($undertimeMinutes / 60, 2);
-        $attendanceRecord->no_of_hrs_late = round($lateMinutes / 60, 2);
-        $attendanceRecord->save();
-        // Logs
-        \Log::info("-----------------------------------------------------------");
-        \Log::info("Date: " . $attendanceRecord->date);
-        \Log::info("Main Shift: " . $main_shift_in->format('H:i') . " - " . $main_shift_out->format('H:i'));
-        if ($rvrShiftMinutes > 0) {
-            \Log::info("RVR Shift: " . $shiftClockInTime . " - " . $shiftClockOutTime . " (" . round($rvrShiftMinutes / 60, 2) . " hrs added to Regular OT)");
-        }
-        \Log::info("Clock In: " . $time_in->format('Y-m-d H:i:s'));
-        \Log::info("Clock Out: " . $time_out->format('Y-m-d H:i:s'));
-        \Log::info("Total Worked Hours: " . round($totalWorkedMinutes / 60, 2) . " hours");
-        \Log::info("Regular Hours: " . round($regularMinutes / 60, 2) . " hours");
-        \Log::info("Regular OT (Including RVR Shift): " . round($regularOTMinutes / 60, 2) . " hours");
-        \Log::info("Other OT: " . round($otherOTMinutes / 60, 2) . " hours");
-        \Log::info("Late: " . round($lateMinutes) . " minutes");
-        \Log::info("Undertime: " . round($undertimeMinutes) . " minutes");
-        \Log::info("-----------------------------------------------------------");
-    }
+private static function calculateOverlapMinutes($start1, $end1, $start2, $end2)
+{
+    $latestStart = max($start1->getTimestamp(), $start2->getTimestamp());
+    $earliestEnd = min($end1->getTimestamp(), $end2->getTimestamp());
 
-    exit;
+    $overlap = $earliestEnd - $latestStart;
+
+    return max(0, $overlap / 60); // in minutes
+}
+
+private static function proccessND($user_id, $time_in, $time_out, $shift_id){
+
+}
+
+private static function proccessMainShift(){
+    
+}
+
+private static function proccessRVR(){
+    
+}
+
+private static function proccessOVR(){
+    
+}
+
+private static function getHoliday($date){
+    $holiday = Holiday::where('date', $date)->first();
+    // $isHoliday = count($holiday) > 0 ? true : false;
 
     return [
-        'message' => 'Attendance records updated successfully',
-        'count' => count($attendances)
+        'data' => $holiday,
+        // 'bool' => $isHoliday
     ];
 }
 
+
+//Original Code for reprocessing attendance
+// public static function reprocessAttendance($date_from, $date_to, $user_id = null, $status)
+// {
+//     $company = company();
+//     $user = StaffMember::find($user_id);
+
+//     $startDate = Carbon::createFromFormat('Y-m-d', $date_from, $company->timezone)->startOfDay();
+//     $endDate = Carbon::createFromFormat('Y-m-d', $date_to, $company->timezone)->endOfDay();
+
+//     $attendances = Attendance::when($user_id, function ($query, $user_id) {
+//             return $query->where('user_id', $user_id);
+//         })
+//         ->whereBetween('date', [$startDate, $endDate])
+//         ->get();
+    
+        
+ 
+//     $totalNDHrs = 0;
+//     foreach ($attendances as $attendanceRecord) {
+//         $attendance_id = Common::getIdFromHash($attendanceRecord->xid);
+//         $user_data = StaffMember::with('shift')->find($user_id);
+//         // \Log::info($user_data->shift->weekdays_day_off);
+//         $time_in = Carbon::parse($attendanceRecord->clock_in_date_time)->setTimezone('Asia/Manila');
+//         $time_out = Carbon::parse($attendanceRecord->clock_out_date_time)->setTimezone('Asia/Manila');
+//         $isRestday = self::getWeekDay($attendanceRecord->date, $user_data->shift->weekdays_day_off);
+//         // Prepare shift base date
+//         $shiftDate = Carbon::parse($attendanceRecord->date)->format('Y-m-d');
+        
+//         // MAIN SHIFT TIMES (No timezone conversion)
+//         $main_shift_in = Carbon::parse($shiftDate . ' ' . $user_data->shift->clock_in_time);
+//         $main_shift_out = Carbon::parse($shiftDate . ' ' . $user_data->shift->clock_out_time);
+//         if ($main_shift_out->lessThanOrEqualTo($main_shift_in)) {
+//             $main_shift_out->addDay();
+//         }
+//         // Night Differential Start/End Times
+//         $ndStartTime = $company->night_diff_start_time;
+//         $ndEndTime = $company->night_diff_end_time;
+
+//         // Actual worked times
+//         $actualIn = new \DateTime($time_in);
+//         $actualOut = new \DateTime($time_out);
+
+//         // ND START/END TIMES (No timezone conversion)
+//         $ndStart = Carbon::parse($shiftDate . ' ' . $ndStartTime);
+//         $ndEnd = Carbon::parse($shiftDate . ' ' . $ndEndTime);
+
+//         if ($ndEnd->lessThanOrEqualTo($ndStart)) {
+//             $ndEnd->addDay();
+//         }
+
+
+//         $ndMinutesInMainShift = self::calculateOverlapMinutes($main_shift_in, $main_shift_out, $ndStart, $ndEnd);
+//         // \Log::info(($ndMinutesInMainShift / 60) . " hours of Night Differential in Main Shift");
+
+//         $totalWorkedMinutes = ($actualOut->getTimestamp() - $actualIn->getTimestamp()) / 60;
+
+//         // Late and Undertime
+//         $lateMinutes = max(0, ($actualIn->getTimestamp() - $main_shift_in->getTimestamp()) / 60);
+//         $undertimeMinutes = max(0, ($main_shift_out->getTimestamp() - $actualOut->getTimestamp()) / 60);
+//         $required_hrs_per_day = ($company->total_hrs_per_day * 60);
+        
+//         // 8 hours Regular Hours
+//         $regularMinutes = min($totalWorkedMinutes, $required_hrs_per_day);
+
+//         // Next 4 hours Regular OT
+//         $remainingMinutes = max(0, $totalWorkedMinutes - $regularMinutes);
+//         $regularOTMinutes = min($remainingMinutes, 240);
+//         $remainingMinutes -= $regularOTMinutes;
+
+//         // Check for RVR shift
+//         $override_sift = self::getOverideShift($user_id, $shiftDate);
+//         // \Log::info($shiftDate);
+//         // \Log::info(count($override_sift['shift']));
+        
+//         $rvrShiftMinutes = 0;
+//         $ndMinutesInRVRShift = 0;
+//         // \Log::info($override_sift['bool'] . " <> " . $shiftDate);
+//         foreach ($override_sift['shift'] as $key => $value) {
+//             // \Log::info($override_sift['bool'] . " <> " . $shiftDate . " <> " . $value['schedule_type']);
+//             if($override_sift['bool'] && $value['schedule_type'] == 'RVR'){
+//                 //  \Log::info($value);
+//                     // $shift = $overvalueride_sift['shift'];
+//                     $shiftClockInTime = $value['time_in'];
+//                     $shiftClockOutTime = $value['time_out'];
+
+//                     $rvrShiftStart = Carbon::parse($shiftDate . ' ' . $shiftClockInTime);
+//                     $rvrShiftEnd = Carbon::parse($shiftDate . ' ' . $shiftClockOutTime);
+//                     if ($rvrShiftEnd->lessThanOrEqualTo($rvrShiftStart)) {
+//                         $rvrShiftEnd->addDay();
+//                     }
+//                     $otherOTMinutes = max(0, $remainingMinutes);
+//                     // ND Here
+//                     $ndMinutesInRVRShift = self::calculateOverlapMinutes($rvrShiftStart, $rvrShiftEnd, $ndStart, $ndEnd);
+
+//                     $RestOThrs = 0;
+//                     $reg_hrs = round(($regularMinutes - ($lateMinutes + $undertimeMinutes)) / 60, 2);
+//                     $regot_hrs = round($regularOTMinutes / 60, 2);
+//                     $totalNDHrs = round(($ndMinutesInMainShift + $ndMinutesInRVRShift) / 60, 2);
+
+//                     if ($isRestday) {
+//                         // If it's a rest day, we don't count regular hours
+//                         $RestOThrs = max(0, $reg_hrs + $regot_hrs);
+//                         $reg_hrs = 0;
+//                         $regot_hrs = 0;
+//                         $undertimeMinutes = 0;
+//                         $lateMinutes = 0;
+//                         $totalNDHrs = 0; // No night differential on rest days
+//                     }
+//                         // $attendanceRecord->rest_day_ot = $RestOThrs;
+//                         // $attendanceRecord->regular_hrs = max(0, $reg_hrs);
+//                         // $attendanceRecord->regular_ot = max(0, $regot_hrs);
+//                         // $attendanceRecord->no_of_hrs_undertime = round($undertimeMinutes / 60, 2);
+//                         // $attendanceRecord->no_of_hrs_late = round($lateMinutes / 60, 2);
+//                         // $attendanceRecord->night_differential = max(0, $totalNDHrs);
+//                         // $attendanceRecord->save();
+
+
+//                         // Logs
+//                         \Log::info("-----------------------------------------------------------");
+//                         \Log::info("Date: " . $attendanceRecord->date);
+//                         \Log::info("Main Shift: " . $main_shift_in->format('H:i') . " - " . $main_shift_out->format('H:i'));
+//                         if ($rvrShiftMinutes > 0) {
+//                             \Log::info("RVR Shift: " . $shiftClockInTime . " - " . $shiftClockOutTime . " (" . round($rvrShiftMinutes / 60, 2) . " hrs added to Regular OT)");
+//                         }
+//                         \Log::info("Clock In: " . $time_in->format('Y-m-d H:i:s'));
+//                         \Log::info("Clock Out: " . $time_out->format('Y-m-d H:i:s'));
+//                         \Log::info("Total Worked Hours: " . round($totalWorkedMinutes / 60, 2) . " hours");
+//                         \Log::info("Regular Hours: " . round($regularMinutes / 60, 2) . " hours");
+//                         \Log::info("Regular OT (Including RVR Shift): " . round($regularOTMinutes / 60, 2) . " hours");
+//                         \Log::info("Rest Day OT: " . $RestOThrs . " hours");
+//                         \Log::info("Night Differential: " . $totalNDHrs . " hours");
+//                         \Log::info("Other OT: " . round($otherOTMinutes / 60, 2) . " hours");
+//                         \Log::info("Late: " . round($lateMinutes) . " minutes");
+//                         \Log::info("Undertime: " . round($undertimeMinutes) . " minutes");
+//                         \Log::info("-----------------------------------------------------------");
+//                     }
+//             }
+//         // }
+//         // if ($override_sift['bool'] && $override_sift['shift']['schedule_type'] == 'RVR') {
+//         //     $shift = $override_sift['shift'];
+//         //     $shiftClockInTime = $shift['time_in'];
+//         //     $shiftClockOutTime = $shift['time_out'];
+
+//         //     $rvrShiftStart = Carbon::parse($shiftDate . ' ' . $shiftClockInTime);
+//         //     $rvrShiftEnd = Carbon::parse($shiftDate . ' ' . $shiftClockOutTime);
+//         //     if ($rvrShiftEnd->lessThanOrEqualTo($rvrShiftStart)) {
+//         //         $rvrShiftEnd->addDay();
+//         //     }
+//         //     // ND Here
+//         //     $ndMinutesInRVRShift = self::calculateOverlapMinutes($rvrShiftStart, $rvrShiftEnd, $ndStart, $ndEnd);
+//         //     // \Log::info( "Date : ". $shiftDate . " <> ". ($ndMinutesInRVRShift / 60) . " hours of Night Differential in RVR Shift");
+
+
+//         //     $rvrShiftMinutes = ($rvrShiftEnd->getTimestamp() - $rvrShiftStart->getTimestamp()) / 60;
+
+//         //     $regularOTMinutes += $rvrShiftMinutes; // Add RVR as Regular OT
+//         // }else if ($override_sift['bool'] && $override_sift['shift']['schedule_type'] == 'OVD') {
+//         //     $shift = $override_sift['shift'];
+//         //     \Log::info($shift);
+//         // }
+
+//         // $otherOTMinutes = max(0, $remainingMinutes);
+
+//         // $RestOThrs = 0;
+//         // $reg_hrs = round(($regularMinutes - ($lateMinutes + $undertimeMinutes)) / 60, 2);
+//         // $regot_hrs = round($regularOTMinutes / 60, 2);
+//         // $totalNDHrs = round(($ndMinutesInMainShift + $ndMinutesInRVRShift) / 60, 2);
+//         // if ($isRestday) {
+//         //     // If it's a rest day, we don't count regular hours
+            
+//         //     $RestOThrs = max(0, $reg_hrs + $regot_hrs);
+//         //     $reg_hrs = 0;
+//         //     $regot_hrs = 0;
+//         //     $undertimeMinutes = 0;
+//         //     $lateMinutes = 0;
+//         //     $totalNDHrs = 0; // No night differential on rest days
+//         // }
+
+//         // $attendanceRecord->rest_day_ot = $RestOThrs;
+//         // $attendanceRecord->regular_hrs = max(0, $reg_hrs);
+//         // $attendanceRecord->regular_ot = max(0, $regot_hrs);
+//         // $attendanceRecord->no_of_hrs_undertime = round($undertimeMinutes / 60, 2);
+//         // $attendanceRecord->no_of_hrs_late = round($lateMinutes / 60, 2);
+//         // $attendanceRecord->night_differential = max(0, $totalNDHrs);
+//         // $attendanceRecord->save();
+//         // // Logs
+//         // \Log::info("-----------------------------------------------------------");
+//         // \Log::info("Date: " . $attendanceRecord->date);
+//         // \Log::info("Main Shift: " . $main_shift_in->format('H:i') . " - " . $main_shift_out->format('H:i'));
+//         // if ($rvrShiftMinutes > 0) {
+//         //     \Log::info("RVR Shift: " . $shiftClockInTime . " - " . $shiftClockOutTime . " (" . round($rvrShiftMinutes / 60, 2) . " hrs added to Regular OT)");
+//         // }
+//         // \Log::info("Clock In: " . $time_in->format('Y-m-d H:i:s'));
+//         // \Log::info("Clock Out: " . $time_out->format('Y-m-d H:i:s'));
+//         // \Log::info("Total Worked Hours: " . round($totalWorkedMinutes / 60, 2) . " hours");
+//         // \Log::info("Regular Hours: " . round($regularMinutes / 60, 2) . " hours");
+//         // \Log::info("Regular OT (Including RVR Shift): " . round($regularOTMinutes / 60, 2) . " hours");
+//         // \Log::info("Rest Day OT: " . $RestOThrs . " hours");
+//         // \Log::info("Other OT: " . round($otherOTMinutes / 60, 2) . " hours");
+//         // \Log::info("Late: " . round($lateMinutes) . " minutes");
+//         // \Log::info("Undertime: " . round($undertimeMinutes) . " minutes");
+//         // \Log::info("-----------------------------------------------------------");
+//     }
+
+//     exit;
+
+//     return [
+//         'message' => 'Attendance records updated successfully',
+//         'count' => count($attendances)
+//     ];
+// }
+
+
+    private static function logAttendanceComputation($attendance, $mainIn, $mainOut, $timeIn, $timeOut, $totalWorked, $regMin, $regOT, $restOT, $nd, $otherOT, $late, $under, $shifts)
+    {
+        \Log::info("-----------------------------------------------------------");
+        \Log::info("Date: {$attendance->date}");
+        \Log::info("Main Shift: {$mainIn->format('H:i')} - {$mainOut->format('H:i')}");
+
+        foreach ($shifts as $shift) {
+            if ($shift['schedule_type'] == 'RVR') {
+                \Log::info("RVR Shift: {$shift['time_in']} - {$shift['time_out']}");
+            }
+        }
+
+        \Log::info("Clock In: {$timeIn->format('Y-m-d H:i:s')}");
+        \Log::info("Clock Out: {$timeOut->format('Y-m-d H:i:s')}");
+        \Log::info("Total Worked Hours: " . round($totalWorked / 60, 2));
+        \Log::info("Regular Hours: " . round($regMin / 60, 2));
+        \Log::info("Regular OT: " . round($regOT, 2));
+        \Log::info("Rest Day OT: " . round($restOT, 2));
+        \Log::info("Night Differential: " . round($nd, 2));
+        \Log::info("Other OT: " . round($otherOT / 60, 2));
+        \Log::info("Late: " . round($late) . " minutes");
+        \Log::info("Undertime: " . round($under) . " minutes");
+        \Log::info("-----------------------------------------------------------");
+    }
+
+    private static function processSingleAttendance($attendance, $user, $company)
+    {
+        //atten date
+        $shiftDate = Carbon::parse($attendance->date)->format('Y-m-d');
+        //in and out from BMS
+        $timeIn = Carbon::parse($attendance->clock_in_date_time)->setTimezone('Asia/Manila');
+        $timeOut = Carbon::parse($attendance->clock_out_date_time)->setTimezone('Asia/Manila');
+        //Fething for Override Schedule and RVR schedule
+        $override = self::getOverideShift($user->id, $shiftDate);
+        $holidaydata = self::getHoliday($shiftDate);
+        //Main Shift Schedule
+        $mainInTime = $user->shift->clock_in_time;
+        $mainOutTime = $user->shift->clock_out_time;
+        //Process of Override Schedule if have Main schedule will disregard and get the Override Schedule
+        // $totalMinutesSched = 0;
+        if ($override['bool']) {
+            foreach ($override['shift'] as $ovr) {
+                if ($ovr['schedule_type'] === 'OVD') {
+                    $mainInTime = $ovr['time_in'];
+                    $mainOutTime = $ovr['time_out'];
+                    break;
+                }
+            }
+        }
+        $isRestDay = self::getWeekDay($attendance->date, $user->shift->weekdays_day_off);
+        //Main Shift and Override Shift
+        $mainIn = Carbon::parse($shiftDate . ' ' . $mainInTime);
+        $mainOut = Carbon::parse($shiftDate . ' ' . $mainOutTime);
+
+        if ($mainOut->lessThanOrEqualTo($mainIn)) {
+            $mainOut->addDay();
+        }
+
+        $totalMinutesSched = ($mainOut->timestamp - $mainIn->timestamp) / 60;
+        //Night Differential
+        $ndStart = Carbon::parse($shiftDate . ' ' . $company->night_diff_start_time);
+        $ndEnd = Carbon::parse($shiftDate . ' ' . $company->night_diff_end_time);
+        if ($ndEnd->lessThanOrEqualTo($ndStart)) {
+            $ndEnd->addDay();
+        }
+        //Actual IN and OUT
+        $actualIn = new \DateTime($timeIn);
+        $actualOut = new \DateTime($timeOut);
+
+        //Total Worked Hours
+        $totalWorked = ($actualOut->getTimestamp() - $actualIn->getTimestamp()) / 60;
+        //Late
+        $late = max(0, ($actualIn->getTimestamp() - $mainIn->getTimestamp()) / 60);
+        //Undertime
+        $undertime = max(0, ($mainOut->getTimestamp() - $actualOut->getTimestamp()) / 60);
+        
+        //required daily for regular hrs
+        $requiredDailyMinutes = $company->total_hrs_per_day * 60;
+        $shiftOTMain = abs(min(0, ($requiredDailyMinutes-$totalMinutesSched)));
+        $regularMinutes = min($totalWorked, $requiredDailyMinutes);
+        $remain_actual_min = max(0, $totalWorked - $regularMinutes);
+        $regularOT = min($remain_actual_min, $shiftOTMain);
+        $ndInMain = self::calculateOverlapMinutes($mainIn, $mainOut, $ndStart, $ndEnd);
+        $remain_actual_for_rvr_min = max(0, ($remain_actual_min - $shiftOTMain));
+        $ndInRvr = 0;
+        $rvrShiftMinutes = 0;
+
+        //rvr process
+        foreach ($override['shift'] as $ovr) {
+            if ($override['bool'] && $ovr['schedule_type'] === 'RVR') {
+                $rvrStart = Carbon::parse($shiftDate . ' ' . $ovr['time_in']);
+                $rvrEnd = Carbon::parse($shiftDate . ' ' . $ovr['time_out']);
+                if ($rvrEnd->lessThanOrEqualTo($rvrStart)) {
+                    $rvrEnd->addDay();
+                }
+
+                $ndInRvr = self::calculateOverlapMinutes($rvrStart, $rvrEnd, $ndStart, $ndEnd);
+                $rvrShiftMinutes = ($rvrEnd->timestamp - $rvrStart->timestamp) / 60;
+            }
+        }
+
+        $shifOTRvr = abs(min(0, ($rvrShiftMinutes-$remain_actual_for_rvr_min)));
+        $regularMinutesRvr = min($remain_actual_for_rvr_min, $rvrShiftMinutes);
+        $ndInRvr = $ndInRvr;
+
+        $status = 'present';
+        $regHrs = ($regularMinutes - ($late + $undertime)) / 60;
+        $regOT = ($regularOT + $regularMinutesRvr) / 60;
+        $nightDiff = ($ndInMain + $ndInRvr) / 60;
+        $restOT = 0;
+        if ($isRestDay) {
+            $restOT = max(0, $regHrs + $regOT);
+            $regHrs = $regOT = $undertime = $late = 0;
+            $status = 'rest_day';
+        }
+
+
+        $attendance->rest_day_ot = $restOT;
+        $attendance->regular_hrs = max(0, $regHrs);
+        $attendance->regular_ot = max(0, $regOT);
+        $attendance->no_of_hrs_undertime = round($undertime / 60, 2);
+        $attendance->no_of_hrs_late = round($late / 60, 2);
+        $attendance->night_differential = max(0, $nightDiff);
+        $attendance->status = $status;
+        $attendance->save();
+
+        \Log::info($holidaydata['data']);
+        
+        // \Log::info("-------------------------MAIN and OVD----------------------------------");
+        // \Log::info("Date: " . $shiftDate);
+        // \Log::info("Required Regular Hrs Daily: " . ($requiredDailyMinutes / 60));
+        // \Log::info("Required OT Hrs Daily: " . ($shiftOTMain / 60));
+        // \Log::info("Required Shift Main and OVR Hrs Daily: " . ($totalMinutesSched / 60));
+        // \Log::info("Regular Hrs: " . ($regularMinutes / 60));
+        // \Log::info("Late: " . $late);
+        // \Log::info("Undertime: " . $undertime);
+        // \Log::info("Total worked hrs: " . ($totalWorked / 60));
+        // \Log::info("Total remaining worked hrs: " . ($remain_actual_min / 60));
+        // \Log::info("Total Regular OT hrs: " . ($regularOT / 60));
+        // \Log::info("Total ND MAIN hrs: " . ($ndInMain / 60));
+        // \Log::info("Total Rest OT hrs: " . $restOT);
+        // \Log::info("Status: " . $status);
+        // \Log::info("---------------------------RVR--------------------------------");
+        // \Log::info("Remain from Compute in Main to RVR Regular Hrs Daily: " . ($remain_actual_for_rvr_min / 60));
+        // \Log::info("Required RVR Regular Hrs Daily: " . ($rvrShiftMinutes / 60));
+        // \Log::info("Required OT Hrs Daily: " . ($shifOTRvr / 60));
+        // \Log::info("Total ND RVR hrs: " . ($ndInRvr / 60));
+        // \Log::info("---------------------------END--------------------------------");
+
+        // $status = 'present';
+        // $regHrs = round(($regularMinutes - ($late + $undertime)) / 60, 2);
+        // $regOT = round($regularOT / 60, 2);
+        // $nightDiff = round(($ndInMain + $ndInRvr) / 60, 2);
+        // $restOT = 0;
+
+        // if ($isRestDay) {
+        //     $restOT = max(0, $regHrs + $regOT);
+        //     $regHrs = $regOT = $undertime = $late = 0;
+        //     $status = 'rest_day';
+        // }
+
+        // // \Log::info("Processing attendance for user ID: {$user->id} on date: {$attendance->date} with regular hours: {$regHrs}");
+        // if($regHrs < 0) {
+        //     // \Log::info("here");
+        //     $regHrs = 0;
+        //     $regOT = 0;
+        //     $undertime = 0;
+        //     $late = 0;
+        //     $nightDiff = 0;
+        //     $status = 'absent';
+        // }
+
+        // // Optionally update attendance record in database
+        // // $attendance->update([
+        // //     'rest_day_ot' => $restOT,
+        // //     'regular_hrs' => max(0, $regHrs),
+        // //     'regular_ot' => max(0, $regOT),
+        // //     'no_of_hrs_undertime' => round($undertime / 60, 2),
+        // //     'no_of_hrs_late' => round($late / 60, 2),
+        // //     'night_differential' => max(0, $nightDiff),
+        // // ]);
+
+        // $attendance->rest_day_ot = $restOT;
+        // $attendance->regular_hrs = max(0, $regHrs);
+        // $attendance->regular_ot = max(0, $regOT);
+        // $attendance->no_of_hrs_undertime = round($undertime / 60, 2);
+        // $attendance->no_of_hrs_late = round($late / 60, 2);
+        // $attendance->night_differential = max(0, $nightDiff);
+        // $attendance->status = $status;
+        // $attendance->save();
+
+        // self::logAttendanceComputation($attendance, $mainIn, $mainOut, $timeIn, $timeOut, $totalWorked, $regularMinutes, $regularOT, $restOT, $nightDiff, $remaining, $late, $undertime, $override['shift']);
+    }
+
+
+    public static function reprocessAttendance($date_from, $date_to, $user_id = null, $status)
+    {
+        $company = company();
+        $user = StaffMember::with('shift')->find($user_id);
+        $startDate = Carbon::createFromFormat('Y-m-d', $date_from, $company->timezone)->startOfDay();
+        $endDate = Carbon::createFromFormat('Y-m-d', $date_to, $company->timezone)->endOfDay();
+
+        $attendances = Attendance::when($user_id, fn($q) => $q->where('user_id', $user_id))
+            ->whereBetween('date', [$startDate, $endDate])
+            ->get();
+
+        foreach ($attendances as $attendance) {
+            self::processSingleAttendance($attendance, $user, $company);
+        }
+
+        return [
+            'message' => 'Attendance records updated successfully',
+            'count' => count($attendances)
+        ];
+    }
 
 }

@@ -1510,12 +1510,12 @@ private static function proccessOVR(){
 }
 
 private static function getHoliday($date){
-    $holiday = Holiday::where('date', $date)->first();
-    // $isHoliday = count($holiday) > 0 ? true : false;
-
+    $holiday = Holiday::where('date', $date)->get();
+    $isHoliday = count($holiday) > 0 ? true : false;
+    // \Log::info($isHoliday);
     return [
-        'data' => $holiday,
-        // 'bool' => $isHoliday
+        'data' => count($holiday) > 0 ? $holiday[0] : [],
+        'bool' => $isHoliday
     ];
 }
 
@@ -1757,6 +1757,86 @@ private static function getHoliday($date){
         \Log::info("Undertime: " . round($under) . " minutes");
         \Log::info("-----------------------------------------------------------");
     }
+    private static function countHoliday($holiday_type, $holiday_date, $actual_in, $actual_out, $shift_in, $shift_out, $company){
+
+        $requiredhrsMinutes = $company->total_hrs_per_day;
+
+        $holidayDate = Carbon::parse($holiday_date);
+        $holidayStart = $holidayDate->copy()->startOfDay();
+        $holidayEnd = $holidayDate->copy()->endOfDay();
+        //no of minutes in holiday
+        $totalMinuteHoliday = ($holidayEnd->timestamp - $holidayStart->timestamp) / 60;
+        $legalholiday_hrs = 0;
+        $legalholidayOT_hrs = 0;
+        $specialholiday_hrs = 0;
+        $specialholidayOT_hrs = 0;
+        $specialnonholiday_hrs = 0;
+        $specialnonholidayOT_hrs = 0;
+
+        $mainIn = Carbon::parse($shift_in);
+        $mainOut = Carbon::parse($shift_out);
+        $actualIn = Carbon::parse($actual_in);
+        $actualOut = Carbon::parse($actual_out);
+
+        if ($mainOut->lessThanOrEqualTo($mainIn)) {
+            $mainOut->addDay();
+        }
+        //total min in sched
+        $totalMinutesSched = (($mainOut->timestamp - $mainIn->timestamp) / 60);
+        $totalHoursSched = ($totalMinutesSched / 60);
+
+        //getting holiday in worked hours
+        $workStart = $actualIn->greaterThan($holidayStart) ? $actualIn : $holidayStart;
+        $workEnd = $actualOut->lessThan($holidayEnd) ? $actualOut : $holidayEnd;
+        $holidayWorkedMinutes = 0;
+        if ($workStart->lessThan($workEnd)) {
+            $holidayWorkedMinutes = $workStart->diffInMinutes($workEnd);
+        }
+        $holidayWorkedHours = round($holidayWorkedMinutes / 60, 2);
+
+
+        $workStartShift = $mainIn->greaterThan($holidayStart) ? $mainIn : $holidayStart;
+        $workEndShift = $mainOut->lessThan($holidayEnd) ? $mainOut : $holidayEnd;
+        $totalMinutesShift = 0;
+        if ($workStartShift->lessThan($workEndShift)) {
+            
+            $totalMinutesShift = $workStartShift->diffInMinutes($workEndShift); // always positive
+        }
+        $holidayShiftedHours = max(0, $totalMinutesShift / 60);
+
+    // Assign to appropriate bucket
+        switch ($holiday_type) {
+            case 'RH': // Regular Holiday
+                $legalholiday_hrs = min($holidayWorkedHours, $requiredhrsMinutes, $totalHoursSched);
+                $remain_actual_min = max(0, $holidayWorkedHours - $requiredhrsMinutes);
+                $shiftOTMain = abs(min(0, ($requiredhrsMinutes-$totalHoursSched)));
+                $legalholidayOT_hrs = min($remain_actual_min, $shiftOTMain);
+                break;
+
+            case 'SW': // Special Working
+                $specialholiday_hrs = min($holidayWorkedHours, $requiredhrsMinutes, $totalHoursSched);
+                $remain_actual_min = max(0, $holidayWorkedHours - $requiredhrsMinutes);
+                $shiftOTMain = abs(min(0, ($requiredhrsMinutes-$totalHoursSched)));
+                $specialholidayOT_hrs = min($remain_actual_min, $shiftOTMain);
+                break;
+
+            case 'SNW': // Special Non-Working
+                $specialnonholiday_hrs = min($holidayWorkedHours, $requiredhrsMinutes, $totalHoursSched);
+                $remain_actual_min = max(0, $holidayWorkedHours - $requiredhrsMinutes);
+                $shiftOTMain = abs(min(0, ($requiredhrsMinutes-$totalHoursSched)));
+                $specialnonholidayOT_hrs = min($remain_actual_min, $shiftOTMain);
+                break;
+        }
+        return [
+            'legalholiday_hrs' => $legalholiday_hrs,
+            'legalholidayOT_hrs' => $legalholidayOT_hrs,
+            'specialholiday_hrs' => $specialholiday_hrs,
+            'specialholidayOT_hrs' => $specialholidayOT_hrs,
+            'specialnonholiday_hrs' => $specialnonholiday_hrs,
+            'specialnonholidayOT_hrs' => $specialnonholidayOT_hrs,
+        ];
+    }
+
 
     private static function processSingleAttendance($attendance, $user, $company)
     {
@@ -1768,6 +1848,7 @@ private static function getHoliday($date){
         //Fething for Override Schedule and RVR schedule
         $override = self::getOverideShift($user->id, $shiftDate);
         $holidaydata = self::getHoliday($shiftDate);
+        $status = 'present';
         //Main Shift Schedule
         $mainInTime = $user->shift->clock_in_time;
         $mainOutTime = $user->shift->clock_out_time;
@@ -1792,6 +1873,9 @@ private static function getHoliday($date){
         }
 
         $totalMinutesSched = ($mainOut->timestamp - $mainIn->timestamp) / 60;
+
+        
+        // \Log::info('Main: ' . $totalMinutesSched);
         //Night Differential
         $ndStart = Carbon::parse($shiftDate . ' ' . $company->night_diff_start_time);
         $ndEnd = Carbon::parse($shiftDate . ' ' . $company->night_diff_end_time);
@@ -1801,6 +1885,28 @@ private static function getHoliday($date){
         //Actual IN and OUT
         $actualIn = new \DateTime($timeIn);
         $actualOut = new \DateTime($timeOut);
+        $legalholiday_hrs = 0;
+        $legalholidayOT_hrs = 0;
+        $specialholiday_hrs = 0;
+        $specialholidayOT_hrs = 0;
+        $specialnonholiday_hrs = 0;
+        $specialnonholidayOT_hrs = 0;
+
+        // //Mainshift Holiday
+        if($holidaydata['bool']){
+            
+
+            $arrData = self::countHoliday($holidaydata['data']['holiday_type'], $holidaydata['data']['date'], $actualIn, $actualOut, $mainIn, $mainOut, $company);
+            // \Log::info($arrData);
+            $legalholiday_hrs = $arrData['legalholiday_hrs'];
+            $legalholidayOT_hrs = $arrData['legalholidayOT_hrs'];
+            $specialholiday_hrs = $arrData['specialholiday_hrs'];
+            $specialholidayOT_hrs = $arrData['specialholidayOT_hrs'];
+            $specialnonholiday_hrs = $arrData['specialnonholiday_hrs'];
+            $specialnonholidayOT_hrs = $arrData['specialnonholidayOT_hrs'];
+            // \Log::info($arrData);
+            $status = 'holiday';
+        }
 
         //Total Worked Hours
         $totalWorked = ($actualOut->getTimestamp() - $actualIn->getTimestamp()) / 60;
@@ -1817,8 +1923,16 @@ private static function getHoliday($date){
         $regularOT = min($remain_actual_min, $shiftOTMain);
         $ndInMain = self::calculateOverlapMinutes($mainIn, $mainOut, $ndStart, $ndEnd);
         $remain_actual_for_rvr_min = max(0, ($remain_actual_min - $shiftOTMain));
+        
+
         $ndInRvr = 0;
         $rvrShiftMinutes = 0;
+        $legalholiday_hrsrvr = 0;
+        $legalholidayOT_hrsrvr = 0;
+        $specialholiday_hrsrvr = 0;
+        $specialholidayOT_hrsrvr = 0;
+        $specialnonholiday_hrsrvr = 0;
+        $specialnonholidayOT_hrsrvr = 0;
 
         //rvr process
         foreach ($override['shift'] as $ovr) {
@@ -1827,6 +1941,19 @@ private static function getHoliday($date){
                 $rvrEnd = Carbon::parse($shiftDate . ' ' . $ovr['time_out']);
                 if ($rvrEnd->lessThanOrEqualTo($rvrStart)) {
                     $rvrEnd->addDay();
+                }
+
+                if($holidaydata['bool']){
+                    
+
+                    $arrDatarvr = self::countHoliday($holidaydata['data']['holiday_type'], $holidaydata['data']['date'], $actualIn, $actualOut, $rvrStart, $rvrEnd, $company);
+                    $legalholiday_hrsrvr = $arrDatarvr['legalholiday_hrs'];
+                    $legalholidayOT_hrsrvr = $arrDatarvr['legalholidayOT_hrs'];
+                    $specialholiday_hrsrvr = $arrDatarvr['specialholiday_hrs'];
+                    $specialholidayOT_hrsrvr = $arrDatarvr['specialholidayOT_hrs'];
+                    $specialnonholiday_hrsrvr = $arrDatarvr['specialnonholiday_hrs'];
+                    $specialnonholidayOT_hrsrvr = $arrDatarvr['specialnonholidayOT_hrs'];
+                    // \Log::info($arrData);
                 }
 
                 $ndInRvr = self::calculateOverlapMinutes($rvrStart, $rvrEnd, $ndStart, $ndEnd);
@@ -1838,7 +1965,7 @@ private static function getHoliday($date){
         $regularMinutesRvr = min($remain_actual_for_rvr_min, $rvrShiftMinutes);
         $ndInRvr = $ndInRvr;
 
-        $status = 'present';
+        
         $regHrs = ($regularMinutes - ($late + $undertime)) / 60;
         $regOT = ($regularOT + $regularMinutesRvr) / 60;
         $nightDiff = ($ndInMain + $ndInRvr) / 60;
@@ -1850,16 +1977,30 @@ private static function getHoliday($date){
         }
 
 
+
+        $legalholidayAll = ($legalholiday_hrs);
+        $legalholidayOTAll  = ($legalholiday_hrsrvr + $legalholidayOT_hrs + $legalholidayOT_hrsrvr);
+        $specialholidayAll  = ($specialholiday_hrs);
+        $specialholidayOTAll  = ($specialholidayOT_hrs+$specialholiday_hrsrvr+$specialholidayOT_hrsrvr);
+        $specialnonholidayAll  = ($specialnonholiday_hrs);
+        $specialnonholidayOTAll  = ($specialnonholidayOT_hrs+$specialnonholiday_hrsrvr+$specialnonholidayOT_hrsrvr);
+
+
+
         $attendance->rest_day_ot = $restOT;
         $attendance->regular_hrs = max(0, $regHrs);
         $attendance->regular_ot = max(0, $regOT);
         $attendance->no_of_hrs_undertime = round($undertime / 60, 2);
         $attendance->no_of_hrs_late = round($late / 60, 2);
         $attendance->night_differential = max(0, $nightDiff);
+        $attendance->legal_holiday = $legalholidayAll;
+        $attendance->legal_holiday_ot = $legalholidayOTAll;
+        $attendance->special_holiday = $specialholidayAll;
+        $attendance->special_holiday_ot = $specialholidayOTAll;
         $attendance->status = $status;
         $attendance->save();
 
-        \Log::info($holidaydata['data']);
+        // \Log::info($holidaydata['data']);
         
         // \Log::info("-------------------------MAIN and OVD----------------------------------");
         // \Log::info("Date: " . $shiftDate);

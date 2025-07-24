@@ -375,6 +375,8 @@ export default {
                 return 'rest_day';
             } else if (record.status === 'absent') {
                 return 'absent';
+            } else if(record.status === 'holiday'){
+                return 'holiday'
             }
 
             

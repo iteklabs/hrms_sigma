@@ -109,14 +109,14 @@ const fields = () => {
             dataIndex: "rest_day",
         },
         
-        {
-            title: t("attendance.rest_day_special_holiday"),
-            dataIndex: "rest_day_special_holiday",
-        },
-        {
-            title: t("attendance.rest_day_special_holiday_ot"),
-            dataIndex: "rest_day_special_holiday_ot",
-        },
+        // {
+        //     title: t("attendance.rest_day_special_holiday"),
+        //     dataIndex: "rest_day_special_holiday",
+        // },
+        // {
+        //     title: t("attendance.rest_day_special_holiday_ot"),
+        //     dataIndex: "rest_day_special_holiday_ot",
+        // },
         
         {
             title: t("common.status"),

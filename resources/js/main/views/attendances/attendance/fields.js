@@ -81,6 +81,10 @@ const fields = () => {
             dataIndex: "regular_ot",
         },
         {
+            title: t("attendance.rest_day"),
+            dataIndex: "rest_day",
+        },
+        {
             title: t("attendance.rest_day_ot"),
             dataIndex: "rest_day_ot",
         },
@@ -104,10 +108,7 @@ const fields = () => {
             title: t("attendance.special_holiday_ot"),
             dataIndex: "special_holiday_ot",
         },
-        {
-            title: t("attendance.rest_day"),
-            dataIndex: "rest_day",
-        },
+        
         
         // {
         //     title: t("attendance.rest_day_special_holiday"),

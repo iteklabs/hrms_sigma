@@ -1985,7 +1985,7 @@ private static function getHoliday($date){
 
             $carryOverHrs = ($minutes / 60);
 
-            // \Log::info("Carry-over from $sourceDate to $applyToDate, total: $minutes minutes");
+            \Log::info("Carry-over from $sourceDate to $applyToDate, total: $minutes minutes");
         }
         //required daily for regular hrs
         $requiredDailyMinutes = $company->total_hrs_per_day * 60;

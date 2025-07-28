@@ -19,6 +19,7 @@
                             <a-form-item
                                 :label="$t('salary_adjustment.name')"
                                 name="input_text"
+                                class="required"
                             >
                                 <a-input v-model:value="formData.name" />
                             </a-form-item>
@@ -28,6 +29,7 @@
                             <a-form-item
                                 :label="$t('salary_adjustment.process_type')"
                                 name="process_type"
+                                class="required"
                             >
                                 <a-select
                                     v-model:value="formData.process_payment"
@@ -118,6 +120,7 @@
                             <a-form-item
                                 :label="$t('salary_adjustment.amount')"
                                 name="amount"
+                                class="required"
                             >
                                 <a-input-number
                                     v-model:value="formData.amount"
@@ -133,6 +136,7 @@
                             <a-form-item
                                 :label="$t('salary_adjustment.type_taxable')"
                                 name="type_taxable"
+                                class="required"
                             >
                                 <a-select
                                     v-model:value="formData.type"
@@ -145,44 +149,61 @@
                             </a-form-item>
                         </a-col>
 
-                        <a-col :xs="24" :sm="24" :md="24" :lg="24">
-                            <a-form-item
-                                :label="$t('attendance.user')"
-                                name="user_id"
-                                :help="rules.user_id ? rules.user_id.message : null"
-                                :validateStatus="rules.user_id ? 'error' : null"
-                                class="required"
-                            >
-                            
-                            <span style="display: flex">
-                                <a-select
-                                    v-model:value="formData.user_id"
-                                    :placeholder="
-                                        $t('common.select_default_text', [
-                                            $t('attendance.user'),
-                                        ])
-                                    "
-                                    :allowClear="true"
-                                    optionFilterProp="title"
-                                    show-search
+                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                                <a-form-item
+                                    :label="$t('attendance.user')"
+                                    name="user_id"
+                                    :help="rules.user_id ? rules.user_id.message : null"
+                                    :validateStatus="rules.user_id ? 'error' : null"
+                                    class="required"
                                 >
                                 
-                                    <a-select-option
-                                        v-for="user in users"
-                                        :key="user.xid"
-                                        :value="user.xid"
-                                        :title="user.name"
+                                <span style="display: flex">
+                                    <a-select
+                                        v-model:value="formData.user_id"
+                                        :placeholder="
+                                            $t('common.select_default_text', [
+                                                $t('attendance.user'),
+                                            ])
+                                        "
+                                        :allowClear="true"
+                                        optionFilterProp="title"
+                                        show-search
                                     >
-                                        <user-list-display
-                                            :user="user"
-                                            whereToShow="select"
-                                        />
-                                    </a-select-option>
+                                    
+                                        <a-select-option
+                                            v-for="user in users"
+                                            :key="user.xid"
+                                            :value="user.xid"
+                                            :title="user.name"
+                                        >
+                                            <user-list-display
+                                                :user="user"
+                                                whereToShow="select"
+                                            />
+                                        </a-select-option>
+                                    </a-select>
+                                    <UserAddButton @onAddSuccess="userAdded" />
+                                </span>
+                        </a-form-item>
+                    </a-col>
+
+                    <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                            <a-form-item
+                                :label="$t('salary_adjustment.adjustment_type')"
+                                name="adjustment_type"
+                                class="required"
+                            >
+                                <a-select
+                                    v-model:value="formData.adjustment_type"
+                                    style="width: 100%"
+                                    :placeholder="$t('salary_adjustment.adjustment_type')"
+                                >
+                                    <a-select-option value="EARN">{{ $t('salary_adjustment.adjustment_type_earn') }}</a-select-option>
+                                    <a-select-option value="DEDC">{{ $t('salary_adjustment.adjustment_type_deduction') }}</a-select-option>
                                 </a-select>
-                                <UserAddButton @onAddSuccess="userAdded" />
-                            </span>
-                    </a-form-item>
-                </a-col>
+                            </a-form-item>
+                        </a-col>
                         
                     </a-row>
                     

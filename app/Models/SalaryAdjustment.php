@@ -22,6 +22,7 @@ class SalaryAdjustment extends BaseModel
         'date_to',
         'amount',
         'type',
+        'adjustment_type',
     ];
 
     protected $hidden = ['id', 'user_id', 'created_by', 'updated_by'];
@@ -48,6 +49,7 @@ class SalaryAdjustment extends BaseModel
         'amount',
         'user_id',
         'type',
+        'adjustment_type',
     ];
 public function user()
 {

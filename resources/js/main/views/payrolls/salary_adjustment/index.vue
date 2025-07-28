@@ -122,6 +122,11 @@
                                 <span v-else-if="record.type === 'NT'">Non-Taxable</span>
                             </template>
 
+                            <template v-if="column.dataIndex === 'adjustment_type'">
+                                <span v-if="record.adjustment_type === 'EARN'">{{ $t('salary_adjustment.adjustment_type_earn') }}</span>
+                                <span v-else-if="record.adjustment_type === 'DEDC'">{{ $t('salary_adjustment.adjustment_type_deduction') }}</span>
+                            </template>
+
                             <template v-if="column.dataIndex === 'action'">
                                 <a-button
                                     v-if="

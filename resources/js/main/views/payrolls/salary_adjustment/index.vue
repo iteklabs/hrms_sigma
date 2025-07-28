@@ -128,17 +128,34 @@
                             </template>
 
                             <template v-if="column.dataIndex === 'action'">
-                                <a-button
-                                    v-if="
-                                        permsArray.includes('salary_adjustment_add_edit') ||
-                                        permsArray.includes('admin')
-                                    "
-                                    type="primary"
-                                    @click="editItem(record)"
-                                    style="margin-left: 4px"
-                                >
-                                    <template #icon><EditOutlined /></template>
-                                </a-button>
+                                <a-space>
+                                    <a-button
+                                        v-if="
+                                            permsArray.includes('salary_adjustment_add_edit') ||
+                                            permsArray.includes('admin')
+                                        "
+                                        type="primary"
+                                        @click="editItem(record)"
+                                        style="margin-left: 4px"
+                                    >
+                                        <template #icon><EditOutlined /></template>
+                                    </a-button>
+
+                                    <a-button
+                                        v-if="
+                                            permsArray.includes('payrolls_delete') ||
+                                            permsArray.includes('admin')
+                                        "
+                                        type="primary"
+                                        @click="showDeleteConfirm(record.xid)"
+                                    >
+                                        <template #icon><DeleteOutlined /></template>
+                                    </a-button>
+
+                                </a-space>
+                                
+
+                                
                             </template>
 
                         </template>

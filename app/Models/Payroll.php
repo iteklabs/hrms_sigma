@@ -51,6 +51,12 @@ class Payroll extends BaseModel
         'total_office_time' => 'integer',
         'total_worked_time' => 'integer',
         'half_days' => 'integer',
+        'regular_ot_amount' => 'double',
+        'rest_day_amount' => 'double',
+        'rest_day_ot_amount' => 'double',
+        'legal_holiday_amount' => 'double',
+        'legal_holiday_ot_amount' => 'double',
+        'night_differential_amount' => 'double',
     ];
 
     protected static function boot()
@@ -68,5 +74,9 @@ class Payroll extends BaseModel
     public function payrollComponents()
     {
         return $this->hasMany(PayrollComponent::class, 'payroll_id', 'id');
+    }
+
+    public function PayrollDetl(){
+        return $this->hasMany(PayrollsDetl::class, 'payroll_id', 'id');
     }
 }

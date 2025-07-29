@@ -18,6 +18,9 @@ use App\Models\Pagibig;
 use App\Models\Philhealth;
 use App\Models\TaxBIR;
 use App\Classes\CommonHrm;
+use App\Models\PayrollsDetl;
+use App\Models\SalaryAdjustment;
+
 
 class Payrolls
 {
@@ -245,242 +248,6 @@ class Payrolls
         self::updateUserSalary($userId, $annualCtc);
     }
 
-    // public static function payrollGenerateRegenerate($payrollGenerateRequest, $user, $company)
-    // {
-    //     if ($payrollGenerateRequest->has('year') && $payrollGenerateRequest->has('month') && $payrollGenerateRequest->month > 0) {
-    //         $year = (int) $payrollGenerateRequest->year;
-    //         $month = (int) $payrollGenerateRequest->month;
-    //         $allUsers = StaffMember::select('id', 'basic_salary', 'salary_group_id', 'ctc_value', 'annual_ctc', 'calculation_type')
-    //             ->where('status', 'active')
-    //             ->whereNotNull('ctc_value')
-    //             ->with('salaryGroup.salaryGroupComponents.salaryComponent')->get();
-            
-    //         $userIds = [];
-    //         if ($payrollGenerateRequest->has('users')) {
-    //             $userIds = Common::getIdArrayFromHash($payrollGenerateRequest->users);
-
-    //             $allUsers = $allUsers->whereIn('id', $userIds);
-    //         }
-            
-    //         foreach ($allUsers as $allUser) {
-    //             $payroll = Payroll::where('month', $month)
-    //                 ->where('year', $year)
-    //                 ->where('user_id', $allUser->id)
-    //                 ->first();
-
-    //             if (!$payroll) {
-    //                 $payroll = new Payroll();
-    //                 $payroll->created_by = $user->id;
-    //             }
-
-    //             // Delete existing PayrollComponent records for the given payroll
-    //             PayrollComponent::where('payroll_id', $payroll->id)
-    //                 ->where(function ($query) {
-    //                     $query->whereIn('type', [
-    //                         'custom_earning',
-    //                         'custom_deduction',
-    //                         'additional_earning',
-    //                         'expenses',
-    //                         'pre_payments',
-    //                         'earnings',
-    //                         'deductions',
-    //                     ]);
-    //                 })
-    //                 ->delete();
-    //             // Recalculate basic salary
-    //             $basicSalary = $allUser->basic_salary ?? 0;
-
-    //             $resultData = CommonHrm::getMonthYearAttendanceDetails($allUser->id, $month, $year);
-    //             $holidayCount = $resultData['holiday_count'];
-    //             $paidLeaveCount = $resultData['total_paid_leaves'];
-    //             $totalDaysInMonth = $resultData['total_days'];
-    //             $workingDays = $resultData['working_days'];
-    //             $presentDays = $resultData['present_days'];
-    //             $totalUnpaidLeaves = $resultData['total_unpaid_leaves'];
-
-    //             $payroll->user_id = $allUser->id;
-    //             $payroll->year = $year;
-    //             $payroll->month = $month;
-    //             $payroll->total_days = $totalDaysInMonth;
-    //             $payroll->basic_salary = $basicSalary;
-    //             $payroll->working_days = $resultData['working_days'];
-    //             $payroll->present_days = $resultData['present_days'];
-    //             $payroll->total_office_time = $resultData['total_office_time'];
-    //             $payroll->total_worked_time = $resultData['clock_in_duration'];
-    //             $payroll->half_days = $resultData['half_days'];
-    //             $payroll->late_days = $resultData['total_late_days'];
-    //             $payroll->paid_leaves = $paidLeaveCount;
-    //             $payroll->unpaid_leaves = $resultData['total_unpaid_leaves'];
-    //             $payroll->holiday_count = $holidayCount;
-    //             $payroll->salary_amount = 0;
-    //             $payroll->net_salary = 0;
-    //             $payroll->status = "generated";
-    //             $payroll->updated_by = $user->id;
-    //             $payroll->payment_date = null;
-    //             $payroll->company_id = $company->id;
-    //             $payroll->save();
-
-    //             //insert salary component according to salary group which is assign to users
-    //             $earnings = 0.0;
-    //             $deductions = 0.0;
-    //             if ($allUser->salaryGroup && $allUser->salaryGroup->salaryGroupComponents) {
-    //                 foreach ($allUser->salaryGroup->salaryGroupComponents as $component) {
-    //                     $salaryComponent = $component->salaryComponent;
-
-    //                     $basicSalary = $allUser->basic_salary;
-    //                     $annualCTC = (float) $allUser->annual_ctc;
-    //                     $ctcAmountMonthly = (float)  $annualCTC / 12;
-    //                     $monthlyCtc =
-    //                         ($ctcAmountMonthly * $presentDays) / $totalDaysInMonth;
-
-    //                     $unpaidDaysPayment =  ($ctcAmountMonthly * $totalUnpaidLeaves) / $totalDaysInMonth;
-
-    //                     $payrollComponent = new PayrollComponent();
-    //                     $payrollComponent->user_id = $allUser->id;
-    //                     $payrollComponent->payroll_id = $payroll->id;
-    //                     $payrollComponent->salary_component_id = $salaryComponent->id;
-    //                     $payrollComponent->name = $salaryComponent->name;
-    //                     $payrollComponent->value_type = $salaryComponent->value_type;
-    //                     $payrollComponent->type = $salaryComponent->type;
-    //                     $payrollComponent->is_earning = $salaryComponent->type == 'deductions' ? 0 : 1;
-    //                     $payrollComponent->company_id = $company->id;
-    //                     $payrollComponent->amount = $salaryComponent->monthly;
-
-    //                     $amount = 0.0;
-                       
-    //                     switch ($payrollComponent->value_type) {
-    //                         case 'fixed':
-    //                             $amount = (float) $payrollComponent->amount;
-    //                             break;
-    //                         case 'variable':
-    //                             $amount = (float) $payrollComponent['amount'];
-    //                             break;
-    //                         case 'basic_percent':
-    //                             $amount = ($basicSalary * (float) $payrollComponent->amount) / 100;
-    //                             break;
-    //                         case 'ctc_percent':
-    //                             $amount = ($monthlyCtc * (float) $payrollComponent->amount) / 100;
-    //                             break;
-    //                         default:
-    //                             $amount = 0.0;
-    //                             break;
-    //                     }
-    //                     $payrollComponent->monthly_value = round($amount, 2);
-    //                     $payrollComponent->save();
-
-    //                     if (strtolower(trim($payrollComponent->type)) === 'earnings') {
-    //                         $earnings += $amount;
-    //                     } elseif (strtolower(trim($payrollComponent->type)) === 'deductions') {
-    //                         $deductions += $amount;
-    //                     }
-    //                 }
-    //             }
-    //             $ctcAmountMonthly = 0;
-
-    //             if (isset($allUser->annual_ctc) && $allUser->annual_ctc > 0) {
-    //                 $annualCTC = (float) $allUser->annual_ctc;
-    //                 $ctcAmountMonthly = $annualCTC / 12;
-    //             }
-
-    //             $unpaidDaysPayment = 0;
-
-    //             if ($totalDaysInMonth > 0) {
-    //                 $unpaidDaysPayment = ($ctcAmountMonthly * $totalUnpaidLeaves) / $totalDaysInMonth;
-    //             }
-
-    //             if ($unpaidDaysPayment != 0) {
-    //                 $unpaidDaysComponent = new PayrollComponent();
-    //                 $unpaidDaysComponent->user_id = $allUser->id;
-    //                 $unpaidDaysComponent->payroll_id = $payroll->id;
-    //                 $unpaidDaysComponent->name = "Leave Deduction";
-    //                 $unpaidDaysComponent->value_type = 'fixed';
-    //                 $unpaidDaysComponent->type = 'deductions';
-    //                 $unpaidDaysComponent->is_earning = 0;
-    //                 $unpaidDaysComponent->company_id = $company->id;
-    //                 $unpaidDaysComponent->amount = round($unpaidDaysPayment, 2);
-    //                 $unpaidDaysComponent->monthly_value
-    //                     = round($unpaidDaysPayment, 2);
-    //                 $unpaidDaysComponent->save();
-    //             }
-
-
-    //             $specialAllowance = $basicSalary - $earnings;
-
-    //             $totalPrePaymentAmount = 0;
-    //             $totalExpenseAmount = 0;
-
-
-    //             // Getting all Pre payments
-    //             $allPrepayments = PrePayment::where('user_id', $allUser->id)
-    //                 ->where('payroll_month', $month)
-    //                 ->where('payroll_year', $year)
-    //                 ->get();
-
-    //             foreach ($allPrepayments as $allPrepayment) {
-    //                 $newPrePaymentComponent = new PayrollComponent();
-    //                 $newPrePaymentComponent->payroll_id = $payroll->id;
-    //                 $newPrePaymentComponent->pre_payment_id = $allPrepayment->id;
-    //                 $newPrePaymentComponent->user_id = $allUser->id;
-    //                 $newPrePaymentComponent->name = "Pre Payments";
-    //                 $newPrePaymentComponent->amount = $allPrepayment->amount;
-    //                 $newPrePaymentComponent->monthly_value = $allPrepayment->amount;
-    //                 $newPrePaymentComponent->is_earning = 0;
-    //                 $newPrePaymentComponent->type = 'pre_payments';
-    //                 $newPrePaymentComponent->company_id = $company->id;
-    //                 $newPrePaymentComponent->save();
-
-    //                 $totalPrePaymentAmount += $allPrepayment->amount;
-    //             }
-
-    //             // Getting all Expenses
-    //             $allExpenses = Expense::where('user_id', $allUser->id)
-    //                 ->where('payment_status', '0')
-    //                 ->where('status', 'approved')
-    //                 ->where('payroll_month', $month)
-    //                 ->where('payroll_year', $year)
-    //                 ->get();
-
-    //             foreach ($allExpenses as $allExpense) {
-    //                 $newExpenseComponent = new PayrollComponent();
-    //                 $newExpenseComponent->payroll_id = $payroll->id;
-    //                 $newExpenseComponent->expense_id = $allExpense->id;
-    //                 $newExpenseComponent->user_id = $allUser->id;
-    //                 $newExpenseComponent->name = "Expense Claim";
-    //                 $newExpenseComponent->amount = $allExpense->amount;
-    //                 $newExpenseComponent->monthly_value = $allExpense->amount;
-    //                 $newExpenseComponent->is_earning = 1;
-    //                 $newExpenseComponent->type = 'expenses';
-    //                 $newExpenseComponent->company_id = $company->id;
-    //                 $newExpenseComponent->save();
-
-    //                 $totalExpenseAmount += $allExpense->amount;
-    //             }
-
-    //             $payroll->pre_payment_amount = $totalPrePaymentAmount;
-    //             $payroll->expense_amount = $totalExpenseAmount;
-    //             // $payroll->net_salary =   $ctcAmountMonthly - $basicSalary - $totalPrePaymentAmount + $totalExpenseAmount
-    //             //     + $earnings - $deductions + $specialAllowance - $unpaidDaysPayment;
-    //             $payroll->net_salary = $basicSalary;
-
-    //             \Log::info($ctcAmountMonthly . " <-> " . $basicSalary . " <-> " . $totalPrePaymentAmount . " <+> " . $totalExpenseAmount . " <+> " . $earnings . " <-> " . $deductions . " <+> " . $specialAllowance . " <-> " . $unpaidDaysPayment);
-    //             $payroll->salary_amount
-    //                 = $ctcAmountMonthly - $basicSalary - $totalPrePaymentAmount + $totalExpenseAmount
-    //                 + $earnings - $deductions + $specialAllowance - $unpaidDaysPayment;
-
-    //             // This is use for update account balance on payroll generate and regenerate
-    //             if ($payroll->account_id) {
-    //                 DB::table('account_entries')
-    //                     ->where('payroll_id', $payroll->id)
-    //                     ->where('account_id', $payroll->account_id)
-    //                     ->delete();
-
-    //                 CommonHrm::updateAccountAmount($payroll->account_id);
-    //             }
-    //             $payroll->save();
-    //         }
-    //     }
-    // }
-
     public static function get_prev_salary($id, $month, $year)
     {
 
@@ -489,7 +256,6 @@ class Payrolls
             ->where('year', $year)
             ->where('cut_off', 'A')
             ->first();
-
         if ($payroll) {
             return $payroll;
         }
@@ -506,7 +272,13 @@ class Payrolls
             'philhealth_share_ee' => 0,
             'philhealth_share_er' => 0,
             'tax_withheld' => 0,
-            'taxable_income' => 0
+            'taxable_income' => 0,
+            'night_differential_amount' => 0,
+            'legal_holiday_ot_amount' => 0,
+            'legal_holiday_amount' => 0,
+            'rest_day_ot_amount' => 0,
+            'rest_day_amount' => 0,
+            'regular_ot_amount' => 0,
         ];
 
     }
@@ -525,7 +297,7 @@ class Payrolls
         $sss = SSS::where('min_salary', '<=', $basisSalary)
             ->where('max_salary', '>=', $basisSalary)
             ->first();
-        // \Log::info("SSS Details: ");
+        // \Log::info("SSS Details: " . $calculationType);
         // \Log::info("Employer Share: " . $sss->employer_share);
         // \Log::info("Employee Share: " . $sss->employee_share);
         // \Log::info("MPF YER: " . $sss->mpf_yer);
@@ -542,14 +314,24 @@ class Payrolls
                     $mpf_ee = $sss->mpf_ee / 2;
                     $ec_yer = $sss->ec_yer / 2;
 
+                    // return [
+                    //     'employer_share' => $employer_share,
+                    //     'employee_share' => $employee_share,
+                    //     'mpf_yer' => $mpf_yer,
+                    //     'ec_yer' => $ec_yer,
+                    //     'mpf_ee' => $mpf_ee,
+                    //     'total_ee_share_mpf' => $mpf_ee + $employee_share,
+                    //     'total_er_share_mpf' => $mpf_yer + $employer_share
+                    // ];
+
                     return [
-                        'employer_share' => $employer_share,
-                        'employee_share' => $employee_share,
-                        'mpf_yer' => $mpf_yer,
-                        'ec_yer' => $ec_yer,
-                        'mpf_ee' => $mpf_ee,
-                        'total_ee_share_mpf' => $mpf_ee + $employee_share,
-                        'total_er_share_mpf' => $mpf_yer + $employer_share
+                        'employer_share' => 500,
+                        'employee_share' => 500,
+                        'mpf_yer' => 0,
+                        'ec_yer' => 0,
+                        'mpf_ee' => 0,
+                        'total_ee_share_mpf' => 0,
+                        'total_er_share_mpf' => 0
                     ];
                 }else if($cutOff == 'B'){
 
@@ -584,7 +366,7 @@ class Payrolls
                     $mpf_yer = $sss->mpf_yer - $prev_sss_mpf_er;
                     $mpf_ee = $sss->mpf_ee - $prev_sss_mpf_ee;
                     $ec_yer = $sss->ec_yer - $prev_sss_ec_er;
-
+                    \Log::info("SSS Details: " . $basisSalary);
                     return [
                         'employer_share' => $employer_share,
                         'employee_share' => $employee_share,
@@ -696,9 +478,14 @@ class Payrolls
                 if ($cutOff == 'A') {
                     $employee_share = ($basisSalary * $philhealth->EE_share_percentage ?? 0) / 2;
                     $employer_share = ($basisSalary * $philhealth->ER_share_percentage ?? 0) / 2;
+                    // return [
+                    //     'employer_share' => $employer_share,
+                    //     'employee_share' => $employee_share
+                    // ];
+
                     return [
-                        'employer_share' => $employer_share,
-                        'employee_share' => $employee_share
+                        'employer_share' => 250,
+                        'employee_share' => 250
                     ];
 
                 }else if($cutOff == 'B'){
@@ -748,82 +535,6 @@ class Payrolls
 
     public static function get_withheld_tax($id , $month, $year, $taxable, $calculationType, $cutOff, $type_tax)
     {
-        // \Log::info('Salary: ' . $type_tax);
-        // if($cutOff == 'A'){
-        //     $taxable = $taxable * 24;
-        //     $taxable_annual_gross = (float) $taxable ?? 0;
-        //     $taxable_table = TaxBir::where('min_salary', '<=', $taxable_annual_gross)
-        //         ->where('max_salary', '>=', $taxable_annual_gross)
-        //         ->first();
-
-        //     $get_prev_salary = self::get_prev_salary($id, $month, $year);
-        //     $prev_tax_withheld = $get_prev_salary['tax_withheld'] ?? 0;
-
-        //     switch ($calculationType) {
-        //         case 's_monthly':
-        //             $annual_tax = ((($taxable_annual_gross - $taxable_table->min_salary) * $taxable_table->tax_percentage) + $taxable_table->fixed_amount);
-        //             $annual_tax = number_format($annual_tax, 2, '.', '');
-        //             $monthly_tax = $annual_tax / 12;
-        //             $per_cutoff_tax = $monthly_tax / 2;
-
-        //             return [
-        //                 'annual_tax' => $annual_tax,
-        //                 'monthly_tax' => number_format($monthly_tax, 2, '.', ''),
-        //                 'per_cutoff_tax' => number_format($per_cutoff_tax, 2, '.', '')
-        //             ];
-        //             // \Log::info('Annual Tax: ' . $annual_tax);
-        //             // \Log::info('Monthly Tax: ' . $monthly_tax);
-        //             // \Log::info('Per Cutoff Tax: ' . $per_cutoff_tax);
-
-        //         break;
-
-        //         case 'monthly':
-                    
-        //         break;
-                
-        //     }
-        // }else if($cutOff == 'B'){
-        //     $get_prev_salary = self::get_prev_salary($id, $month, $year);
-        //     // \Log::info($get_prev_salary);
-        //     $taxable = ($taxable + $get_prev_salary["taxable_income"]) * 12;
-            
-        //      \Log::info('Annual Salary: ' . $taxable);
-        //     $taxable_annual_gross = (float) $taxable ?? 0;
-        //     $taxable_table = TaxBir::where('min_salary', '<=', $taxable_annual_gross)
-        //         ->where('max_salary', '>=', $taxable_annual_gross)
-        //         ->first();
-        //     switch ($calculationType) {
-        //         case 'daily':
-        //         case 's_monthly':
-        //             $annual_tax = ((($taxable_annual_gross - $taxable_table->min_salary) * $taxable_table->tax_percentage) + $taxable_table->fixed_amount);
-        //             // Adjust the annual tax based on the previous tax withheld
-                    
-        //             $prev_tax_withheld = $get_prev_salary['tax_withheld'] ?? 0;
-        //             $annual_tax = number_format($annual_tax, 2, '.', '');
-        //             $monthly_tax = $annual_tax / 12;
-        //             $per_cutoff_tax = $monthly_tax - $prev_tax_withheld;
-        //             // \Log::info('Annual Tax: ' . $annual_tax);
-        //             // \Log::info('Monthly Tax: ' . $monthly_tax);
-        //             // \Log::info('Per Cutoff Tax: ' . $per_cutoff_tax);
-        //             return [
-        //                 'annual_tax' => $annual_tax,
-        //                 'monthly_tax' => number_format($monthly_tax, 2, '.', ''),
-        //                 'per_cutoff_tax' => number_format($per_cutoff_tax, 2, '.', '')
-        //             ];
-        //             // \Log::info('Annual Tax: ' . $annual_tax);
-        //             // \Log::info('Monthly Tax: ' . $monthly_tax);
-        //             // \Log::info('Per Cutoff Tax: ' . $per_cutoff_tax);
-
-        //         break;
-
-        //         case 'monthly':
-                    
-        //         break;
-                
-        //     }
-        // }
-
-
         switch ($type_tax) {
             case 'annualize':
                 switch ($calculationType) {
@@ -877,10 +588,34 @@ class Payrolls
             # code...
             break;
         }
-        
-
-        
     }
+
+    public static function getSalaryAdjustment($user_id, $month, $year, $cutoff){
+        $data = SalaryAdjustment::where('user_id', $user_id)
+        ->where('month', $month)
+        ->where('year', $year)
+        ->where('cut_off', $cutoff)
+        ->get();
+        $dataArray = array();
+        if($data){
+            $dataArray['earn'] = [];
+            $dataArray['dedc'] = [];
+            foreach ($data as $key => $value) {
+                switch ($value->adjustment_type) {
+                    case 'EARN':
+                        $dataArray['earn'][] = $value->toArray();
+                        
+                    break;
+                    
+                    case 'DEDC':
+                        $dataArray['dedc'][] = $value->toArray();
+                    break;
+                }
+            }
+        }
+        return $dataArray;
+    }
+
 
     public static function payrollGenerateRegenerate($payrollGenerateRequest, $user, $company)
     {
@@ -891,7 +626,7 @@ class Payrolls
             $month = (int) $payrollGenerateRequest->month;
             $cut_off = $payrollGenerateRequest->cut_off;
 
-            $allUsers = StaffMember::select('id', 'basic_salary', 'salary_group_id', 'ctc_value', 'annual_ctc', 'calculation_type', 'name', 'company_id')
+            $allUsers = StaffMember::select('id', 'basic_salary', 'semi_monthly_rate', 'hourly_rate', 'daily_rate', 'salary_group_id', 'ctc_value', 'annual_ctc', 'calculation_type', 'name', 'company_id')
                 ->where('status', 'active')
                 ->whereNotNull('ctc_value')
                 ->with('salaryGroup.salaryGroupComponents.salaryComponent')->get();
@@ -907,7 +642,7 @@ class Payrolls
             foreach ($allUsers as $allUser) {
 
                 $sched = CommonHrm::getScheduleOftaxAndBenifits($allUser->company_id);
-                \Log::info($sched);
+                
                 $payroll = Payroll::where('month', $month)
                     ->where('year', $year)
                     ->where('user_id', $allUser->id)
@@ -919,25 +654,161 @@ class Payrolls
                     $payroll->created_by = $user->id;
                 }
 
-                    $basicSalary = $allUser->basic_salary / 2 ?? 0;
+                    // $basicSalary = $allUser->basic_salary / 2 ?? 0;
                     $resultData = CommonHrm::getMonthYearAttendanceDetails($allUser->id, $month, $year, $cut_off);
-                    $totalDaysInMonth = $resultData['total_days'];
-                    $holidayCount = $resultData['holiday_count'];
-                    $paidLeaveCount = $resultData['total_paid_leaves'];
-                    $workingDays = $resultData['working_days'];
-                    $presentDays = $resultData['present_days'];
-                    $totalUnpaidLeaves = $resultData['total_unpaid_leaves'];
 
-                    \Log::debug($allUser->calculation_type . " - " . $cut_off . " - " . $allUser->name . " - " . $allUser->basic_salary);
+                    $regular_ot_percentage = ($company->regular_ot_percentage / 100);
+                    $legal_holiday_percentage = ($company->legal_holiday_percentage / 100);
+                    $legal_holiday_ot_percentage = ($company->legal_holiday_ot_percentage / 100);
+                    $rest_day_percentage = ($company->rest_day_percentage / 100);
+                    $rest_day_ot_percentage = ($company->rest_day_ot_percentage / 100);
+                    $night_diff_percentage = ($company->night_diff_percentage / 100);
+                    
+                    $total_days = $resultData['total_days'];
+                    $working_days = $resultData['working_days'];
+                    $regular_hrs = $resultData['regular_hrs'];
+                    $regular_ot = $resultData['regular_ot'];
+                    $rest_day = $resultData['rest_day'];
+                    $rest_day_ot = $resultData['rest_day_ot'];
+                    $legal_holiday = $resultData['legal_holiday'];
+                    $legal_holiday_ot = $resultData['legal_holiday_ot'];
+                    $night_differential = $resultData['night_differential'];
+
+                    $SalarAdjustment = self::getSalaryAdjustment($allUser->id, $month, $year, $cut_off);
+                    $EarnTax = 0;
+                    $EarnNonTax = 0;
+                    $DeaductTax = 0;
+                    $DeaductNonTax = 0;
+                    \Log::debug($SalarAdjustment);
+                    if(count($SalarAdjustment) > 0){
+                        if(count($SalarAdjustment['earn']) > 0){
+                            foreach ($SalarAdjustment['earn'] as $key => $value) {
+                                switch ($value['type']) {
+                                    case 'NT':
+                                        $EarnNonTax += $value['amount'];
+                                        PayrollsDetl::updateOrCreate(
+                                            [
+                                                'salary_adjustment_id' => Common::getIdFromHash($value['xid']),
+                                                'payroll_id' => Common::getIdFromHash($payroll->xid) ,
+                                            ],
+                                            [
+                                                'salary_adjustment_id' => Common::getIdFromHash($value['xid']),
+                                                'payroll_id' => Common::getIdFromHash($payroll->xid),
+                                                'amount' => $value['amount'],
+                                                'title' => $value['name'],
+                                                'types' => $value['adjustment_type'],
+                                                'isTaxable' => false
+                                            ]
+                                        );
+                                    break;
+
+                                    case 'T':
+                                        $EarnTax += $value['amount'];
+                                        PayrollsDetl::updateOrCreate(
+                                            [
+                                                'salary_adjustment_id' => Common::getIdFromHash($value['xid']),
+                                                'payroll_id' => Common::getIdFromHash($payroll->xid) ,
+                                            ],
+                                            [
+                                                'salary_adjustment_id' => Common::getIdFromHash($value['xid']),
+                                                'payroll_id' => Common::getIdFromHash($payroll->xid),
+                                                'amount' => $value['amount'],
+                                                'title' => $value['name'],
+                                                'types' => $value['adjustment_type'],
+                                                'isTaxable' => true
+                                            ]
+                                        );
+                                    break;
+                                }
+                                
+                            }
+                        }
+
+                        if(count($SalarAdjustment['dedc']) > 0){
+                            foreach ($SalarAdjustment['dedc'] as $key => $value) {
+                                switch ($value['type']) {
+                                    case 'NT':
+                                        $DeaductNonTax += $value['amount'];
+                                        PayrollsDetl::updateOrCreate(
+                                            [
+                                                'salary_adjustment_id' => Common::getIdFromHash($value['xid']),
+                                                'payroll_id' => Common::getIdFromHash($payroll->xid) ,
+                                            ],
+                                            [
+                                                'salary_adjustment_id' => Common::getIdFromHash($value['xid']),
+                                                'payroll_id' => Common::getIdFromHash($payroll->xid),
+                                                'amount' => $value['amount'],
+                                                'title' => $value['name'],
+                                                'types' => $value['adjustment_type'],
+                                                'isTaxable' => false
+                                            ]
+                                        );
+                                    break;
+
+                                    case 'T':
+                                        $DeaductTax += $value['amount'];
+                                        PayrollsDetl::updateOrCreate(
+                                            [
+                                                'salary_adjustment_id' => Common::getIdFromHash($value['xid']),
+                                                'payroll_id' => Common::getIdFromHash($payroll->xid) ,
+                                            ],
+                                            [
+                                                'salary_adjustment_id' => Common::getIdFromHash($value['xid']),
+                                                'payroll_id' => Common::getIdFromHash($payroll->xid),
+                                                'amount' => $value['amount'],
+                                                'title' => $value['name'],
+                                                'types' => $value['adjustment_type'],
+                                                'isTaxable' => true
+                                            ]
+                                        );
+                                    break;
+                                }
+                            }
+                        }
+
+
+                        
+                        
+                    }
+                    
+
+
+                    $basicSalary = ($working_days * $allUser->daily_rate);
+                    $regular_ot_amount = (($allUser->hourly_rate * $regular_ot_percentage) * $regular_ot);
+                    $rest_day_amount = (($allUser->hourly_rate * $rest_day_percentage) * $rest_day);
+                    $rest_day_ot_amount = (($allUser->hourly_rate * $rest_day_ot_percentage) * $rest_day_ot);
+                    $legal_holiday_amount = (($allUser->hourly_rate * $legal_holiday_percentage) * $legal_holiday);
+                    $legal_holiday_ot_amount = (($allUser->hourly_rate * $legal_holiday_ot_percentage) * $legal_holiday_ot);
+                    $night_differential_amount = (($allUser->hourly_rate * $night_diff_percentage) * $night_differential);
+
+                    $OTEarnings = $regular_ot_amount + $rest_day_amount + $rest_day_ot_amount + $legal_holiday_amount + $legal_holiday_ot_amount + $night_differential_amount;
+                    $TotalSSSBasis = 0;
+                    $prev_basic_salary = 0;
+                    $prev_OTEarnings = 0;
+                    if($cut_off == 'B'){
+                        $get_prev_salary = self::get_prev_salary($allUser->id, $month, $year);
+                        $prev_basic_salary = $get_prev_salary['basic_salary'];
+                        $prev_night_differential_amount = $get_prev_salary['night_differential_amount'];
+                        $prev_legal_holiday_ot_amount = $get_prev_salary['legal_holiday_ot_amount'];
+                        $prev_legal_holiday_amount = $get_prev_salary['legal_holiday_amount'];
+                        $prev_rest_day_ot_amount = $get_prev_salary['rest_day_ot_amount'];
+                        $prev_rest_day_amount = $get_prev_salary['rest_day_amount'];
+                        $prev_regular_ot_amount = $get_prev_salary['regular_ot_amount'];
+                        $prev_OTEarnings = $prev_regular_ot_amount + $prev_rest_day_amount + $prev_rest_day_ot_amount + $prev_legal_holiday_amount + $prev_legal_holiday_ot_amount + $prev_night_differential_amount;
+                    }
+
+                    $TotalSSSBasis = (($basicSalary + $OTEarnings) + ($prev_basic_salary + $prev_OTEarnings));
+                    // \Log::info($TotalSSSBasis);
+
                     // SSSS Calculation
-                    $sssData = self::get_sss_amount($allUser->id, $month, $year, $allUser->basic_salary, $allUser->calculation_type, $cut_off);
+                    $sssData = self::get_sss_amount($allUser->id, $month, $year, $TotalSSSBasis, $allUser->calculation_type, $cut_off);
                     
                     // Pagibig Calculation
                     $pagibigData = self::get_pagibig_amount($allUser->id, $month, $year, $allUser->basic_salary, $allUser->calculation_type, $cut_off);
 
                     // PhilHealth Calculation
                     $philhealthData = self::get_philhealth_amount($allUser->id, $month, $year, $allUser->basic_salary, $allUser->calculation_type, $cut_off);
-
+                    // \Log::debug($philhealthData);
                     $sss_empee_share = $sssData['employee_share'] ?? 0;
                     $sss_emper_share  = $sssData['employer_share'] ?? 0;
                     $sss_mpf_er = $sssData['mpf_yer'] ?? 0;
@@ -948,296 +819,62 @@ class Payrolls
                     $philhealth_er = $philhealthData['employer_share'] ?? 0;
                     $philhealth_ee = $philhealthData['employee_share'] ?? 0;
                     
-
                     $taxable_forBIR = ($basicSalary - (($sss_empee_share + $sss_mpf_ee) + $pagibig_ee + $philhealth_ee));
-                    if($allUser->id == "12"){
-                        \Log::debug($sssData);
-                    }
-                    
                     // tax calculation
                     $tax_data = self::get_withheld_tax($allUser->id, $month, $year, $taxable_forBIR, $allUser->calculation_type, $cut_off, $sched['tax_schedule']);
                     
                     $tax_withheld = $tax_data['per_cutoff_tax'] ?? 0;
-                    \Log::debug($sssData);
 
-                    
-                    
-                    
-                    // \Log::debug($philhealthData);
-                    $netSalary = $basicSalary - ((($sss_empee_share + $sss_mpf_ee) + $pagibig_ee + $philhealth_ee) + $tax_withheld);
+                    $netSalary = ($basicSalary +  $OTEarnings + $EarnTax + $EarnNonTax) - (((($sss_empee_share + $sss_mpf_ee) + $pagibig_ee + $philhealth_ee) + $tax_withheld) +  ($DeaductNonTax + $DeaductTax) );
                     $payroll->user_id = $allUser->id;
                     $payroll->year = $year;
                     $payroll->month = $month;
                     $payroll->cut_off = $cut_off;
-                    $payroll->total_days = $totalDaysInMonth;
+                    $payroll->total_days = $total_days;
                     $payroll->basic_salary = $basicSalary;
                     $payroll->working_days = $resultData['working_days'];
-                    $payroll->present_days = $resultData['present_days'];
-                    $payroll->total_office_time = $resultData['total_office_time'];
-                    $payroll->total_worked_time = $resultData['clock_in_duration'];
-                    $payroll->half_days = $resultData['half_days'];
-                    $payroll->late_days = $resultData['total_late_days'];
-                    $payroll->paid_leaves = $paidLeaveCount;
-                    $payroll->unpaid_leaves = $resultData['total_unpaid_leaves'];
-                    $payroll->holiday_count = $holidayCount;
+                    $payroll->present_days = $working_days;
                     $payroll->salary_amount = 0;
                     $payroll->net_salary = $netSalary;
                     $payroll->status = "generated";
                     $payroll->updated_by = $user->id;
                     $payroll->payment_date = null;
                     $payroll->company_id = $company->id;
-                    $payroll->sss_share_er = $sssData['employer_share'] ?? 0;
-                    $payroll->sss_share_ee = $sssData['employee_share'] ?? 0;
-                    $payroll->sss_mpf_er = $sssData['mpf_yer'] ?? 0;
-                    $payroll->sss_ec_er = $sssData['ec_yer'] ?? 0;
-                    $payroll->sss_mpf_ee = $sssData['mpf_ee'] ?? 0;
-                    $payroll->pagibig_share_er = $pagibigData['employer_share'] ?? 0;
-                    $payroll->pagibig_share_ee = $pagibigData['employee_share'] ?? 0;
-                    $payroll->philhealth_share_er = $philhealthData['employer_share'] ?? 0;
-                    $payroll->philhealth_share_ee = $philhealthData['employee_share'] ?? 0;
+                    $payroll->sss_share_er = $sss_emper_share;
+                    $payroll->sss_share_ee = $sss_empee_share;
+                    $payroll->sss_mpf_er = $sss_mpf_er;
+                    $payroll->sss_ec_er = $sss_ec_er;
+                    $payroll->sss_mpf_ee = $sss_mpf_ee;
+                    $payroll->pagibig_share_er = $pagibig_er;
+                    $payroll->pagibig_share_ee = $pagibig_ee;
+                    $payroll->philhealth_share_er = $philhealth_er;
+                    $payroll->philhealth_share_ee = $philhealth_ee;
                     $payroll->taxable_income = $taxable_forBIR;
                     $payroll->tax_withheld = $tax_withheld ?? 0;
-
-                    // $payroll->sss_total_ee_share_mpf = $sssData['total_ee_share_mpf'];
-                    // $payroll->sss_total_er_share_mpf = $sssData['total_er_share_mpf'];
-
+                    $payroll->night_differential_amount	 = $night_differential_amount;
+                    $payroll->legal_holiday_ot_amount	 = $legal_holiday_ot_amount;
+                    $payroll->legal_holiday_amount	 = $legal_holiday_amount;
+                    $payroll->rest_day_ot_amount	 = $rest_day_ot_amount;
+                    $payroll->rest_day_amount	 = $rest_day_amount;
+                    $payroll->regular_ot_amount	 = $regular_ot_amount;
+                    
                     $payroll->save();
 
-                
-                // \Log::debug('<pre>' . print_r($allUser->toArray(), true) . '</pre>');
+                    if($allUser->id == 12){
+
+                        // \Log::debug('Regular OT: ' . $regular_ot_amount);
+                        // \Log::debug('rest_day_amount: ' . $rest_day_amount);
+                        // \Log::debug('rest_day_ot_amount: ' . $rest_day_ot_amount);
+                        // \Log::debug('legal_holiday_amount: ' . $legal_holiday_amount);
+                        // \Log::debug('legal_holiday_ot_amount: ' . $legal_holiday_ot_amount);
+                        // \Log::debug('night_differential_amount: ' . $night_differential_amount);
+                        // \Log::debug('OT Earnings: ' . $OTEarnings);
+
+                        
+                    }
             }
         }
-        // if ($payrollGenerateRequest->has('year') && $payrollGenerateRequest->has('month') && $payrollGenerateRequest->month > 0) {
-        //     $year = (int) $payrollGenerateRequest->year;
-        //     $month = (int) $payrollGenerateRequest->month;
-        //     $allUsers = StaffMember::select('id', 'basic_salary', 'salary_group_id', 'ctc_value', 'annual_ctc', 'calculation_type')
-        //         ->where('status', 'active')
-        //         ->whereNotNull('ctc_value')
-        //         ->with('salaryGroup.salaryGroupComponents.salaryComponent')->get();
-            
-        //     $userIds = [];
-        //     if ($payrollGenerateRequest->has('users')) {
-        //         $userIds = Common::getIdArrayFromHash($payrollGenerateRequest->users);
-
-        //         $allUsers = $allUsers->whereIn('id', $userIds);
-        //     }
-            
-        //     foreach ($allUsers as $allUser) {
-        //         $payroll = Payroll::where('month', $month)
-        //             ->where('year', $year)
-        //             ->where('user_id', $allUser->id)
-        //             ->first();
-
-        //         if (!$payroll) {
-        //             $payroll = new Payroll();
-        //             $payroll->created_by = $user->id;
-        //         }
-
-        //         // Delete existing PayrollComponent records for the given payroll
-        //         PayrollComponent::where('payroll_id', $payroll->id)
-        //             ->where(function ($query) {
-        //                 $query->whereIn('type', [
-        //                     'custom_earning',
-        //                     'custom_deduction',
-        //                     'additional_earning',
-        //                     'expenses',
-        //                     'pre_payments',
-        //                     'earnings',
-        //                     'deductions',
-        //                 ]);
-        //             })
-        //             ->delete();
-        //         // Recalculate basic salary
-        //         $basicSalary = $allUser->basic_salary ?? 0;
-
-        //         $resultData = CommonHrm::getMonthYearAttendanceDetails($allUser->id, $month, $year);
-        //         $holidayCount = $resultData['holiday_count'];
-        //         $paidLeaveCount = $resultData['total_paid_leaves'];
-        //         $totalDaysInMonth = $resultData['total_days'];
-        //         $workingDays = $resultData['working_days'];
-        //         $presentDays = $resultData['present_days'];
-        //         $totalUnpaidLeaves = $resultData['total_unpaid_leaves'];
-
-        //         $payroll->user_id = $allUser->id;
-        //         $payroll->year = $year;
-        //         $payroll->month = $month;
-        //         $payroll->total_days = $totalDaysInMonth;
-        //         $payroll->basic_salary = $basicSalary;
-        //         $payroll->working_days = $resultData['working_days'];
-        //         $payroll->present_days = $resultData['present_days'];
-        //         $payroll->total_office_time = $resultData['total_office_time'];
-        //         $payroll->total_worked_time = $resultData['clock_in_duration'];
-        //         $payroll->half_days = $resultData['half_days'];
-        //         $payroll->late_days = $resultData['total_late_days'];
-        //         $payroll->paid_leaves = $paidLeaveCount;
-        //         $payroll->unpaid_leaves = $resultData['total_unpaid_leaves'];
-        //         $payroll->holiday_count = $holidayCount;
-        //         $payroll->salary_amount = 0;
-        //         $payroll->net_salary = 0;
-        //         $payroll->status = "generated";
-        //         $payroll->updated_by = $user->id;
-        //         $payroll->payment_date = null;
-        //         $payroll->company_id = $company->id;
-        //         $payroll->save();
-
-        //         //insert salary component according to salary group which is assign to users
-        //         $earnings = 0.0;
-        //         $deductions = 0.0;
-        //         if ($allUser->salaryGroup && $allUser->salaryGroup->salaryGroupComponents) {
-        //             foreach ($allUser->salaryGroup->salaryGroupComponents as $component) {
-        //                 $salaryComponent = $component->salaryComponent;
-
-        //                 $basicSalary = $allUser->basic_salary;
-        //                 $annualCTC = (float) $allUser->annual_ctc;
-        //                 $ctcAmountMonthly = (float)  $annualCTC / 12;
-        //                 $monthlyCtc =
-        //                     ($ctcAmountMonthly * $presentDays) / $totalDaysInMonth;
-
-        //                 $unpaidDaysPayment =  ($ctcAmountMonthly * $totalUnpaidLeaves) / $totalDaysInMonth;
-
-        //                 $payrollComponent = new PayrollComponent();
-        //                 $payrollComponent->user_id = $allUser->id;
-        //                 $payrollComponent->payroll_id = $payroll->id;
-        //                 $payrollComponent->salary_component_id = $salaryComponent->id;
-        //                 $payrollComponent->name = $salaryComponent->name;
-        //                 $payrollComponent->value_type = $salaryComponent->value_type;
-        //                 $payrollComponent->type = $salaryComponent->type;
-        //                 $payrollComponent->is_earning = $salaryComponent->type == 'deductions' ? 0 : 1;
-        //                 $payrollComponent->company_id = $company->id;
-        //                 $payrollComponent->amount = $salaryComponent->monthly;
-
-        //                 $amount = 0.0;
-                       
-        //                 switch ($payrollComponent->value_type) {
-        //                     case 'fixed':
-        //                         $amount = (float) $payrollComponent->amount;
-        //                         break;
-        //                     case 'variable':
-        //                         $amount = (float) $payrollComponent['amount'];
-        //                         break;
-        //                     case 'basic_percent':
-        //                         $amount = ($basicSalary * (float) $payrollComponent->amount) / 100;
-        //                         break;
-        //                     case 'ctc_percent':
-        //                         $amount = ($monthlyCtc * (float) $payrollComponent->amount) / 100;
-        //                         break;
-        //                     default:
-        //                         $amount = 0.0;
-        //                         break;
-        //                 }
-        //                 $payrollComponent->monthly_value = round($amount, 2);
-        //                 $payrollComponent->save();
-
-        //                 if (strtolower(trim($payrollComponent->type)) === 'earnings') {
-        //                     $earnings += $amount;
-        //                 } elseif (strtolower(trim($payrollComponent->type)) === 'deductions') {
-        //                     $deductions += $amount;
-        //                 }
-        //             }
-        //         }
-        //         $ctcAmountMonthly = 0;
-
-        //         if (isset($allUser->annual_ctc) && $allUser->annual_ctc > 0) {
-        //             $annualCTC = (float) $allUser->annual_ctc;
-        //             $ctcAmountMonthly = $annualCTC / 12;
-        //         }
-
-        //         $unpaidDaysPayment = 0;
-
-        //         if ($totalDaysInMonth > 0) {
-        //             $unpaidDaysPayment = ($ctcAmountMonthly * $totalUnpaidLeaves) / $totalDaysInMonth;
-        //         }
-
-        //         if ($unpaidDaysPayment != 0) {
-        //             $unpaidDaysComponent = new PayrollComponent();
-        //             $unpaidDaysComponent->user_id = $allUser->id;
-        //             $unpaidDaysComponent->payroll_id = $payroll->id;
-        //             $unpaidDaysComponent->name = "Leave Deduction";
-        //             $unpaidDaysComponent->value_type = 'fixed';
-        //             $unpaidDaysComponent->type = 'deductions';
-        //             $unpaidDaysComponent->is_earning = 0;
-        //             $unpaidDaysComponent->company_id = $company->id;
-        //             $unpaidDaysComponent->amount = round($unpaidDaysPayment, 2);
-        //             $unpaidDaysComponent->monthly_value
-        //                 = round($unpaidDaysPayment, 2);
-        //             $unpaidDaysComponent->save();
-        //         }
-
-
-        //         $specialAllowance = $basicSalary - $earnings;
-
-        //         $totalPrePaymentAmount = 0;
-        //         $totalExpenseAmount = 0;
-
-
-        //         // Getting all Pre payments
-        //         $allPrepayments = PrePayment::where('user_id', $allUser->id)
-        //             ->where('payroll_month', $month)
-        //             ->where('payroll_year', $year)
-        //             ->get();
-
-        //         foreach ($allPrepayments as $allPrepayment) {
-        //             $newPrePaymentComponent = new PayrollComponent();
-        //             $newPrePaymentComponent->payroll_id = $payroll->id;
-        //             $newPrePaymentComponent->pre_payment_id = $allPrepayment->id;
-        //             $newPrePaymentComponent->user_id = $allUser->id;
-        //             $newPrePaymentComponent->name = "Pre Payments";
-        //             $newPrePaymentComponent->amount = $allPrepayment->amount;
-        //             $newPrePaymentComponent->monthly_value = $allPrepayment->amount;
-        //             $newPrePaymentComponent->is_earning = 0;
-        //             $newPrePaymentComponent->type = 'pre_payments';
-        //             $newPrePaymentComponent->company_id = $company->id;
-        //             $newPrePaymentComponent->save();
-
-        //             $totalPrePaymentAmount += $allPrepayment->amount;
-        //         }
-
-        //         // Getting all Expenses
-        //         $allExpenses = Expense::where('user_id', $allUser->id)
-        //             ->where('payment_status', '0')
-        //             ->where('status', 'approved')
-        //             ->where('payroll_month', $month)
-        //             ->where('payroll_year', $year)
-        //             ->get();
-
-        //         foreach ($allExpenses as $allExpense) {
-        //             $newExpenseComponent = new PayrollComponent();
-        //             $newExpenseComponent->payroll_id = $payroll->id;
-        //             $newExpenseComponent->expense_id = $allExpense->id;
-        //             $newExpenseComponent->user_id = $allUser->id;
-        //             $newExpenseComponent->name = "Expense Claim";
-        //             $newExpenseComponent->amount = $allExpense->amount;
-        //             $newExpenseComponent->monthly_value = $allExpense->amount;
-        //             $newExpenseComponent->is_earning = 1;
-        //             $newExpenseComponent->type = 'expenses';
-        //             $newExpenseComponent->company_id = $company->id;
-        //             $newExpenseComponent->save();
-
-        //             $totalExpenseAmount += $allExpense->amount;
-        //         }
-
-        //         $payroll->pre_payment_amount = $totalPrePaymentAmount;
-        //         $payroll->expense_amount = $totalExpenseAmount;
-        //         // $payroll->net_salary =   $ctcAmountMonthly - $basicSalary - $totalPrePaymentAmount + $totalExpenseAmount
-        //         //     + $earnings - $deductions + $specialAllowance - $unpaidDaysPayment;
-        //         $payroll->net_salary = $basicSalary;
-
-        //         \Log::info($ctcAmountMonthly . " <-> " . $basicSalary . " <-> " . $totalPrePaymentAmount . " <+> " . $totalExpenseAmount . " <+> " . $earnings . " <-> " . $deductions . " <+> " . $specialAllowance . " <-> " . $unpaidDaysPayment);
-        //         $payroll->salary_amount
-        //             = $ctcAmountMonthly - $basicSalary - $totalPrePaymentAmount + $totalExpenseAmount
-        //             + $earnings - $deductions + $specialAllowance - $unpaidDaysPayment;
-
-        //         // This is use for update account balance on payroll generate and regenerate
-        //         if ($payroll->account_id) {
-        //             DB::table('account_entries')
-        //                 ->where('payroll_id', $payroll->id)
-        //                 ->where('account_id', $payroll->account_id)
-        //                 ->delete();
-
-        //             CommonHrm::updateAccountAmount($payroll->account_id);
-        //         }
-        //         $payroll->save();
-        //     }
-        // }
+        
     }
+
 }

@@ -22,6 +22,7 @@ if ($appType == 'non-saas') {
 ApiRoute::get('download-backups/{id}', ['as' => 'api.settings.download-backups', 'uses' => 'App\Http\Controllers\Api\Common\DatabaseBackupController@downloadBackups']);
 
 Route::get('langs/download/{xid?}', ['as' => 'api.extra.langs.download', 'uses' => 'Api\Common\LangsController@downloadLang']);
+Route::get('generate_pdf/{id}', ['as' => 'api.generate_pdf.payslip', 'uses' => 'GeneratePDFPaySlip@payslip']);
 
 // If appType is saas version
 // Then we only define routes

@@ -69,6 +69,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('roles', 'RolesController', $options);
 
         ApiRoute::get('attendances/summary-month', ['as' => 'api.attendances.summary-month', 'uses' => 'AttendanceController@attendanceSummaryByMonth']);
+        
         ApiRoute::get('attendances/summary', ['as' => 'api.attendances.summary', 'uses' => 'AttendanceController@attendanceSummary']);
         ApiRoute::resource('attendances', 'AttendanceController', $options);
         ApiRoute::post('attendances/reprocess', ['as' => 'api.attendances.reprocess', 'uses' => 'AttendanceController@reprocessAttendance']);

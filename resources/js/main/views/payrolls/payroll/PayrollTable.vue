@@ -13,9 +13,9 @@
     </template>
 
     <admin-page-table-content :isPageTableContent="isPageTableContent">
-        <template v-if="$slots.alert">
+        <!-- <template v-if="$slots.alert">
             <slot name="alert"></slot>
-        </template>
+        </template> -->
         <a-row>
             <a-col :span="24">
                 <div class="table-responsive">
@@ -83,7 +83,7 @@
                                     >
                                         <template #icon><EyeOutlined /></template>
                                     </a-button>
-                                    <a-button
+                                    <!-- <a-button
                                         v-if="
                                             permsArray.includes('payrolls_edit') ||
                                             (permsArray.includes('admin') &&
@@ -94,7 +94,7 @@
                                         style="margin-left: 4px"
                                     >
                                         <template #icon><EditOutlined /></template>
-                                    </a-button>
+                                    </a-button> -->
 
                                     <a-button
                                         v-if="
@@ -106,7 +106,7 @@
                                     >
                                         <template #icon><DeleteOutlined /></template>
                                     </a-button>
-                                    <PdfDownload
+                                    <!-- <PdfDownload
                                         :title="$t('payroll.payroll_slip')"
                                         :fileName="`holiday-calendar-${record.year}`"
                                         :url="`payroll-pdf/${record.xid}`"
@@ -117,7 +117,12 @@
                                             year: record.year,
                                             lang: selectedLang,
                                         }"
-                                    />
+                                    /> -->
+                                    <a-button type="primary" :href="`/generate_pdf/${record.xid}`" target="_blank">
+                                        <template #icon><DownloadOutlined /></template>
+                                        Payslip
+                                    </a-button>
+
                                 </a-space>
                             </template>
                         </template>
@@ -157,16 +162,16 @@
 <script>
 import PdfDownload from "@/main/components/pdf/PdfDownload.vue";
 import {
-CheckOutlined,
-CloseOutlined,
-DeleteOutlined,
-DollarCircleOutlined,
-DownloadOutlined,
-EditOutlined,
-EyeOutlined,
-PlusOutlined,
-ReloadOutlined,
-SendOutlined,
+    CheckOutlined,
+    CloseOutlined,
+    DeleteOutlined,
+    DollarCircleOutlined,
+    DownloadOutlined,
+    EditOutlined,
+    EyeOutlined,
+    PlusOutlined,
+    ReloadOutlined,
+    SendOutlined,
 } from "@ant-design/icons-vue";
 import { notification } from "ant-design-vue";
 import { find } from "lodash-es";
@@ -355,6 +360,7 @@ export default {
             axiosAdmin
                 .post("payrolls/generate", {
                     month: props.filters.month,
+                    cut_off: props.filters.cut_off,
                     year: props.filters.year.format("YYYY"),
                     users: slectedRowUserIds,
                 })

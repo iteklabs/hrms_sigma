@@ -52,6 +52,9 @@ class AttendanceController extends ApiBaseController
             $query = $query->where('attendances.status', $attendance);
         };
 
+        $query = $query->orderBy('attendances.date', 'asc')
+                ->orderBy('attendances.clock_in_date_time', 'desc');
+
         return  $query;
     }
 

@@ -460,6 +460,12 @@ class Payrolls
         // Placeholder for PhilHealth calculation logic
         // This function should return an array with 'employer_share' and 'employee_share'
         // similar to the SSS and Pagibig functions.
+        if(!isset($basisSalary) || $basisSalary <= 0){
+            return [
+                'employer_share' => 0,
+                'employee_share' => 0
+            ];
+        }
         $philhealth = Philhealth::where('min_salary', '<=', $basisSalary)
             ->where('max_salary', '>=', $basisSalary)
             ->first();
@@ -535,6 +541,14 @@ class Payrolls
 
     public static function get_withheld_tax($id , $month, $year, $taxable, $calculationType, $cutOff, $type_tax)
     {
+        if(!isset($taxable) || $taxable <= 0){
+            return [
+                'annual_tax' => 0,
+                'monthly_tax' => 0,
+                'per_cutoff_tax' => 0
+            ];
+        }
+
         switch ($type_tax) {
             case 'annualize':
                 switch ($calculationType) {
@@ -656,7 +670,7 @@ class Payrolls
 
                     // $basicSalary = $allUser->basic_salary / 2 ?? 0;
                     $resultData = CommonHrm::getMonthYearAttendanceDetails($allUser->id, $month, $year, $cut_off);
-
+                \Log::alert($resultData);
                     $regular_ot_percentage = ($company->regular_ot_percentage / 100);
                     $legal_holiday_percentage = ($company->legal_holiday_percentage / 100);
                     $legal_holiday_ot_percentage = ($company->legal_holiday_ot_percentage / 100);
@@ -679,7 +693,7 @@ class Payrolls
                     $EarnNonTax = 0;
                     $DeaductTax = 0;
                     $DeaductNonTax = 0;
-                    \Log::debug($SalarAdjustment);
+                    // \Log::debug($SalarAdjustment);
                     if(count($SalarAdjustment) > 0){
                         if(count($SalarAdjustment['earn']) > 0){
                             foreach ($SalarAdjustment['earn'] as $key => $value) {
@@ -833,6 +847,22 @@ class Payrolls
                     $payroll->total_days = $total_days;
                     $payroll->basic_salary = $basicSalary;
                     $payroll->working_days = $resultData['working_days'];
+
+
+                    $payroll->total_office_time = 0;
+                    $payroll->total_worked_time = 0;
+                    $payroll->half_days = 0;
+                    $payroll->late_days = 0;
+                    $payroll->paid_leaves = 0;
+                    $payroll->unpaid_leaves = 0;
+                    $payroll->holiday_count = 0;
+                    
+                    
+                    
+                    
+                    
+                    
+                    
                     $payroll->present_days = $working_days;
                     $payroll->salary_amount = 0;
                     $payroll->net_salary = $netSalary;

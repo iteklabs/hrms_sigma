@@ -12,9 +12,20 @@ class GeneratePDFPaySlip extends Controller
         try {
             $newID = Common::getIdFromHash($id);
             $data = Payroll::with(['user', 'PayrollDetl'])->find($newID);
-            
-
-            $pdf = Pdf::loadView('payslip', ['data' => $data]);
+            $EarnTax = $data->PayrollDetl->where('types', 'EARN')->where('isTaxable', true);
+            $EarnNonTax = $data->PayrollDetl->where('types', 'EARN')->where('isTaxable', false);
+            $DedcTax = $data->PayrollDetl->where('types', 'DEDC')->where('isTaxable', true);
+            $DedcNonTax = $data->PayrollDetl->where('types', 'DEDC')->where('isTaxable', false);
+            // echo "<pre>";
+            // print_r($data->PayrollDetl->where('types', 'EARN')->where('isTaxable', true)->sum('amount'));
+            // exit;
+            $pdf = Pdf::loadView('payslip', [
+                'data' => $data,
+                'EarnTax' => $EarnTax,
+                'EarnNonTax' => $EarnNonTax,
+                'DedcTax' => $DedcTax,
+                'DedcNonTax' => $DedcNonTax,
+            ]);
 
             return $pdf->stream(); 
         } catch (\Throwable $th) {

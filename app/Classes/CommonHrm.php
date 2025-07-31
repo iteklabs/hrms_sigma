@@ -2037,7 +2037,8 @@ private static function getHoliday($date){
     private static function processSingleAttendance($user, $company, $date)
     {
 
-        $attendances = Attendance::when($user->id, fn($q) => $q->where('user_id', $user->id))
+        // $attendances = Attendance::when($user->id, fn($q) => $q->where('user_id', $user->id))
+        $attendances = Attendance::with(['user'])->when($user, fn($q) => $q->where('user_id', $user->id))
             ->where('date', $date)
             ->orderBy('clock_in_date_time')
             ->orderBy('date', 'asc')
@@ -2106,12 +2107,12 @@ private static function getHoliday($date){
             $timeOut = Carbon::parse($attendance->clock_out_date_time)->setTimezone('Asia/Manila');
 
             //Fething for Override Schedule and RVR schedule
-            $override = self::getOverideShift($user->id, $shiftDate);
+            $override = self::getOverideShift($attendance->user_id, $shiftDate);
             $holidaydata = self::getHoliday($shiftDate);
             $status = 'present';
             //Main Shift Schedule
-            $mainInTime = $user->shift->clock_in_time;
-            $mainOutTime = $user->shift->clock_out_time;
+            $mainInTime = $attendance->user->shift->clock_in_time;
+            $mainOutTime = $attendance->user->shift->clock_out_time;
             //Process of Override Schedule if have Main schedule will disregard and get the Override Schedule
             // $totalMinutesSched = 0;
             if ($override['bool']) {

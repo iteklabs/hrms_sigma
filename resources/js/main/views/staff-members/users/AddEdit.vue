@@ -832,7 +832,7 @@
                     >
                         <span style="display: flex">
                             <a-select
-                                v-model:value="schedulePlotModalData.shift_id"
+                                v-model:value="formData.shift_id"
                                 :placeholder="
                                     $t('common.select_default_text', [
                                         $t('user.shift_id'),
@@ -1221,7 +1221,7 @@ export default defineComponent({
                 //     ? props.formData.shft_id_list.join(",")
                 //     : "",
             };
-
+            // console.log(newFormData)
             addEditRequestAdmin({
                 id: "add_edit_user_form",
                 url: props.url,

@@ -2049,51 +2049,51 @@ private static function getHoliday($date){
             $isRestDay = self::getWeekDay($date, $user->shift->weekdays_day_off);
 
             if($isRestDay){
-                $attendance = new Attendance();
-                $attendance->user_id  = $user->id;
-                $attendance->company_id  = $company->id;
-                $attendance->date  = $date;
-                $attendance->date_out  = $date;
+                $attendance2 = new Attendance();
+                $attendance2->user_id  = $user->id;
+                $attendance2->company_id  = $company->id;
+                $attendance2->date  = $date;
+                $attendance2->date_out  = $date;
                 // $attendance->clock_in_date_time  = $date . " 00:00:00" ;
                 // $attendance->clock_out_date_time  = $date . " 00:00:00" ;
-                $attendance->clock_in_date_time  = NULL;
-                $attendance->clock_out_date_time  = NULL;
-                $attendance->rest_day_ot =0;
-                $attendance->rest_day = 0;
-                $attendance->regular_hrs = 0;
-                $attendance->regular_ot = 0;
-                $attendance->no_of_hrs_undertime = 0;
-                $attendance->no_of_hrs_late = 0;
-                $attendance->night_differential = 0;
-                $attendance->legal_holiday = 0;
-                $attendance->legal_holiday_ot = 0;
-                $attendance->special_holiday = 0;
-                $attendance->special_holiday_ot = 0;
-                $attendance->status = 'rest_day';
-                $attendance->save();
+                $attendance2->clock_in_date_time  = NULL;
+                $attendance2->clock_out_date_time  = NULL;
+                $attendance2->rest_day_ot =0;
+                $attendance2->rest_day = 0;
+                $attendance2->regular_hrs = 0;
+                $attendance2->regular_ot = 0;
+                $attendance2->no_of_hrs_undertime = 0;
+                $attendance2->no_of_hrs_late = 0;
+                $attendance2->night_differential = 0;
+                $attendance2->legal_holiday = 0;
+                $attendance2->legal_holiday_ot = 0;
+                $attendance2->special_holiday = 0;
+                $attendance2->special_holiday_ot = 0;
+                $attendance2->status = 'rest_day';
+                $attendance2->save();
             }else{
-                $attendance = new Attendance();
-                $attendance->user_id  = $user->id;
-                $attendance->company_id  = $company->id;
-                $attendance->date  = $date;
-                $attendance->date_out  = $date;
+                $attendance2 = new Attendance();
+                $attendance2->user_id  = $user->id;
+                $attendance2->company_id  = $company->id;
+                $attendance2->date  = $date;
+                $attendance2->date_out  = $date;
                 // $attendance->clock_in_date_time  = $date . " 00:00:00" ;
                 // $attendance->clock_out_date_time  = $date . " 00:00:00" ;
-                $attendance->clock_in_date_time  = NULL;
-                $attendance->clock_out_date_time  = NULL;
-                $attendance->rest_day_ot =0;
-                $attendance->rest_day = 0;
-                $attendance->regular_hrs = 0;
-                $attendance->regular_ot = 0;
-                $attendance->no_of_hrs_undertime = 0;
-                $attendance->no_of_hrs_late = 0;
-                $attendance->night_differential = 0;
-                $attendance->legal_holiday = 0;
-                $attendance->legal_holiday_ot = 0;
-                $attendance->special_holiday = 0;
-                $attendance->special_holiday_ot = 0;
-                $attendance->status = 'absent';
-                $attendance->save();
+                $attendance2->clock_in_date_time  = NULL;
+                $attendance2->clock_out_date_time  = NULL;
+                $attendance2->rest_day_ot =0;
+                $attendance2->rest_day = 0;
+                $attendance2->regular_hrs = 0;
+                $attendance2->regular_ot = 0;
+                $attendance2->no_of_hrs_undertime = 0;
+                $attendance2->no_of_hrs_late = 0;
+                $attendance2->night_differential = 0;
+                $attendance2->legal_holiday = 0;
+                $attendance2->legal_holiday_ot = 0;
+                $attendance2->special_holiday = 0;
+                $attendance2->special_holiday_ot = 0;
+                $attendance2->status = 'absent';
+                $attendance2->save();
             }
 
             
@@ -2110,6 +2110,14 @@ private static function getHoliday($date){
             $override = self::getOverideShift($attendance->user_id, $shiftDate);
             $holidaydata = self::getHoliday($shiftDate);
             $status = 'present';
+            // \Log::info($attendance->user);
+            // exit;
+            // if ($attendance->user && $attendance->user->shift) {
+            \Log::info($attendance->user->id);
+            \Log::info($attendance->user->name);
+            \Log::info($attendance->user->shift);
+            // exit;
+            // }
             //Main Shift Schedule
             $mainInTime = $attendance->user->shift->clock_in_time;
             $mainOutTime = $attendance->user->shift->clock_out_time;
@@ -2125,7 +2133,7 @@ private static function getHoliday($date){
                 }
             }
 
-            $isRestDay = self::getWeekDay($attendance->date, $user->shift->weekdays_day_off);
+            $isRestDay = self::getWeekDay($attendance->date, $attendance->user->shift->weekdays_day_off);
             //Main Shift and Override Shift
             $mainIn = Carbon::parse($shiftDate . ' ' . $mainInTime);
             $mainOut = Carbon::parse($shiftDate . ' ' . $mainOutTime);
@@ -2164,7 +2172,7 @@ private static function getHoliday($date){
             $late = max(0, ($actualIn->getTimestamp() - $mainIn->getTimestamp()) / 60);
             //Undertime
             $undertime = max(0, ($mainOut->getTimestamp() - $actualOut->getTimestamp()) / 60);
-            $dataPrevDay = self::getAteendanceCarryOver($user->id, $mainIn, $mainOut, false);
+            $dataPrevDay = self::getAteendanceCarryOver($attendance->user->id, $mainIn, $mainOut, false);
             $carryOver = $dataPrevDay['data'] ?? [];
             $carryOverHrs = 0;
             if (!empty($carryOver) && isset($carryOver['minutes'])) {
@@ -2189,12 +2197,6 @@ private static function getHoliday($date){
             $remain_actual_for_rvr_min = max(0, ($remain_actual_min - $shiftOTMain));
             // $regularOT = 
             
-
-
-            
-            
-           
-
             $legalholiday_hrs = 0;
             $legalholidayOT_hrs = 0;
             $specialholiday_hrs = 0;

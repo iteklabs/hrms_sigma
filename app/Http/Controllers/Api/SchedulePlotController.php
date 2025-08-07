@@ -6,6 +6,7 @@ use App\Http\Controllers\ApiBaseController;
 use Illuminate\Http\Request;
 use App\Classes\Common;
 use App\Models\OverideShift;
+use App\Exports\ScheduleTemplateExport;
 
 class SchedulePlotController extends ApiBaseController
 {
@@ -108,5 +109,9 @@ class SchedulePlotController extends ApiBaseController
                 'line' => $th->getLine()
             ], 400);
         }
+    }
+
+    public function exportCSVTemplate(){
+        return Excel::download(new ScheduleTemplateExport, 'schedule_template.xlsx');
     }
 }

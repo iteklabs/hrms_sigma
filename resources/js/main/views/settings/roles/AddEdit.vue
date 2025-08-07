@@ -2918,6 +2918,68 @@
                                                     </div>
                                                 </td>
                                             </tr>
+
+                                            <tr>
+                                                <td class="text-gray-800">
+                                                    Attendance (Upload)
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex">
+                                                        <label
+                                                            class="form-check form-check-custom me-5 me-lg-20"
+                                                        >
+                                                            <a-checkbox
+                                                                :value="
+                                                                    permissions[
+                                                                        'attendance_upload_view'
+                                                                    ]
+                                                                "
+                                                            >
+                                                                {{ $t("common.view") }}
+                                                            </a-checkbox>
+                                                        </label>
+                                                        <label
+                                                            class="form-check form-check-custom me-5 me-lg-20"
+                                                        >
+                                                            <a-checkbox
+                                                                :value="
+                                                                    permissions[
+                                                                        'attendance_upload_add'
+                                                                    ]
+                                                                "
+                                                            >
+                                                                {{ $t("common.add") }}
+                                                            </a-checkbox>
+                                                        </label>
+                                                        <label
+                                                            class="form-check form-check-custom me-5 me-lg-20"
+                                                        >
+                                                            <a-checkbox
+                                                                :value="
+                                                                    permissions[
+                                                                        'attendance_upload_edit'
+                                                                    ]
+                                                                "
+                                                            >
+                                                                {{ $t("common.edit") }}
+                                                            </a-checkbox>
+                                                        </label>
+                                                        <label
+                                                            class="form-check form-check-custom"
+                                                        >
+                                                            <a-checkbox
+                                                                :value="
+                                                                    permissions[
+                                                                        'attendance_upload_delete'
+                                                                    ]
+                                                                "
+                                                            >
+                                                                {{ $t("common.delete") }}
+                                                            </a-checkbox>
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </a-checkbox-group>

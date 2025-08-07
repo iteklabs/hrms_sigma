@@ -61,7 +61,18 @@ class CheckPermission
                     $permission = $routePathString . '_delete';
                 }
 
-                if ($permission != "" && !$user->ability('admin', $permission)) {
+            //     echo $user->ability('admin', $permission);
+            //     echo $permission;
+            //     echo $resourceRequestString;
+            // exit;
+                // echo "<pre>";
+                // print_r($user->role->name);
+                // exit;
+                // if ($permission != "" && !$user->ability('admin', $permission)) {
+                //     throw new UnauthorizedException("Don't have valid permission");
+                // }
+
+                if ($permission != "" && !$user->ability($user->role->name, $permission)) {
                     throw new UnauthorizedException("Don't have valid permission");
                 }
             }

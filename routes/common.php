@@ -2,6 +2,7 @@
 
 use Examyou\RestAPI\Facades\ApiRoute;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AttendanceUploadController;
 
 $appType = app_type();
 $routeArray = [
@@ -23,6 +24,7 @@ ApiRoute::get('download-backups/{id}', ['as' => 'api.settings.download-backups',
 
 Route::get('langs/download/{xid?}', ['as' => 'api.extra.langs.download', 'uses' => 'Api\Common\LangsController@downloadLang']);
 Route::get('generate_pdf/{id}', ['as' => 'api.generate_pdf.payslip', 'uses' => 'GeneratePDFPaySlip@payslip']);
+Route::get('/download_schedule_template', [AttendanceUploadController::class, 'downloadScheduleTemplate']);
 
 // If appType is saas version
 // Then we only define routes

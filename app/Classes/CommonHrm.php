@@ -1993,6 +1993,23 @@ private static function getHoliday($date){
         
     // }
 
+
+    private static function getLateMinutes($clockInDateTime, $shiftDate, $scheduledTimeIn, $gracePeriod = 0)
+    {
+        // Build datetime values
+        $scheduledIn = Carbon::parse($shiftDate . ' ' . $scheduledTimeIn)->addMinutes($gracePeriod);
+        $actualIn = Carbon::parse($clockInDateTime);
+
+        // Handle overnight shifts (e.g., schedule at 10PM, clock in after midnight)
+        if ($actualIn->lessThan($scheduledIn) && $scheduledIn->diffInHours($actualIn, false) < -12) {
+            $actualIn->addDay(); // likely the person came in next day
+        }
+
+        // Now compute lateness
+        return $actualIn->gt($scheduledIn) ? $actualIn->diffInMinutes($scheduledIn) : 0;
+    }
+
+
     private static function getAteendanceCarryOver($userId, Carbon $date, Carbon $endShift, bool $createIfNotExists = false)
         {
             $applyToDate = $date->format('Y-m-d');
@@ -2115,7 +2132,7 @@ private static function getHoliday($date){
             // if ($attendance->user && $attendance->user->shift) {
             \Log::info($attendance->user->id);
             \Log::info($attendance->user->name);
-            \Log::info($attendance->user->shift);
+            // \Log::info($attendance->user->shift);
             // exit;
             // }
             //Main Shift Schedule
@@ -2142,6 +2159,9 @@ private static function getHoliday($date){
                 $mainOut->addDay();
             }
 
+            
+
+
             $totalMinutesSched = ($mainOut->timestamp - $mainIn->timestamp) / 60;
             // \Log::info('Main: ' . $totalMinutesSched);
             //Night Differential
@@ -2163,6 +2183,16 @@ private static function getHoliday($date){
                 
                 $totalMinutesWorksShift = $workStartShift->diffInMinutes($workEndShift); // always positive
             }
+
+            if ($actualInparse->gt($mainIn)) {
+                $lateMinutes = $actualInparse->diffInMinutes($mainIn);
+            } else {
+                $lateMinutes = 0; // not late
+            }
+
+            $test = self::getLateMinutes($actualIn, $shiftDate, $mainInTime, 0);
+
+            // \Log::info("Late Log: " . $totalMinutesWorksShift);
 
             
             //Total Worked Hours
@@ -2192,9 +2222,12 @@ private static function getHoliday($date){
             // $regularMinutes = min($totalWorked, $requiredDailyMinutes)
             $regularMinutes = min($requiredDailyMinutes, $totalMinutesWorksShift);
             $remain_actual_min = max(0, $totalWorked - $regularMinutes);
+            // $regularOT = min($remain_actual_min - $late, $shiftOTMain);
             $regularOT = min($remain_actual_min, $shiftOTMain);
             $ndInMain = self::calculateOverlapMinutes($mainIn, $mainOut, $ndStart, $ndEnd);
             $remain_actual_for_rvr_min = max(0, ($remain_actual_min - $shiftOTMain));
+            
+            \Log::info("OT Log: " . $regularOT . " <> " . $remain_actual_min - $late);
             // $regularOT = 
             
             $legalholiday_hrs = 0;
@@ -2324,7 +2357,7 @@ private static function getHoliday($date){
             $restday = 0;
             if ($isRestDay) {
                 $restOT = max(0,$regOT);
-                $restday = $regHrs;
+                $restday = abs($regHrs);
                 $regHrs = $regOT = $undertime = $late = 0;
                 $status = 'rest_day';
             }

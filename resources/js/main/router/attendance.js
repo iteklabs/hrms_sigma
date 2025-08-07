@@ -34,6 +34,17 @@ export default [
                     permission: "attendances_view",
                 },
             },
+            {
+                path: "attendance_upload",
+                component:() => import("../views/attendances/attendance_upload/index.vue"),
+                name: "admin.attendances_upload.index",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "attendance_upload",
+                    menuKey: (route) => "attendance_upload",
+                    permission: "attendance_upload_view",
+                },
+            },
         ],
     },
 ];

@@ -72,6 +72,8 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         
         ApiRoute::get('attendances/summary', ['as' => 'api.attendances.summary', 'uses' => 'AttendanceController@attendanceSummary']);
         ApiRoute::resource('attendances', 'AttendanceController', $options);
+        ApiRoute::resource('attendances_upload', 'AttendanceUploadController', $options);
+        ApiRoute::post('attendances/preview', ['as' => 'api.schedules.preview', 'uses' => 'AttendanceUploadController@preview']);
         ApiRoute::post('attendances/reprocess', ['as' => 'api.attendances.reprocess', 'uses' => 'AttendanceController@reprocessAttendance']);
         ApiRoute::post('schedule_plot/add_override', ['as' => 'api.schedule_plot.add_override', 'uses' => 'SchedulePlotController@addOverrideShift']);
         ApiRoute::post('schedule_plot/edit_override', ['as' => 'api.schedule_plot.edit_override', 'uses' => 'SchedulePlotController@editOverrideShift']);

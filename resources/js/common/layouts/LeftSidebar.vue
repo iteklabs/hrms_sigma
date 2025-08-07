@@ -288,7 +288,7 @@
                         >
                             <span>{{ $t("menu.holidays") }}</span>
                         </a-menu-item>
-                        <a-menu-item
+                        <!-- <a-menu-item
                             @click="
                                 () => {
                                     menuSelected();
@@ -300,7 +300,7 @@
                             key="weekends"
                         >
                             <span>{{ $t("menu.weekends") }}</span>
-                        </a-menu-item>
+                        </a-menu-item> -->
                         <a-menu-item
                             @click="
                                 () => {
@@ -450,6 +450,33 @@
                     <a-sub-menu
                         key="attendances"
                         v-if="
+                            permsArray.includes('attendance_upload_view') ||
+                            permsArray.includes('admin')
+                        "
+                    >
+                        <template #title>
+                            <span>
+                                <ProfileOutlined />
+                                <span>{{ $t("menu.attendances") }} Upload</span>
+                            </span>
+                        </template>
+                        <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.attendances_upload.index',
+                                    });
+                                }
+                            "
+                            key="attendances"
+                        >
+                            <span>{{ $t("menu.attendances") }}</span>
+                        </a-menu-item>
+                    </a-sub-menu>
+                    <a-sub-menu
+                        key="attendances"
+                        v-if="
                             permsArray.includes('attendances_view') ||
                             permsArray.includes('admin')
                         "
@@ -460,7 +487,7 @@
                                 <span>{{ $t("menu.attendances") }}</span>
                             </span>
                         </template>
-                        <a-menu-item
+                        <!-- <a-menu-item
                             @click="
                                 () => {
                                     menuSelected();
@@ -472,7 +499,7 @@
                             key="attendance_details"
                         >
                             <span>{{ $t("menu.attendance_details") }}</span>
-                        </a-menu-item>
+                        </a-menu-item> -->
                         <a-menu-item
                             @click="
                                 () => {
@@ -524,6 +551,8 @@
                             <span>{{ $t("menu.salary_adjustment") }}</span>
                         </a-menu-item>
 
+                        
+
                     </a-sub-menu>
 
 
@@ -559,7 +588,7 @@
                                 <span>{{ $t("menu.payrolls") }}</span>
                             </span>
                         </template>
-                        <a-menu-item
+                        <!-- <a-menu-item
                             v-if="
                                 permsArray.includes('pre_payments_view') ||
                                 permsArray.includes('admin')
@@ -575,8 +604,8 @@
                             key="pre_payments"
                         >
                             <span>{{ $t("menu.pre_payments") }}</span>
-                        </a-menu-item>
-                        <a-menu-item
+                        </a-menu-item> -->
+                        <!-- <a-menu-item
                             v-if="
                                 permsArray.includes('increments_promotions_view') ||
                                 permsArray.includes('admin')
@@ -592,7 +621,7 @@
                             key="increments_promotions"
                         >
                             <span>{{ $t("menu.increments_promotions") }}</span>
-                        </a-menu-item>
+                        </a-menu-item> -->
                         <a-menu-item
                             v-if="
                                 permsArray.includes('payrolls_view') ||
@@ -610,7 +639,24 @@
                         >
                             <span>{{ $t("menu.payrolls") }}</span>
                         </a-menu-item>
+
                         <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.payroll.adjustment_salary',
+                                    });
+                                }
+                            "
+                            key="salary_adjustment"
+                        >
+                        
+                            <span>Deductions</span>
+                        </a-menu-item>
+
+
+                        <!-- <a-menu-item
                             v-if="
                                 permsArray.includes('salary_settings') ||
                                 permsArray.includes('admin')
@@ -626,7 +672,7 @@
                             key="basic_salaries"
                         >
                             <span>{{ $t("menu.basic_salaries") }}</span>
-                        </a-menu-item>
+                        </a-menu-item> -->
                     </a-sub-menu>
                     <!-- <a-menu-item
                         v-if="
@@ -848,7 +894,7 @@
                             <span>{{ $t("menu.feedbacks") }}</span>
                         </a-menu-item>
                     </a-sub-menu> -->
-                    <a-sub-menu
+                    <!-- <a-sub-menu
                         key="accounts"
                         v-if="
                             permsArray.includes('accounts_view') ||
@@ -986,7 +1032,7 @@
                         >
                             <span>{{ $t("menu.expenses") }}</span>
                         </a-menu-item>
-                    </a-sub-menu>
+                    </a-sub-menu> -->
 
                     <component
                         v-for="(appModule, index) in appModules"
@@ -1375,45 +1421,45 @@
 
 <script>
 import {
-AppstoreOutlined,
-BankOutlined,
-BarChartOutlined,
-CalculatorOutlined,
-CarOutlined,
-CloseOutlined,
-CopyrightOutlined,
-CrownOutlined,
-DollarCircleOutlined,
-FieldTimeOutlined,
-FilePptOutlined,
-FolderOpenOutlined,
-FrownOutlined,
-GiftOutlined,
-HeartOutlined,
-HomeOutlined,
-LaptopOutlined,
-LogoutOutlined,
-ProfileOutlined,
-PushpinOutlined,
-ReadOutlined,
-ReconciliationOutlined,
-RocketOutlined,
-ScheduleOutlined,
-SettingOutlined,
-ShopOutlined,
-ShoppingCartOutlined,
-ShoppingOutlined,
-SnippetsOutlined,
-TabletOutlined,
-TagOutlined,
-TagsOutlined,
-TeamOutlined,
-ToolOutlined,
-TransactionOutlined,
-TrophyOutlined,
-UserOutlined,
-WalletOutlined,
-WomanOutlined,
+    AppstoreOutlined,
+    BankOutlined,
+    BarChartOutlined,
+    CalculatorOutlined,
+    CarOutlined,
+    CloseOutlined,
+    CopyrightOutlined,
+    CrownOutlined,
+    DollarCircleOutlined,
+    FieldTimeOutlined,
+    FilePptOutlined,
+    FolderOpenOutlined,
+    FrownOutlined,
+    GiftOutlined,
+    HeartOutlined,
+    HomeOutlined,
+    LaptopOutlined,
+    LogoutOutlined,
+    ProfileOutlined,
+    PushpinOutlined,
+    ReadOutlined,
+    ReconciliationOutlined,
+    RocketOutlined,
+    ScheduleOutlined,
+    SettingOutlined,
+    ShopOutlined,
+    ShoppingCartOutlined,
+    ShoppingOutlined,
+    SnippetsOutlined,
+    TabletOutlined,
+    TagOutlined,
+    TagsOutlined,
+    TeamOutlined,
+    ToolOutlined,
+    TransactionOutlined,
+    TrophyOutlined,
+    UserOutlined,
+    WalletOutlined,
+    WomanOutlined,
 } from "@ant-design/icons-vue";
 import { Layout } from "ant-design-vue";
 import { defineComponent, onMounted, ref, watch } from "vue";

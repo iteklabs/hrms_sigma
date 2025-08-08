@@ -82,14 +82,55 @@
                         </div>
 
                         <a-modal
-                        v-model:visible="isModalVisible"
-                        title="Schedule Upload Summary"
-                        @ok="handleOk"
-                        @cancel="handleCancel"
+                            v-model:visible="isModalVisible"
+                            title="Schedule Upload Summary"
+                            @ok="handleOk"
+                            @cancel="handleCancel"
+                            :width="1000"
                         >
-                        <p>File Name: {{ selectedFile?.name }}</p>
-                        <!-- You can add more summary info here -->
+                        <a-table
+                            :columns="columns_data"
+                            :data-source="previewData"
+                            :pagination="false"
+                            row-key="id"
+                            bordered
+                        >
+                        <template #bodyCell="{ column, record }">
+                            <!-- <h1>{{ record.location_name + " <> " + column.dataIndex }}</h1> -->
+                            <template v-if="column.dataIndex === 'employee_name'">
+                                {{ record.name }}
+                            </template>
+                            <template v-if="column.dataIndex === 'date'">
+                                {{ formatDate(record.date) }}
+                            </template>
+                            <template v-if="column.dataIndex === 'date_to'">
+                                {{ formatDate(record.date_to) }}
+                            </template>
+                            <template v-if="column.dataIndex === 'time_in'">
+                                {{ formatTime(record.date+' '+record.time_in+':00:00') }}
+                            </template>
+                            <template v-if="column.dataIndex === 'time_out'">
+                                {{ formatTime(record.date_to+' '+record.time_out+':00:00') }}
+                            </template>
+                            <template v-if="column.dataIndex === 'schedule_type'">
+                                {{ record.scheduled_type }}
+                            </template>
+                        
+                            <template v-if="column.dataIndex === 'location_name'">
+                                {{ record.location_name }}
+                            </template>
+                            <template v-if="column.dataIndex === 'status'">
+                                <span v-if="record.status === 'Found!'" style="color: green">
+                                <CheckCircleOutlined /> {{ record.status }}
+                                </span>
+                                <span v-else style="color: red">
+                                <CloseCircleOutlined /> {{ record.status }}
+                                </span>
+                            </template>
+                        </template>
+                        </a-table>
                         </a-modal>
+
 
                     </template>
                 </a-space>
@@ -261,7 +302,7 @@
 
 <script>
 import { CheckCircleOutlined, CheckOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, PlusOutlined, UploadOutlined } from "@ant-design/icons-vue";
-import { message } from 'ant-design-vue';
+import { message, Modal } from 'ant-design-vue';
 import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import UserInfo from "../../../../common/components/user/UserInfo.vue";
@@ -294,6 +335,7 @@ export default {
             filterableColumns,
             url,
             hashableColumns,
+            columns_data
         } = fields();
         
         const {
@@ -302,6 +344,7 @@ export default {
             formatDate,
             formatTime,
             formatDateTime,
+            
         } = common();
         const { formatMinutes } = hrmManagement();
         const userOpen = ref(false);
@@ -377,8 +420,37 @@ export default {
         }
 
         const handleOk = () => {
-            isModalVisible.value = false;
+            // isModalVisible.value = false;
+            Modal.confirm({
+                title: 'Confirm Schedule Save',
+                content: 'Are you sure you want to save this data for schedule?',
+                okText: 'Yes, Save it',
+                cancelText: 'Cancel',
+                onOk() {
+                // ✅ Your save logic here
+                saveScheduleData()
+                },
+                onCancel() {
+                // Optional: do something on cancel
+                }
+            })
         };
+
+        const saveScheduleData = () => {
+            // Replace this with your actual save logic (API call, emit, etc.)
+            const trueOnly = previewData.value.filter(item => item.bool === true);
+
+            axiosAdmin
+                .post("attendances/saved", {
+                    data : trueOnly
+                })
+                .then((response) => {
+                    isModalVisible.value = false
+                })
+            console.log(trueOnly)
+
+           
+        }
 
         const handleCancel = () => {
             isModalVisible.value = false;
@@ -505,10 +577,13 @@ export default {
             ...crudVariables,
             uploadLoading,
             previewData,
+            columns_data,
             uploadFile,
             beforeUpload,
             handleOk,
-            handleCancel
+            handleCancel,
+            formatDate,
+            formatTime
         };
     }
 

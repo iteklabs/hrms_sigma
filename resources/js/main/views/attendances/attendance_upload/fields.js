@@ -56,6 +56,43 @@ const fields = () => {
         },
     ]);
 
+
+    const columns_data = ref([
+        {
+            title: 'Employee',
+            dataIndex: "employee_name",
+        },
+        {
+            title: 'Date From',
+            dataIndex: "date",
+        },
+        {
+            title:  'Date to',
+            dataIndex: "date_to",
+        },
+        {
+            title: 'In',
+            dataIndex: "time_in",
+        },
+        {
+            title: 'Out',
+            dataIndex: "time_out",
+        },
+        {
+            title: 'Shift Type',
+            dataIndex: "schedule_type",
+        },
+        {
+            title: 'Location/Detachment',
+            dataIndex: "location_name",
+        },
+        
+        {
+            title: t("common.status"),
+            dataIndex: "status",
+        },
+    ]);
+
     const filterableColumns = [
         {
             key: "name",
@@ -70,6 +107,7 @@ const fields = () => {
         filterableColumns,
         hashableColumns,
         url,
+        columns_data
     };
 };
 

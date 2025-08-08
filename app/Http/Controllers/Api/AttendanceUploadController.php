@@ -66,4 +66,52 @@ class AttendanceUploadController extends ApiBaseController
             'data' => $data,
         ]);
     }
+
+
+    public function saved(Request $request){
+        try {
+            //code...
+
+            if(count($request->data) > 0){
+                foreach ($request->data as $key => $value) {
+                    $shift = OverideShift::updateOrCreate(
+                        [
+                            'user_id' => $value['employee_id'],
+                            'date' => $value['date'],
+                            'schedule_type' => $value['scheduled_id']
+                        ],
+                        [
+                            'time_in' => $value['time_in'],
+                            'time_out' => $value['time_out'],
+                            'schedule_location_id' => $value['location_id'],
+                            'user_id' => $value['employee_id'],
+                            'shift_id' => 1,
+                            'date' => $value['date'],
+                            'date_to' => $value['date_to'],
+                            'schedule_type' => $value['scheduled_id']
+                        ]
+                    );
+                }
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Override shift(s) saved successfully.',
+                ], 200);
+
+            }else{
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No data provided.',
+                ], 400);
+            }
+
+            
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong while saving override shifts.',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
+    }
 }

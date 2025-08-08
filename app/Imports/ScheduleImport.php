@@ -17,13 +17,22 @@ class ScheduleImport implements ToCollection, WithCalculatedFormulas, WithHeadin
     public function collection(Collection $collection)
     {
         Calculation::getInstance()->disableCalculationCache(); // optional: for accuracy
-        foreach ($collection as $row) {
+        // Filter out completely empty rows
+        $filtered = $collection->filter(function ($row) {
+            return $row->filter()->isNotEmpty(); // only include rows that have any data
+        });
+        foreach ($filtered as $row) {
+
+            // if ($row->filter()->isEmpty()) {
+            //     $row['employee_number'] = 'NA';
+            //     continue;
+            // }
+            \Log::info($row->filter()->isEmpty());
             $emp_no = $row['employee_number'] ?? null;
-            $data_emp = StaffMember::select('employee_number', 'name')->where('employee_number', $emp_no)->first();
-            \Log::info($row['scheduled_id'] ?? null);
+            $data_emp = StaffMember::select('employee_number', 'name', 'id')->where('employee_number', $emp_no)->first();
             if(!empty($row['employee_number']) && $data_emp){
-                
                 $this->data[] = [
+                    'employee_id' => $data_emp->id,
                     'employee_number' => $data_emp->employee_number,
                     'name' => $data_emp->name,
                     'date' => $this->convertDate($row['date']),
@@ -34,6 +43,24 @@ class ScheduleImport implements ToCollection, WithCalculatedFormulas, WithHeadin
                     'location_id' => $row['location_id'],
                     'scheduled_type' => $row['scheduled_type'],
                     'scheduled_id' => $row['scheduled_id'],
+                    'status' => 'Found!',
+                    'bool' => true
+                ];
+            }else if(!empty($row['employee_number']) && empty($data_emp)){
+                $this->data[] = [
+                    'employee_id' => null,
+                    'employee_number' => $row['employee_number'] ?? null,
+                    'name' => $row['name'] ?? null,
+                    'date' => $row['date'] ?? null,
+                    'date_to' => $row['date_to'] ?? null,
+                    'time_in' => $row['time_in'] ?? null,
+                    'time_out' => $row['time_out'] ?? null,
+                    'location_name' => $row['location_name'] ?? null,
+                    'location_id' => $row['location_id'] ?? null,
+                    'scheduled_type' => $row['scheduled_type'] ?? null,
+                    'scheduled_id' => $row['scheduled_id'] ?? null,
+                    'status' => 'Not Found!',
+                    'bool' => false
                 ];
             }
             

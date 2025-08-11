@@ -183,6 +183,19 @@
     </admin-page-filters>
 
     <admin-page-table-content>
+        <AddEdit
+            :addEditType="addEditType"
+            :visible="addEditVisible"
+            :url="addEditUrl"
+            @addEditSuccess="addEditSuccess"
+            @closed="onCloseAddEdit"
+            :formData="formData"
+            :data="viewData"
+            :pageTitle="pageTitle"
+            :successMessage="successMessage"
+            @addListSuccess="reSetFormData"
+        />
+
         <a-row>
             <a-col :span="24">
                 <div class="table-responsive">
@@ -205,73 +218,47 @@
                         size="middle"
                     >
                         <template #bodyCell="{ column, record }">
-                            <template v-if="column.dataIndex === 'date'">
-                                {{ formatDate(record.date) }}
-                            </template>
-                            <template v-if="column.dataIndex === 'clock_in_date_time'">
-                                {{ formatTime(record.clock_in_date_time) }}
-                            </template>
-                            <template v-if="column.dataIndex === 'clock_out_date_time'">
-                                {{ formatTime(record.clock_out_date_time) }}
-                            </template>
+                            <!-- <pre>{{ record }}</pre> -->
+
                             <template v-if="column.dataIndex === 'user_id'">
                                 <a-button type="link" @click="openUserView(record)">
                                     <UserInfo :user="record.user" />
                                 </a-button>
                             </template>
-                            <template v-if="column.dataIndex === 'total_duration'">
-                                {{ formatMinutes(record.total_duration) }}
-                            </template>
-                            <!-- <template v-if="column.dataIndex === 'regular_hrs'" color="green">
-                                {{ record.regular_hrs }}
-                            </template> -->
 
-                            <template v-if="column.dataIndex === 'regular_hrs'">
-                                <span :class="{ 'text-green-600 font-bold': record.regular_hrs > 0 }">
-                                    {{ record.regular_hrs }}
-                                </span>
+                            <template v-if="column.dataIndex === 'date'">
+                                {{ formatDate(record.date) }}
                             </template>
+                            <template v-if="column.dataIndex === 'date_to'">
+                                {{ formatDate(record.date_to) }}
+                            </template>
+                            <template v-if="column.dataIndex === 'time_in'">
+                                {{ formatTime(formatDate(record.date) + ' ' + record.time_in) }}
+                            </template>
+                            <template v-if="column.dataIndex === 'time_out'">
+                                {{ formatTime(formatDate(record.date) + ' ' + record.time_out) }}
+                            </template>
+                            <template v-if="column.dataIndex === 'schedule_type'">
+                                <template v-if="record.schedule_type === 'shift'">
+                                    Main Shift
+                                </template>
 
+                                <template v-if="record.schedule_type === 'OVD'">
+                                    Override Shift
+                                </template>
 
-                            <template v-if="column.dataIndex === 'is_late'">
-                                <a-tag v-if="record.is_late == 0" color="success">
-                                    {{ $t("common.no") }}
-                                </a-tag>
-                                <a-tag v-else color="error">
-                                    {{ $t("common.yes") }}
-                                </a-tag>
+                                <template v-if="record.schedule_type === 'RVR'">
+                                    Reliever
+                                </template>
                             </template>
-                            <template v-if="column.dataIndex === 'is_half_day'">
-                                {{
-                                    record.is_half_day == 0
-                                        ? $t("common.no")
-                                        : $t("common.yes")
-                                }}
-                            </template>
-
-                            <template v-if="column.dataIndex === 'clock_in_ip_address'">
-                                {{
-                                    record.clock_in_ip_address
-                                        ? record.clock_in_ip_address
-                                        : "-"
-                                }}
-                            </template>
-                            <template v-if="column.dataIndex === 'clock_out_ip_address'">
-                                {{
-                                    record.clock_out_ip_address
-                                        ? record.clock_out_ip_address
-                                        : "-"
-                                }}
-                            </template>
-                            <template v-if="column.dataIndex === 'status'">
-                                <AttendanceStatus :status="getAttendanceStatus(record)" />
+                            <template v-if="column.dataIndex === 'schedule_location_id'">
+                                {{ record.schedule_location.name }}
                             </template>
                             <template v-if="column.dataIndex === 'action'">
                                 <a-button
                                     v-if="
-                                        (permsArray.includes('attendances_edit') ||
-                                            permsArray.includes('admin')) &&
-                                        getAttendanceStatus(record) != 'on_leave'
+                                        (permsArray.includes('attendance_upload_edit') ||
+                                            permsArray.includes('admin'))
                                     "
                                     type="primary"
                                     @click="editItem(record)"
@@ -281,7 +268,7 @@
                                 </a-button>
                                 <a-button
                                     v-if="
-                                        permsArray.includes('attendances_delete') ||
+                                        permsArray.includes('attendance_upload_delete') ||
                                         permsArray.includes('admin')
                                     "
                                     type="primary"
@@ -297,7 +284,7 @@
             </a-col>
         </a-row>
     </admin-page-table-content>
-
+    <user-view-page :visible="userOpen" :userId="userId" @closed="closeUser" />
 </template>
 
 <script>
@@ -311,6 +298,7 @@ import common from "../../../../common/composable/common";
 import crud from "../../../../common/composable/crud";
 import hrmManagement from "../../../../common/composable/hrmManagement";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
+import AddEdit from "./AddEdit.vue";
 import fields from "./fields";
 export default {
     components: {
@@ -323,7 +311,8 @@ export default {
         UserInfo,
         UserListDisplay,
         UploadOutlined ,
-        CheckOutlined
+        CheckOutlined,
+        AddEdit
     },
     setup() {
         const { t } = useI18n();
@@ -363,6 +352,7 @@ export default {
         });
 
         const openUserView = (item) => {
+            // console.log(item.x_user_id)
             userId.value = item.x_user_id;
             userOpen.value = true;
         };
@@ -446,8 +436,10 @@ export default {
                 })
                 .then((response) => {
                     isModalVisible.value = false
+                    setUrlData();
+                    message.success('Schedule data saved successfully!');
                 })
-            console.log(trueOnly)
+            // console.log(trueOnly)
 
            
         }
@@ -498,70 +490,6 @@ export default {
             });
         };
 
-        const getAttendanceStatus = (record) => {
-            if (record.status === 'present') {
-                return 'present';
-            } else if (record.status === 'rest_day') {
-                return 'rest_day';
-            } else if (record.status === 'absent') {
-                return 'absent';
-            } else if(record.status === 'holiday'){
-                return 'holiday'
-            }
-
-            
-        };
-
-        const reprocessAttendance = () => {
-            const { date, user_id, status } = extraFilters.value;
-            if(date === undefined || date === null) {
-                Swal.fire({
-                    title: "Please select a date",
-                    icon: "warning",
-                });
-                return;
-            }
-            // console.log(table.loading);
-            const dateFrom = date[0];
-            const dateTo = date[1];
-
-            reprocessLoading.value = true;
-            // console.log(dateFrom)
-            // Swal.fire('Info!', dateFrom + ' <> ' + dateTo + ' <> ' + user_id, 'info')
-            Swal.fire({
-                title: 'Processing...',
-                html: `Date From: <b>${dateFrom}</b><br>Date To: <b>${dateTo}</b></b>`,
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            crudVariables.table.loading = true;
-            axiosAdmin
-                .post("attendances/reprocess", {
-                    date_from: dateFrom,
-                    date_to: dateTo,
-                    user_id: user_id,
-                    status: status,
-                })
-                .then((response) => {
-                    crudVariables.table.fetch();
-                    crudVariables.showSuccess(response.data.message);
-                })
-                .catch((error) => {
-                    crudVariables.showError(error);
-                })
-                .finally(() => {
-                    reprocessLoading.value = false;  // Stop loading
-                    crudVariables.table.loading = false;  // Stop table loading
-                    setUrlData();
-                    // crudVariables.table.fetch();
-                    Swal.close();  // Close the Swal loading
-                    Swal.fire('Attendance', 'Done!', 'success');
-                });
-        };
-
         return {
             permsArray,
             extraFilters,
@@ -572,8 +500,6 @@ export default {
             isModalVisible,
             openUserView,
             closeUser,
-            getAttendanceStatus,
-            reprocessAttendance,
             ...crudVariables,
             uploadLoading,
             previewData,
@@ -583,7 +509,9 @@ export default {
             handleOk,
             handleCancel,
             formatDate,
-            formatTime
+            formatTime,
+            userOpen,
+            userId
         };
     }
 

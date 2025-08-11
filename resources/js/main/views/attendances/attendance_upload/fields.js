@@ -4,20 +4,21 @@ import { useI18n } from "vue-i18n";
 
 const fields = () => {
     const url =
-        "attendances_upload?fields=id,xid,user_id,x_user_id,user{id,xid,name,profile_image,profile_image_url}";
+        "attendances_upload?fields=id,xid,user_id,x_user_id,date,date_to,time_in,time_out,schedule_type,x_schedule_location_id,schedule_location_id,user{id,xid,name,profile_image,profile_image_url},scheduleLocation{id,xid,name}";
     const addEditUrl = "attendances_upload";
     const { t } = useI18n();
-    const hashableColumns = ["user_id", "loc_id"];
+    const hashableColumns = ["user_id", "schedule_location_id"];
     const { dayjs } = common();
 
     const initData = {
+        xid: '',
         user_id: undefined,
-        date_from: dayjs().utc().format("YYYY-MM-DD"),
-        date_to: dayjs().utc().format("YYYY-MM-DD"),
-        shift_in: "",
-        shift_out: "",
-        shift_type: "",
-        loc_id: undefined,
+        date: '',
+        date_to: '',
+        time_in: "",
+        time_out: "",
+        schedule_type: "",
+        schedule_location_id: undefined,
     };
 
     const columns = ref([
@@ -47,9 +48,8 @@ const fields = () => {
         },
         {
             title: 'Location/Detachment',
-            dataIndex: "schedule_location_id ",
+            dataIndex: "schedule_location_id",
         },
-        
         {
             title: t("common.action"),
             dataIndex: "action",

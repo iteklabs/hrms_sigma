@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n";
 
 const fields = () => {
     const url =
-        "attendances_upload?fields=id,xid,user_id,x_user_id,date,date_to,time_in,time_out,schedule_type,x_schedule_location_id,schedule_location_id,user{id,xid,name,profile_image,profile_image_url},scheduleLocation{id,xid,name}";
+        "attendances_upload?fields=id,xid,user_id,x_user_id,date,date_to,time_in,time_out,schedule_type,x_schedule_location_id,schedule_location_id,rest_day,user{id,xid,name,profile_image,profile_image_url},scheduleLocation{id,xid,name}";
     const addEditUrl = "attendances_upload";
     const { t } = useI18n();
     const hashableColumns = ["user_id", "schedule_location_id"];
@@ -19,6 +19,7 @@ const fields = () => {
         time_out: "",
         schedule_type: "",
         schedule_location_id: undefined,
+        rest_day: "",
     };
 
     const columns = ref([

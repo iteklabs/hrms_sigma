@@ -377,6 +377,8 @@ export default {
                 return 'absent';
             } else if(record.status === 'holiday'){
                 return 'holiday'
+            }else if(record.status === 'no_sched'){
+                return 'no_sched'
             }
 
             

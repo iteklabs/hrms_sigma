@@ -88,7 +88,8 @@ class AttendanceUploadController extends ApiBaseController
                             'shift_id' => 1,
                             'date' => $value['date'],
                             'date_to' => $value['date_to'],
-                            'schedule_type' => $value['scheduled_id']
+                            'schedule_type' => $value['scheduled_id'],
+                            'rest_day' => $value['rest_day'],
                         ]
                     );
                 }

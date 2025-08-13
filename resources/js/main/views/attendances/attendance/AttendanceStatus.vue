@@ -17,6 +17,12 @@
         </template>
         {{ $t("attendance.absent") }}
     </a-tag>
+    <a-tag v-else-if="status == 'no_sched'" color="error">
+        <template #icon>
+            <CloseCircleOutlined />
+        </template>
+        No Schedule
+    </a-tag>
     <a-tag v-else-if="status == 'holiday'" color="processing">
         <template #icon>
             <CalendarOutlined />

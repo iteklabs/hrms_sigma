@@ -156,6 +156,41 @@
                     </a-form-item>
                 </a-col>
         </a-row>
+
+        <a-row :gutter="16">
+            <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                <a-form-item
+                    :label="'Rest Day'"
+                    name="rest_day"
+                    :help="rules.rest_day ? rules.rest_day.message : null"
+                    :validateStatus="rules.rest_day ? 'error' : null"
+                    class="required"
+                >
+                <span style="display: flex">
+                    <a-select
+                        v-model:value="formData.rest_day"
+                        :placeholder="
+                            $t('common.select_default_text', [
+                                'Rest Day',
+                            ])
+                        "
+                        :allowClear="true"
+                        optionFilterProp="title"
+                        show-search
+                    >
+                        <a-select-option
+                            v-for="day in days"
+                            :key="day.key"
+                            :value="day.key"
+                            :title="day.label"
+                        >
+                            {{ day.label }}
+                        </a-select-option>
+                    </a-select>
+                </span>
+                </a-form-item>
+            </a-col>
+        </a-row>
     </a-form>
     <template #footer>
         <a-space>
@@ -263,6 +298,17 @@ export default defineComponent({
         };
 
 
+        const days = [
+            { key: 'M', label: 'Monday' },
+            { key: 'T', label: 'Tuesday' },
+            { key: 'W', label: 'Wednesday' },
+            { key: 'TH', label: 'Thursday' },
+            { key: 'F', label: 'Friday' },
+            { key: 'SA', label: 'Saturday' },
+            { key: 'SU', label: 'Sunday' }
+        ];
+
+
         return {
             loading,
             rules,
@@ -274,6 +320,7 @@ export default defineComponent({
             users,
             userAdded,
             locations,
+            days,
             drawerWidth: window.innerWidth <= 991 ? "90%" : "45%",
         };
     },

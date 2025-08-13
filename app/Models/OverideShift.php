@@ -9,7 +9,7 @@ use App\Scopes\CompanyScope;
 class OverideShift extends BaseModel
 {
     protected $table = 'overide_shifts';
-    protected $default = ["xid", "x_user_id", "x_shift_id", "date", "time_in", "time_out", "schedule_type", "x_schedule_location_id"];
+    protected $default = ["xid", "x_user_id", "x_shift_id", "date", "time_in", "time_out", "rest_day", "schedule_type", "x_schedule_location_id"];
     protected $guarded = ['id', 'created_at', 'updated_at'];
     protected $hidden = ['id', 'user_id', 'schedule_location_id', 'shift_id'];
     protected $appends = ['xid', 'x_user_id', 'x_shift_id', 'x_schedule_location_id'];
@@ -30,6 +30,7 @@ class OverideShift extends BaseModel
         'time_in' => 'string',
         'time_out' => 'string',
         'schedule_type' => 'string',
+        'rest_day' => 'string',
     ];
 
     protected $defaultRelations = ['scheduleLocation'];

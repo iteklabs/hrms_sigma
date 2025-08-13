@@ -37,6 +37,7 @@ class Attendance extends BaseModel
         'no_of_hrs_undertime',
         'no_of_hrs_late',
         'regular_hrs',
+        'other_regular_ot',
         // 'date_out'
     ];
 

@@ -117,8 +117,8 @@ class GetLogsBMS extends Command
                         $data->created_at = now();
                         $data->updated_at = now();
                         $data->is_paid = 1;
-                        $data->office_clock_in_time = $users_data->shift?->clock_in_time;
-                        $data->office_clock_out_time = $users_data->shift?->clock_out_time;
+                        // $data->office_clock_in_time = $users_data->shift?->clock_in_time;
+                        // $data->office_clock_out_time = $users_data->shift?->clock_out_time;
                         $data->is_holiday = $is_holiday;
                         $data->is_leave = 0;
                         $data->leave_type_id = null;
@@ -128,12 +128,12 @@ class GetLogsBMS extends Command
                         $data->leave_id = null;
                         $data->clock_in_ip_address = 'BMS';
                         $data->clock_out_ip_address = 'BMS';
-                        $data->night_differential = $get_nd;
-                        $data->legal_holiday = $regular_working_h;
-                        $data->special_holiday = $special_working_h;
+                        // $data->night_differential = $get_nd;
+                        // $data->legal_holiday = $regular_working_h;
+                        // $data->special_holiday = $special_working_h;
 
-                        $data->save();
-                        \Log::info($data);
+                        // $data->save();
+                        // \Log::info($data);
                         $log_id = $log->LogID;
 
                         $log_updated = DB::connection('external_logs')

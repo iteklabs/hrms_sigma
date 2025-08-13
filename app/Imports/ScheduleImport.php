@@ -43,6 +43,8 @@ class ScheduleImport implements ToCollection, WithCalculatedFormulas, WithHeadin
                     'location_id' => $row['location_id'],
                     'scheduled_type' => $row['scheduled_type'],
                     'scheduled_id' => $row['scheduled_id'],
+                    'rest_day' => $row['rest_day'] ?? null,
+                    'rest_day_id' => $row['rest_day_id'] ?? null,
                     'status' => 'Found!',
                     'bool' => true
                 ];
@@ -59,6 +61,8 @@ class ScheduleImport implements ToCollection, WithCalculatedFormulas, WithHeadin
                     'location_id' => $row['location_id'] ?? null,
                     'scheduled_type' => $row['scheduled_type'] ?? null,
                     'scheduled_id' => $row['scheduled_id'] ?? null,
+                    'rest_day' => $row['rest_day'] ?? null,
+                    'rest_day_id' => $row['rest_day_id'] ?? null,
                     'status' => 'Not Found!',
                     'bool' => false
                 ];

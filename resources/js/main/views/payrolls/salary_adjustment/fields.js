@@ -2,28 +2,32 @@ import common from "@/common/composable/common";
 import { useI18n } from "vue-i18n";
 
 
-const fields = () => {
-    const { user } = common();
+const fields = (props) => {
+    const { user, dayjs } = common();
     const { t } = useI18n();
     const url =
-        "salary_adjustment?fields=xid,x_user_id,name,process_payment,cut_off,month,year,date_from,date_to,amount,type,adjustment_type";
+        "salary_adjustment?fields=xid,x_user_id,name,process_payment,start_cut_off_specific,start_month_specific,start_year_specific,end_cut_off_specific,end_month_specific,end_year_specific,month_specific,cut_off_specific,year_specific,amount,type,adjustment_type";
     const addEditUrl = "salary_adjustment";
     const hashableColumns = [
         'user_id'
     ];
-
+    console.log(props);
     const initData = {
         name: "",
         process_payment: "date_range",
-        cut_off: "A",
-        month: "",
-        year: "",
-        date_from: "",
-        date_to: "",
         amount: 0,
         type: "T",
         adjustment_type: '',
         user_id: undefined,
+        start_cut_off_specific: "A",
+        start_month_specific: null,
+        start_year_specific: null,
+        end_cut_off_specific: null,
+        end_month_specific: null,
+        end_year_specific: null,
+        cut_off_specific: null,
+        month_specific: null,
+        year_specific: null,
         // x_user_id: "",
         // user: ""
     };
@@ -37,14 +41,14 @@ const fields = () => {
                 title: t("salary_adjustment.name"),
                 dataIndex: "name",
             },
-            {
-                title: t("salary_adjustment.date_from"),
-                dataIndex: "date_from",
-            },
-            {
-                title: t("salary_adjustment.date_to"),
-                dataIndex: "date_to",
-            },
+            // {
+            //     title: t("salary_adjustment.date_from"),
+            //     dataIndex: "date_from",
+            // },
+            // {
+            //     title: t("salary_adjustment.date_to"),
+            //     dataIndex: "date_to",
+            // },
             {
                 title: t("salary_adjustment.amount"),
                 dataIndex: "amount",
@@ -67,14 +71,6 @@ const fields = () => {
         {
             key: "name",
             value: t("salary_adjustment.name"),
-        },
-        {
-            key: "date_from",
-            value: t("salary_adjustment.date_from"),
-        },
-        {
-            key: "date_to",
-            value: t("salary_adjustment.date_to"),
         },
     ];
 

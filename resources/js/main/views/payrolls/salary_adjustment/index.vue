@@ -105,13 +105,7 @@
                                     "
                                 >{{ record.name }}</span>
                             </template>
-                            <template v-if="column.dataIndex === 'date_from'">
-                                <span>{{ new Date(record.date_from).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: '2-digit' }) }}</span>
-                            </template>
-
-                            <template v-if="column.dataIndex === 'date_to'">
-                                <span>{{ new Date(record.date_to).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: '2-digit' }) }}</span>
-                            </template>
+                            
 
                             <template v-if="column.dataIndex === 'amount'">
                                 <span>{{ record.amount.toLocaleString('en-PH', { style: 'currency', currency: 'PHP' }) }}</span>
@@ -123,8 +117,12 @@
                             </template>
 
                             <template v-if="column.dataIndex === 'adjustment_type'">
-                                <span v-if="record.adjustment_type === 'EARN'">{{ $t('salary_adjustment.adjustment_type_earn') }}</span>
-                                <span v-else-if="record.adjustment_type === 'DEDC'">{{ $t('salary_adjustment.adjustment_type_deduction') }}</span>
+                                <span v-if="record.adjustment_type === 'basic_pay'">Basic Pay</span>
+                                <span v-else-if="record.adjustment_type === 'alowance_pay'">Allowance</span>
+                                <span v-else-if="record.adjustment_type === 'overtime_pay'">Overtime</span>
+                                <span v-else-if="record.adjustment_type === 'SPNWD_pay'">Special non-working day</span>
+                                <span v-else-if="record.adjustment_type === 'rest_day_pay'">Rest Day</span>
+                                <span v-else-if="record.adjustment_type === 'holiday_pay'">Holiday</span>
                             </template>
 
                             <template v-if="column.dataIndex === 'action'">
@@ -135,7 +133,7 @@
                                             permsArray.includes('admin')
                                         "
                                         type="primary"
-                                        @click="editItem(record)"
+                                        @click="editItem(editItemInit(record))"
                                         style="margin-left: 4px"
                                     >
                                         <template #icon><EditOutlined /></template>
@@ -192,8 +190,8 @@ export default {
     setup() {
         const {
             permsArray,
-            formatDateTime,
             formatAmountCurrency,
+            dayjs
         } = common();
 
         const {
@@ -225,6 +223,22 @@ export default {
             status: "active",
         });
 
+        function editItemInit(record){
+            const NewData = { 
+                ...record,
+                start_year_specific: dayjs(record.start_year_specific, "YYYY"),
+                start_month_specific: dayjs(record.start_month_specific, "MM"),
+                end_year_specific: dayjs(record.end_year_specific, "YYYY"),
+                end_month_specific: dayjs(record.end_month_specific, "MM"),
+                month_specific: dayjs(record.month_specific, "MM"),
+                year_specific: dayjs(record.year_specific, "YYYY"),
+            };
+            // console.log('editItemInit', NewData);
+            return NewData;
+            // editItem(NewData);
+            // emit('editItem', props);
+            // console.log('editItemInit', props);
+        }
 
         onMounted(() => {
             setUrlData();
@@ -242,20 +256,18 @@ export default {
             crudVariables.fetch({
                 page: 1,
             });
-
+            // console.log('initData', initData);
             crudVariables.crudUrl.value = addEditUrl;
             crudVariables.langKey.value = "salary_adjustment";
             crudVariables.initData.value = { ...initData };
             crudVariables.formData.value = { ...initData };
             crudVariables.hashableColumns.value = { ...hashableColumns };
         };
-
         return {
             columns,
             filterableColumns,
             permsArray,
             extraFilters,
-            formatDateTime,
             ...crudVariables,
             sampleFileUrl,
             setUrlData,
@@ -266,6 +278,7 @@ export default {
             userId,
             openUserView,
             closeUser,
+            editItemInit
         };
     },
 };

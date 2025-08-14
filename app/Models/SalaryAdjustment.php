@@ -15,14 +15,18 @@ class SalaryAdjustment extends BaseModel
         'id',
         'name',
         'process_payment',
-        'cut_off',
-        'month',
-        'year',
-        'date_from',
-        'date_to',
         'amount',
         'type',
         'adjustment_type',
+        'start_cut_off_specific',
+        'start_month_specific',
+        'start_year_specific',
+        'end_cut_off_specific',
+        'end_month_specific',
+        'end_year_specific',
+        'cut_off_specific',
+        'month_specific',
+        'year_specific',
     ];
 
     protected $hidden = ['id', 'user_id', 'created_by', 'updated_by'];
@@ -41,15 +45,19 @@ class SalaryAdjustment extends BaseModel
     protected $fillable = [
         'name',
         'process_payment',
-        'cut_off',
-        'month',
-        'year',
-        'date_from',
-        'date_to',
         'amount',
         'user_id',
         'type',
         'adjustment_type',
+        'start_cut_off_specific',
+        'start_month_specific',
+        'start_year_specific',
+        'end_cut_off_specific',
+        'end_month_specific',
+        'end_year_specific',
+        'cut_off_specific',
+        'month_specific',
+        'year_specific',
     ];
 public function user()
 {

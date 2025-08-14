@@ -35,6 +35,7 @@
                                     v-model:value="formData.process_payment"
                                     style="width: 100%"
                                     :placeholder="$t('salary_adjustment.process_type')"
+                                    @change="onProcessPaymentChange"
                                 >
                                     <a-select-option
                                         value="recurring"
@@ -42,79 +43,169 @@
                                         {{ $t('salary_adjustment.recurring') }}
                                     </a-select-option>
                                     <a-select-option value="date_range">
-                                        {{ $t('salary_adjustment.date_range') }}
+                                        Specific Payroll Batch
                                     </a-select-option>
                                 </a-select>
                             </a-form-item>
                         </a-col>
-
                         <!-- Recurring Options -->
                         <template v-if="formData.process_payment === 'recurring'">
-                            <a-col :xs="24" :sm="24" :md="12" :lg="12">
-                                <a-form-item :label="$t('salary_adjustment.recurring')" name="recurring_type">
-                                    <a-row :gutter="8">
-                                        <a-col :span="8">
-                                            <a-input
-                                                v-model:value="formData.year"
-                                                :placeholder="$t('salary_adjustment.year')"
-                                                style="width: 100%;"
-                                                type="number"
-                                            />
-                                        </a-col>
-                                        <a-col :span="8">
-                                            <a-input
-                                                v-model:value="formData.month"
-                                                :placeholder="$t('salary_adjustment.month')"
-                                                style="width: 100%;"
-                                                type="number"
-                                            />
-                                        </a-col>
-                                        <a-col :span="8">
-                                            <a-select
-                                                v-model:value="formData.cut_off"
-                                                style="width: 100%"
-                                                :placeholder="$t('salary_adjustment.cutoff')"
-                                            >
-                                                <a-select-option value="A">A</a-select-option>
-                                                <a-select-option value="B">B</a-select-option>
-                                            </a-select>
-                                        </a-col>
-                                    </a-row>
-                                </a-form-item>
+                            <a-col :span="24">
+                                <h3 style="margin-bottom: 10px;">Start Batch</h3>
                             </a-col>
+                                <a-col :xs="24" :sm="24" :md="8" :lg="8">
+                                    <a-form-item
+                                        :label="'Year'"
+                                        name="start_year_specific"
+                                    >
+                                        <a-date-picker
+                                            v-model:value="formData.start_year_specific"
+                                            style="width: 100%"
+                                            picker="year"
+                                            :format="'YYYY'"
+                                            :placeholder="'Select Year'"
+                                            :disabled-date="disabledYear"
+                                        />
+                                    </a-form-item>
+                                </a-col>
+                                <a-col :xs="24" :sm="12" :md="8" :lg="8">
+                                    <a-form-item
+                                        :label="'Month'"
+                                        name="start_month_specific"
+                                    >
+                                        <a-date-picker
+                                            v-model:value="formData.start_month_specific"
+                                            style="width: 100%"
+                                            picker="month"
+                                            :format="'MMMM'"
+                                            :placeholder="'Select Month'"
+                                        />
+                                    </a-form-item>
+                                </a-col>
+                                <a-col :xs="24" :sm="12" :md="8" :lg="8">
+                                    <a-form-item
+                                        :label="'Cut-Off Type'"
+                                        name="start_cut_off_specific"
+                                    >
+                                        <a-select
+                                            v-model:value="formData.start_cut_off_specific"
+                                            style="width: 100%"
+                                            :placeholder="'Select Cut-off'"
+                                        >
+                                            <a-select-option value="A">A</a-select-option>
+                                            <a-select-option value="B">B</a-select-option>
+                                        </a-select>
+                                    </a-form-item>
+                                </a-col>
+                                <a-col :span="24" style="margin-top: 20px;">
+                                    <h3 style="margin-bottom: 10px;">End Batch</h3>
+                                </a-col>
+                                <a-col :xs="24" :sm="24" :md="8" :lg="8">
+                                    <a-form-item
+                                        :label="'Year'"
+                                        name="end_year_specific"
+                                    >
+                                        <a-date-picker
+                                            v-model:value="formData.end_year_specific"
+                                            style="width: 100%"
+                                            picker="year"
+                                            :format="'YYYY'"
+                                            :placeholder="'Select Year'"
+                                            :disabled-date="disabledYear"
+                                        />
+                                    </a-form-item>
+                                </a-col>
+                                <a-col :xs="24" :sm="12" :md="8" :lg="8">
+                                    <a-form-item
+                                        :label="'Month'"
+                                        name="end_month_specific"
+                                    >
+                                        <a-date-picker
+                                            v-model:value="formData.end_month_specific"
+                                            style="width: 100%"
+                                            picker="month"
+                                            :format="'MMMM'"
+                                            :placeholder="'Select Month'"
+                                        />
+                                    </a-form-item>
+                                </a-col>
+                                <a-col :xs="24" :sm="12" :md="8" :lg="8">
+                                    <a-form-item
+                                        :label="'Cut-Off Type'"
+                                        name="end_cut_off_specific"
+                                    >
+                                        <a-select
+                                            v-model:value="formData.end_cut_off_specific"
+                                            style="width: 100%"
+                                            :placeholder="'Select Cut-off'"
+                                        >
+                                            <a-select-option value="A">A</a-select-option>
+                                            <a-select-option value="B">B</a-select-option>
+                                        </a-select>
+                                    </a-form-item>
+                                </a-col>
                             
                         </template>
 
-                        <!-- Date Range Options -->
-                        <template v-if="formData.process_payment === 'date_range'">
-                            <a-col :xs="24" :sm="24" :md="12" :lg="12">
-                                <a-form-item
-                                    :label="$t('salary_adjustment.date_from')"
-                                    name="date_from"
-                                >
-                                    <a-date-picker
-                                        v-model:value="dateFromProxy"
-                                        style="width: 100%"
-                                        :format="'YYYY-MM-DD'"
-                                        :placeholder="$t('salary_adjustment.date_from')"
-                                    />
-                                </a-form-item>
-                            </a-col>
 
-                            <a-col :xs="24" :sm="24" :md="12" :lg="12">
-                                <a-form-item
-                                    :label="$t('salary_adjustment.date_to')"
-                                    name="date_to"
-                                >
-                                    <a-date-picker
-                                        v-model:value="dateToProxy"
-                                        style="width: 100%"
-                                        :format="'YYYY-MM-DD'"
-                                        :placeholder="$t('salary_adjustment.date_to')"
-                                    />
-                                </a-form-item>
-                            </a-col>
+                        <!-- Specific payroll batch -->
+                        <template v-if="formData.process_payment === 'date_range'">
+                         
+                                <!-- Date From -->
+                                <a-col :xs="24" :sm="24" :md="8" :lg="8">
+                                    <a-form-item
+                                        :label="'Year'"
+                                        name="year_specific"
+                                    >
+                                        <a-date-picker
+                                            v-model:value="formData.year_specific"
+                                            style="width: 100%"
+                                            picker="year"
+                                            :format="'YYYY'"
+                                            :placeholder="'Select Year'"
+                                            :disabled-date="disabledYear"
+                                        />
+                                    </a-form-item>
+                                </a-col>
+
+
+                                <!-- Date To -->
+                                <a-col :xs="24" :sm="12" :md="8" :lg="8">
+                                    <a-form-item
+                                        :label="'Month'"
+                                        name="month_specific"
+                                    >
+                                        <a-date-picker
+                                            v-model:value="formData.month_specific"
+                                            style="width: 100%"
+                                            picker="month"
+                                            :format="'MMMM'"
+                                            :placeholder="'Select Month'"
+                                        />
+                                    </a-form-item>
+                                </a-col>
+
+                                <a-col :xs="24" :sm="12" :md="8" :lg="8">
+                                    <a-form-item
+                                        :label="'Cutt-Off Type'"
+                                        name="cut_off_specific"
+                                    >
+                                        <a-select
+                                            v-model:value="formData.cut_off_specific"
+                                            style="width: 100%"
+                                            :placeholder="'Select Cut-off'"
+                                        >
+                                            <a-select-option value="A">A</a-select-option>
+                                            <a-select-option value="B">B</a-select-option>
+                                        </a-select>
+                                    </a-form-item>
+                                </a-col>
+
+
+                    
                         </template>
+                        
+
 
                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
                             <a-form-item
@@ -199,11 +290,15 @@
                                     style="width: 100%"
                                     :placeholder="$t('salary_adjustment.adjustment_type')"
                                 >
-                                    <a-select-option value="EARN">{{ $t('salary_adjustment.adjustment_type_earn') }}</a-select-option>
-                                    <a-select-option value="DEDC">{{ $t('salary_adjustment.adjustment_type_deduction') }}</a-select-option>
+                                    <a-select-option value="basic_pay">Basic</a-select-option>
+                                    <a-select-option value="alowance_pay">Allowance</a-select-option>
+                                    <a-select-option value="overtime_pay">Overtime</a-select-option>
+                                    <a-select-option value="SPNWD_pay">Special non-working day</a-select-option>
+                                    <a-select-option value="rest_day_pay">Rest Day</a-select-option>
+                                    <a-select-option value="holiday_pay">Holiday</a-select-option>
                                 </a-select>
                             </a-form-item>
-                        </a-col>
+                    </a-col>
                         
                     </a-row>
                     
@@ -227,7 +322,7 @@
 
 <script>
 import { LoadingOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons-vue";
-import { computed, defineComponent, onMounted, ref } from "vue";
+import { defineComponent, onMounted, reactive, ref, watch } from "vue";
 import FormItemHeading from "../../../../common/components/common/typography/FormItemHeading.vue";
 import UserListDisplay from "../../../../common/components/user/UserListDisplay.vue";
 import apiAdmin from "../../../../common/composable/apiAdmin";
@@ -274,15 +369,38 @@ export default defineComponent({
         const newData = ref({});
         const users = ref([]);
         const userUrl = "users?limit=10000";
+        const formData = reactive({
+            start_month_specific: null, // Day.js object for picker
+            start_month_string: ""      // Always plain "YYYY-MM" for API
+        });
+        
+
+        watch(
+            () => formData.start_month_specific,
+            (newVal) => {
+                formData.start_month_string = newVal
+                ? newVal.format("YYYY-MM")
+                : "";
+            }
+        );
 
         const onSubmit = () => {
-            var newFormData = {
+            const processedFormData = {
                 ...props.formData,
+                start_year_specific: new Date(props.formData.start_year_specific).getFullYear(),
+                end_year_specific: new Date(props.formData.end_year_specific).getFullYear(),
+                start_month_specific: String(new Date(props.formData.start_month_specific).getMonth() + 1).padStart(2, '0'),
+                end_month_specific: String(new Date(props.formData.end_month_specific).getMonth() + 1).padStart(2, '0'),
+                month_specific: String(new Date(props.formData.month_specific).getMonth() + 1).padStart(2, '0'),
+                year_specific: new Date(props.formData.year_specific).getFullYear(),
+            };
+            var newFormData = {
+                ...processedFormData,
                 visibility: selectedVisibility.value,
                 ...newData.value,
             };
 
-            console.log(newData.value)
+            console.log(newFormData)
             addEditRequestAdmin({
                 id: newFormData.id,
                 url: props.url,
@@ -299,7 +417,10 @@ export default defineComponent({
             });
         };
         
+        
         onMounted(() => {
+
+            // console.log('data',props.formData)
             const usersPromise = axiosAdmin.get(userUrl);
 
             Promise.all([usersPromise]).then(
@@ -307,6 +428,25 @@ export default defineComponent({
                     users.value = userResponse.data;
                 }
             );
+            // console.log(props.formData)
+            if (props.formData.start_year_specific) {
+                props.formData.start_year_specific = dayjs(props.formData.start_year_specific, "YYYY");
+            }
+            if (props.formData.end_year_specific) {
+                props.formData.end_year_specific = dayjs(props.formData.end_year_specific, "YYYY");
+            }
+            if (props.formData.start_month_specific) {
+                props.formData.start_month_specific = dayjs(props.formData.start_month_specific, "MM");
+            }
+            if (props.formData.end_month_specific) {
+                props.formData.end_month_specific = dayjs(props.formData.end_month_specific, "MM");
+            }
+            if (props.formData.year_specific) {
+                props.formData.year_specific = dayjs(props.formData.year_specific, "YYYY");
+            }
+            if (props.formData.month_specific) {
+                props.formData.month_specific = dayjs(props.formData.month_specific, "MM");
+            }
         });
 
 
@@ -315,24 +455,26 @@ export default defineComponent({
             emit("closed");
         };
 
-        // Proxy for date_from to handle dayjs conversion
-        const dateFromProxy = computed({
-            get() {
-                return props.formData.date_from ? dayjs(props.formData.date_from) : null;
-            },
-            set(val) {
-                props.formData.date_from = val ? val.format('YYYY-MM-DD') : null;
-            }
-        });
+    
+        const disabledYear = (current) => {
+            const currentYear = dayjs().year()
+            return (
+                current.year() < currentYear ||
+                current.year() > currentYear + 10
+            )
+        }
 
-        const dateToProxy = computed({
-            get() {
-                return props.formData.date_to ? dayjs(props.formData.date_to) : null;
-            },
-            set(val) {
-                props.formData.date_to = val ? val.format('YYYY-MM-DD') : null;
-            }
-        });
+        const onProcessPaymentChange = () => {
+            props.formData.start_year_specific = null
+            props.formData.end_year_specific = null
+            props.formData.start_month_specific = null
+            props.formData.end_month_specific = null
+            props.formData.month_specific = null
+            props.formData.year_specific = null
+        }
+
+
+        // console.log('data',props.formData)
 
         return {
             loading,
@@ -352,9 +494,9 @@ export default defineComponent({
             selectedVisibility,
             addEditActiveTab,
             adjustedVisible,
+            onProcessPaymentChange,
             drawerWidth: window.innerWidth <= 991 ? "90%" : "65%",
-            dateFromProxy,
-            dateToProxy
+            disabledYear
         };
     },
 });

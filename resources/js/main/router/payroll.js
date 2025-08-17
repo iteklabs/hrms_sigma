@@ -62,6 +62,18 @@ export default [
                     permission: "salary_adjustment",
                 },
             },
+            {
+                path: "salary_deduction",
+                component: () =>
+                    import("../views/payrolls/salary_deduction/index.vue"),
+                name: "admin.payroll.salary_deduction",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "salary_deduction",
+                    menuKey: (route) => "salary_deduction",
+                    permission: "salary_deduction",
+                },
+            },
         ],
     },
 ];

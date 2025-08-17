@@ -448,7 +448,7 @@
                         </a-menu-item>
                     </a-sub-menu> -->
                     <a-sub-menu
-                        key="attendances"
+                        key="attendance_upload"
                         v-if="
                             permsArray.includes('attendance_upload_view') ||
                             permsArray.includes('admin')
@@ -457,7 +457,7 @@
                         <template #title>
                             <span>
                                 <ProfileOutlined />
-                                <span>{{ $t("menu.attendances") }} Upload</span>
+                                <span>Scheduled</span>
                             </span>
                         </template>
                         <a-menu-item
@@ -469,9 +469,9 @@
                                     });
                                 }
                             "
-                            key="attendances"
+                            key="attendance_upload"
                         >
-                            <span>{{ $t("menu.attendances") }}</span>
+                            <span>Set Schedule</span>
                         </a-menu-item>
                     </a-sub-menu>
                     <a-sub-menu
@@ -645,11 +645,11 @@
                                 () => {
                                     menuSelected();
                                     $router.push({
-                                        name: 'admin.payroll.adjustment_salary',
+                                        name: 'admin.payroll.salary_deduction',
                                     });
                                 }
                             "
-                            key="salary_adjustment"
+                            key="salary_deduction"
                         >
                         
                             <span>Deductions</span>

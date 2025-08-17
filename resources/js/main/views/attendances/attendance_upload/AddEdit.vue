@@ -9,7 +9,7 @@
         @close="onClose"
     >
     <a-form layout="vertical">
-        <pre>{{ formData }}</pre>
+        <!-- <pre>{{ formData }}</pre> -->
         <a-row :gutter="16">
             <a-col :xs="24" :sm="24" :md="24" :lg="24">
                 <a-form-item

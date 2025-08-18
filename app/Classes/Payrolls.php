@@ -678,8 +678,8 @@ class Payrolls
 
     public static function payrollGenerateRegenerate($payrollGenerateRequest, $user, $company)
     {
-        // && $payrollGenerateRequest->cut_off == "A"
-        if($payrollGenerateRequest->has('year') && $payrollGenerateRequest->has('month') && $payrollGenerateRequest->month > 0 ){
+        try {
+            if($payrollGenerateRequest->has('year') && $payrollGenerateRequest->has('month') && $payrollGenerateRequest->month > 0 ){
 
             $year = (int) $payrollGenerateRequest->year;
             $month = (int) $payrollGenerateRequest->month;
@@ -979,6 +979,11 @@ class Payrolls
                     }
             }
         }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+        // && $payrollGenerateRequest->cut_off == "A"
+        
         
     }
 

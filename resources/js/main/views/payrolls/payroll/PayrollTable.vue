@@ -58,6 +58,11 @@
                                 {{ formatAmountCurrency(record.net_salary) }}
                             </template>
                             <template v-if="column.dataIndex == 'status'">
+                                <div v-if="record.status == 'draft'">
+                                    <a-tag color="red">
+                                        Drafted
+                                    </a-tag>
+                                </div>
                                 <div v-if="record.status == 'generated'">
                                     <a-tag color="yellow">
                                         {{ $t(`payroll.generated`) }}

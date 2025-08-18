@@ -12,10 +12,10 @@ class GeneratePDFPaySlip extends Controller
         try {
             $newID = Common::getIdFromHash($id);
             $data = Payroll::with(['user', 'PayrollDetl'])->find($newID);
-            $EarnTax = $data->PayrollDetl->where('types', 'EARN')->where('isTaxable', true);
-            $EarnNonTax = $data->PayrollDetl->where('types', 'EARN')->where('isTaxable', false);
-            $DedcTax = $data->PayrollDetl->where('types', 'DEDC')->where('isTaxable', true);
-            $DedcNonTax = $data->PayrollDetl->where('types', 'DEDC')->where('isTaxable', false);
+            $EarnTax = $data->PayrollDetl->where('identity', 'earn')->where('isTaxable', true);
+            $EarnNonTax = $data->PayrollDetl->where('identity', 'earn')->where('isTaxable', false);
+            $DedcTax = $data->PayrollDetl->where('identity', 'dedc')->where('isTaxable', true);
+            $DedcNonTax = $data->PayrollDetl->where('identity', 'dedc')->where('isTaxable', false);
             // echo "<pre>";
             // print_r($data->PayrollDetl->where('types', 'EARN')->where('isTaxable', true)->sum('amount'));
             // exit;
@@ -25,7 +25,7 @@ class GeneratePDFPaySlip extends Controller
                 'EarnNonTax' => $EarnNonTax,
                 'DedcTax' => $DedcTax,
                 'DedcNonTax' => $DedcNonTax,
-            ]);
+            ])->setPaper('a4', 'landscape');
 
             return $pdf->stream(); 
         } catch (\Throwable $th) {

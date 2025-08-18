@@ -315,25 +315,25 @@ class Payrolls
                     $mpf_ee = $sss->mpf_ee / 2;
                     $ec_yer = $sss->ec_yer / 2;
 
-                    // return [
-                    //     'employer_share' => $employer_share,
-                    //     'employee_share' => $employee_share,
-                    //     'mpf_yer' => $mpf_yer,
-                    //     'ec_yer' => $ec_yer,
-                    //     'mpf_ee' => $mpf_ee,
-                    //     'total_ee_share_mpf' => $mpf_ee + $employee_share,
-                    //     'total_er_share_mpf' => $mpf_yer + $employer_share
-                    // ];
-
                     return [
-                        'employer_share' => 500,
-                        'employee_share' => 500,
-                        'mpf_yer' => 0,
-                        'ec_yer' => 0,
-                        'mpf_ee' => 0,
-                        'total_ee_share_mpf' => 0,
-                        'total_er_share_mpf' => 0
+                        'employer_share' => $employer_share,
+                        'employee_share' => $employee_share,
+                        'mpf_yer' => $mpf_yer,
+                        'ec_yer' => $ec_yer,
+                        'mpf_ee' => $mpf_ee,
+                        'total_ee_share_mpf' => $mpf_ee + $employee_share,
+                        'total_er_share_mpf' => $mpf_yer + $employer_share
                     ];
+
+                    // return [
+                    //     'employer_share' => 500,
+                    //     'employee_share' => 500,
+                    //     'mpf_yer' => 0,
+                    //     'ec_yer' => 0,
+                    //     'mpf_ee' => 0,
+                    //     'total_ee_share_mpf' => 0,
+                    //     'total_er_share_mpf' => 0
+                    // ];
                 }else if($cutOff == 'B'){
 
                     $get_prev_salary = self::get_prev_salary($id, $month, $year);
@@ -367,7 +367,7 @@ class Payrolls
                     $mpf_yer = $sss->mpf_yer - $prev_sss_mpf_er;
                     $mpf_ee = $sss->mpf_ee - $prev_sss_mpf_ee;
                     $ec_yer = $sss->ec_yer - $prev_sss_ec_er;
-                    \Log::info("SSS Details: " . $basisSalary);
+                    // \Log::info("SSS Details: " . $basisSalary);
                     return [
                         'employer_share' => $employer_share,
                         'employee_share' => $employee_share,

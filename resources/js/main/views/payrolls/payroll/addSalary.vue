@@ -454,7 +454,7 @@ export default defineComponent({
 
             const result = {};
             props.data.payroll_detl
-                .filter(item => item.types === 'DEDC' && item.isTaxable === false)
+                .filter(item => item.identity === 'dedc' && item.isTaxable === false)
                 .forEach(item => {
                     result[item.title] = item.amount || 0;
                 });
@@ -468,7 +468,7 @@ export default defineComponent({
 
             const result = {};
             props.data.payroll_detl
-                .filter(item => item.types === 'EARN' && item.isTaxable === true)
+                .filter(item => item.identity === 'earn' && item.isTaxable === true)
                 .forEach(item => {
                     result[item.title] = item.amount || 0;
                 });
@@ -481,7 +481,7 @@ export default defineComponent({
 
             const result = {};
             props.data.payroll_detl
-                .filter(item => item.types === 'EARN' && item.isTaxable === false)
+                .filter(item => item.types === 'earn' && item.isTaxable === false)
                 .forEach(item => {
                     result[item.title] = item.amount || 0;
                 });

@@ -20,6 +20,7 @@ use App\Models\TaxBIR;
 use App\Classes\CommonHrm;
 use App\Models\PayrollsDetl;
 use App\Models\SalaryAdjustment;
+use App\Models\LoanDeduction;
 
 
 class Payrolls
@@ -605,26 +606,70 @@ class Payrolls
     }
 
     public static function getSalaryAdjustment($user_id, $month, $year, $cutoff){
+        // $data = SalaryAdjustment::where('user_id', $user_id)
+        // ->where('start_month_specific', $month)
+        // ->where('start_year_specific', $year)
+        // ->where('start_cut_off_specific', $cutoff)
+        // ->get();
+
+        $targetKey = $year . str_pad($month, 2, '0', STR_PAD_LEFT) . $cutoff;
         $data = SalaryAdjustment::where('user_id', $user_id)
-        ->where('month', $month)
-        ->where('year', $year)
-        ->where('cut_off', $cutoff)
+        ->whereRaw("CONCAT(start_year_specific, LPAD(start_month_specific, 2, '0'), start_cut_off_specific) <= ?", [$targetKey])
+        ->whereRaw("CONCAT(end_year_specific, LPAD(end_month_specific, 2, '0'), end_cut_off_specific) >= ?", [$targetKey])
         ->get();
+        // \Log::info($data->toArray());
+        // exit;
         $dataArray = array();
         if($data){
             $dataArray['earn'] = [];
             $dataArray['dedc'] = [];
             foreach ($data as $key => $value) {
-                switch ($value->adjustment_type) {
-                    case 'EARN':
-                        $dataArray['earn'][] = $value->toArray();
+                $dataArray['earn'][] = $value->toArray();
+                // switch ($value->adjustment_type) {
+                //     case 'EARN':
+                //         $dataArray['earn'][] = $value->toArray();
                         
-                    break;
+                //     break;
                     
-                    case 'DEDC':
-                        $dataArray['dedc'][] = $value->toArray();
-                    break;
-                }
+                //     case 'DEDC':
+                //         $dataArray['dedc'][] = $value->toArray();
+                //     break;
+                // }
+            }
+        }
+        return $dataArray;
+    }
+
+    public static function getLoanDeduction($user_id, $month, $year, $cutoff){
+        // $data = SalaryAdjustment::where('user_id', $user_id)
+        // ->where('start_month_specific', $month)
+        // ->where('start_year_specific', $year)
+        // ->where('start_cut_off_specific', $cutoff)
+        // ->get();
+
+        $targetKey = $year . str_pad($month, 2, '0', STR_PAD_LEFT) . $cutoff;
+        $data = LoanDeduction::where('user_id', $user_id)
+        ->whereRaw("CONCAT(start_year_specific, LPAD(start_month_specific, 2, '0'), start_batch_specific) <= ?", [$targetKey])
+        ->whereRaw("CONCAT(end_year_specific, LPAD(end_month_specific, 2, '0'), end_batch_specific) >= ?", [$targetKey])
+        ->get();
+        // \Log::info($data->toArray());
+        // exit;
+        $dataArray = array();
+        if($data){
+            // $dataArray['earn'] = [];
+            $dataArray['dedc'] = [];
+            foreach ($data as $key => $value) {
+                $dataArray['dedc'][] = $value->toArray();
+                // switch ($value->adjustment_type) {
+                //     case 'EARN':
+                //         $dataArray['earn'][] = $value->toArray();
+                        
+                //     break;
+                    
+                //     case 'DEDC':
+                //         $dataArray['dedc'][] = $value->toArray();
+                //     break;
+                // }
             }
         }
         return $dataArray;
@@ -670,7 +715,7 @@ class Payrolls
 
                     // $basicSalary = $allUser->basic_salary / 2 ?? 0;
                     $resultData = CommonHrm::getMonthYearAttendanceDetails($allUser->id, $month, $year, $cut_off);
-                \Log::alert($resultData);
+                // \Log::alert($resultData);
                     $regular_ot_percentage = ($company->regular_ot_percentage / 100);
                     $legal_holiday_percentage = ($company->legal_holiday_percentage / 100);
                     $legal_holiday_ot_percentage = ($company->legal_holiday_ot_percentage / 100);
@@ -693,7 +738,6 @@ class Payrolls
                     $EarnNonTax = 0;
                     $DeaductTax = 0;
                     $DeaductNonTax = 0;
-                    // \Log::debug($SalarAdjustment);
                     if(count($SalarAdjustment) > 0){
                         if(count($SalarAdjustment['earn']) > 0){
                             foreach ($SalarAdjustment['earn'] as $key => $value) {
@@ -728,6 +772,7 @@ class Payrolls
                                                 'payroll_id' => Common::getIdFromHash($payroll->xid),
                                                 'amount' => $value['amount'],
                                                 'title' => $value['name'],
+                                                'identity' => 'earn',
                                                 'types' => $value['adjustment_type'],
                                                 'isTaxable' => true
                                             ]
@@ -738,52 +783,80 @@ class Payrolls
                             }
                         }
 
-                        if(count($SalarAdjustment['dedc']) > 0){
-                            foreach ($SalarAdjustment['dedc'] as $key => $value) {
-                                switch ($value['type']) {
-                                    case 'NT':
-                                        $DeaductNonTax += $value['amount'];
-                                        PayrollsDetl::updateOrCreate(
-                                            [
-                                                'salary_adjustment_id' => Common::getIdFromHash($value['xid']),
-                                                'payroll_id' => Common::getIdFromHash($payroll->xid) ,
-                                            ],
-                                            [
-                                                'salary_adjustment_id' => Common::getIdFromHash($value['xid']),
-                                                'payroll_id' => Common::getIdFromHash($payroll->xid),
-                                                'amount' => $value['amount'],
-                                                'title' => $value['name'],
-                                                'types' => $value['adjustment_type'],
-                                                'isTaxable' => false
-                                            ]
-                                        );
-                                    break;
+                        // if(count($SalarAdjustment['dedc']) > 0){
+                        //     foreach ($SalarAdjustment['dedc'] as $key => $value) {
+                        //         switch ($value['type']) {
+                        //             case 'NT':
+                        //                 $DeaductNonTax += $value['amount'];
+                        //                 PayrollsDetl::updateOrCreate(
+                        //                     [
+                        //                         'salary_adjustment_id' => Common::getIdFromHash($value['xid']),
+                        //                         'payroll_id' => Common::getIdFromHash($payroll->xid) ,
+                        //                     ],
+                        //                     [
+                        //                         'salary_adjustment_id' => Common::getIdFromHash($value['xid']),
+                        //                         'payroll_id' => Common::getIdFromHash($payroll->xid),
+                        //                         'amount' => $value['amount'],
+                        //                         'title' => $value['name'],
+                        //                         'types' => $value['adjustment_type'],
+                        //                         'isTaxable' => false
+                        //                     ]
+                        //                 );
+                        //             break;
 
-                                    case 'T':
-                                        $DeaductTax += $value['amount'];
-                                        PayrollsDetl::updateOrCreate(
-                                            [
-                                                'salary_adjustment_id' => Common::getIdFromHash($value['xid']),
-                                                'payroll_id' => Common::getIdFromHash($payroll->xid) ,
-                                            ],
-                                            [
-                                                'salary_adjustment_id' => Common::getIdFromHash($value['xid']),
-                                                'payroll_id' => Common::getIdFromHash($payroll->xid),
-                                                'amount' => $value['amount'],
-                                                'title' => $value['name'],
-                                                'types' => $value['adjustment_type'],
-                                                'isTaxable' => true
-                                            ]
-                                        );
-                                    break;
-                                }
-                            }
-                        }
+                        //             case 'T':
+                        //                 $DeaductTax += $value['amount'];
+                        //                 PayrollsDetl::updateOrCreate(
+                        //                     [
+                        //                         'salary_adjustment_id' => Common::getIdFromHash($value['xid']),
+                        //                         'payroll_id' => Common::getIdFromHash($payroll->xid) ,
+                        //                     ],
+                        //                     [
+                        //                         'salary_adjustment_id' => Common::getIdFromHash($value['xid']),
+                        //                         'payroll_id' => Common::getIdFromHash($payroll->xid),
+                        //                         'amount' => $value['amount'],
+                        //                         'title' => $value['name'],
+                        //                         'types' => $value['adjustment_type'],
+                        //                         'isTaxable' => true
+                        //                     ]
+                        //                 );
+                        //             break;
+                        //         }
+                        //     }
+                        // }
 
 
                         
                         
                     }
+
+                    
+
+                    $SalarDeductionLoan = self::getLoanDeduction($allUser->id, $month, $year, $cut_off);
+                    // \Log::info($SalarDeductionLoan);
+                    if(count($SalarDeductionLoan['dedc']) > 0){
+                        foreach ($SalarDeductionLoan['dedc'] as $key => $value) {
+                            $DeaductNonTax += $value['payroll_deduction'];
+                            // \Log::alert($value);
+                            PayrollsDetl::updateOrCreate(
+                                [
+                                    'salary_adjustment_id' => Common::getIdFromHash($value['xid']),
+                                    'payroll_id' => Common::getIdFromHash($payroll->xid) ,
+                                ],
+                                [
+                                    'salary_adjustment_id' => Common::getIdFromHash($value['xid']),
+                                    'payroll_id' => Common::getIdFromHash($payroll->xid),
+                                    'amount' => $value['payroll_deduction'],
+                                    'title' => $value['type_of_loan'],
+                                    'types' => $value['loan_name'],
+                                    'identity' => 'dedc',
+                                    'isTaxable' => false
+                                ]
+                            );
+                        }
+                    }
+                    
+                    \Log::info($DeaductNonTax . " DeaductNonTax" . $EarnNonTax . " EarnNonTax" . $EarnTax . " EarnTax" . $DeaductTax . " DeaductTax");
                     
 
 

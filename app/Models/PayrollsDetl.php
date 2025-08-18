@@ -30,6 +30,7 @@ class PayrollsDetl extends BaseModel
         'amount' => 'double',
         'types' => 'string',
         'isTaxable' => 'boolean',
+        'identity' => 'string', // 'earn' or 'dedc'
     ];
 
     public function PayrollMain()

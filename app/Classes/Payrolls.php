@@ -960,8 +960,10 @@ class Payrolls
                     $payroll->rest_day_ot_amount	 = $rest_day_ot_amount;
                     $payroll->rest_day_amount	 = $rest_day_amount;
                     $payroll->regular_ot_amount	 = $regular_ot_amount;
+                    if($netSalary > 0){
+                        $payroll->save();
+                    }
                     
-                    $payroll->save();
 
                     if($allUser->id == 12){
 

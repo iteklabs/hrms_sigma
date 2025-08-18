@@ -84,14 +84,14 @@
             <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
                 <a-form-item
                     :label="'Type of Loan'"
-                    name="loan_type"
-                    :help="rules.loan_type ? rules.loan_type.message : null"
-                    :validateStatus="rules.loan_type ? 'error' : null"
+                    name="type_of_loan"
+                    :help="rules.type_of_loan ? rules.type_of_loan.message : null"
+                    :validateStatus="rules.type_of_loan ? 'error' : null"
                     class="required"
                 >
                 <span style="display: flex">
                     <a-select
-                        v-model:value="formData.loan_type"
+                        v-model:value="formData.type_of_loan"
                         :placeholder="
                             $t('common.select_default_text', [
                                 'Type of Loan',
@@ -118,14 +118,14 @@
             <a-col :xs="24" :sm="24" :md="8" :lg="8">
                 <a-form-item
                     :label="$t('salary_adjustment.amount')"
-                    name="amount"
+                    name="total_amount_loan"
                     class="required"
                 >
                     <a-input-number
-                        v-model:value="formData.amount"
+                        v-model:value="formData.total_amount_loan"
                         style="width: 100%"
                         :min="0"
-                        :placeholder="$t('salary_adjustment.amount')"
+                        :placeholder="$t('salary_adjustment.total_amount_loan')"
                     />
                 </a-form-item>
             </a-col>
@@ -146,20 +146,176 @@
                 </a-form-item>
             </a-col>
 
-            <a-col :xs="24" :sm="24" :md="8" :lg="8">
+            <a-col :xs="24" :sm="24" :md="4" :lg="4">
+                <a-form-item
+                    :label="'Type of Deduction'"
+                    name="type_of_deduction"
+                    class="required"
+                >
+                    <span style="display: flex">
+                        <a-select
+                            v-model:value="formData.type_of_deduction"
+                            :placeholder="
+                                $t('common.select_default_text', [
+                                    'Type of Deduction',
+                                ])
+                            "
+                            :allowClear="true"
+                            optionFilterProp="title"
+                            show-search
+                        >
+                            <a-select-option
+                                :value="'s_monthly'"
+                                :title="'Semi-Monthly'"
+                            >
+                                Semi-Monthly
+                            </a-select-option>
+                            <a-select-option
+                                :value="'monthly'"
+                                :title="'Monthly'"
+                            >
+                                Monthly
+                            </a-select-option>
+                        </a-select>
+                    </span>
+                </a-form-item>
+            </a-col>
+
+            <a-col :xs="24" :sm="24" :md="4" :lg="4">
+                <a-form-item
+                    :label="'Schedule to Deduct'"
+                    name="sched_of_deduction"
+                    class="required"
+                >
+                    <span style="display: flex">
+                        <a-select
+                            v-model:value="formData.sched_of_deduction"
+                            :placeholder="
+                                $t('common.select_default_text', [
+                                    'Schedule of Deduction',
+                                ])
+                            "
+                            :allowClear="true"
+                            optionFilterProp="title"
+                            show-search
+                        >
+                            <a-select-option
+                                :value="'A'"
+                                :title="'1st Cut-Off'"
+                            >
+                                1st Cut-Off
+                            </a-select-option>
+                            <a-select-option
+                                :value="'B'"
+                                :title="'2nd Cut-Off'"
+                            >
+                                2nd Cut-Off
+                            </a-select-option>
+                        </a-select>
+                    </span>
+                </a-form-item>
+            </a-col>
+
+            
+        </a-row>
+        <a-row :gutter="16">
+            <a-col :xs="24" :sm="24" :md="4" :lg="4">
                 <a-form-item
                     :label="'Monthly Deduction'"
-                    name="monthly_deductions"
+                    name="amount_per_payroll"
                     class="required"
                 >
                     <a-input-number
-                        v-model:value="formData.monthly_deductions"
+                        v-model:value="formData.amount_per_payroll"
                         style="width: 100%"
                         :min="0"
                         :placeholder="'Monthly Deduction'"
                         :disabled="false"
                         :readOnly="true"
                     />
+                </a-form-item>
+            </a-col>
+            <a-col :xs="24" :sm="24" :md="4" :lg="4">
+                <a-form-item
+                    :label="'Payroll Deduction'"
+                    name="payroll_deduction"
+                    class="required"
+                >
+                    <a-input-number
+                        v-model:value="formData.payroll_deduction"
+                        style="width: 100%"
+                        :min="0"
+                        :placeholder="'Payroll Deduction'"
+                        :disabled="false"
+                        :readOnly="true"
+                    />
+                </a-form-item>
+            </a-col>
+            
+
+
+            <a-col :xs="24" :sm="24" :md="2" :lg="2">
+                <a-form-item
+                    :label="'Start Year'"
+                    name="start_year_specific"
+                >
+                    <a-date-picker
+                        v-model:value="formData.start_year_specific"
+                        style="width: 100%"
+                        picker="year"
+                        :format="'YYYY'"
+                        :placeholder="'Select Year'"
+                        :disabled-date="disabledYear"
+                    />
+                </a-form-item>
+            </a-col>
+
+            <a-col :xs="24" :sm="12" :md="2" :lg="2">
+                <a-form-item
+                    :label="'Start Month'"
+                    name="start_month_specific"
+                >
+                    <a-date-picker
+                        v-model:value="formData.start_month_specific"
+                        style="width: 100%"
+                        picker="month"
+                        :format="'MMMM'"
+                        :placeholder="'Select Month'"
+                    />
+                </a-form-item>
+            </a-col>
+
+            <a-col :xs="24" :sm="12" :md="2" :lg="2">
+                <a-form-item
+                    :label="'Start Batch'"
+                    name="start_batch_specific"
+                >
+                    <span style="display: flex">
+                        <a-select
+                            v-model:value="formData.start_batch_specific"
+                            :placeholder="
+                                $t('common.select_default_text', [
+                                    'Schedule of Deduction',
+                                ])
+                            "
+                            :allowClear="true"
+                            optionFilterProp="title"
+                            show-search
+                        >
+                            <a-select-option
+                                :value="'A'"
+                                :title="'A'"
+                            >
+                                A
+                            </a-select-option>
+                            <a-select-option
+                                :value="'B'"
+                                :title="'B'"
+                            >
+                                B
+                            </a-select-option>
+                        </a-select>
+                    </span>
                 </a-form-item>
             </a-col>
         </a-row>
@@ -247,45 +403,50 @@ export default defineComponent({
             });
         };
 
-        watch(() => props.DataNeed, (isOpen) => {
-            if(isOpen === 'GovLoan') {
-                    // props.pageTitle = "Add/Edit Government Loan";
+        // watch(() => props.DataNeed, (isOpen) => {
+        //     props.formData.loan_name = isOpen;
+        //     console.log('DataNeed changed to:', isOpen);
+        //     if(isOpen === 'GovLoan') {
+        //             // props.pageTitle = "Add/Edit Government Loan";
 
                     
-                    loan_type.value = [
-                        { value: "SSSsalary", label: "SSS Salary Loan" },
-                        { value: "SSScalamity", label: "SSS Calamity Loan" },
-                        { value: "PAGIBIGsalary", label: "Pag-IBIG Salary Loan" },
-                        { value: "PAGIBIGcalamity", label: "Pag-IBIG Calamity Loan" },
-                    ];
-                } else if(isOpen === 'CompLoan') {
-                    loan_type.value = [
-                        { value: "SELA's / COOP", label: "SECOOP" },
-                        { value: "globe", label: "Globe" },
-                        { value: "hmo", label: "HMO" },
-                        { value: "aroe", label: "AROE" },
-                    ];
-                }
-        });
+        //             loan_type.value = [
+        //                 { value: "SSSsalary", label: "SSS Salary Loan" },
+        //                 { value: "SSScalamity", label: "SSS Calamity Loan" },
+        //                 { value: "PAGIBIGsalary", label: "Pag-IBIG Salary Loan" },
+        //                 { value: "PAGIBIGcalamity", label: "Pag-IBIG Calamity Loan" },
+        //             ];
+        //         } else if(isOpen === 'CompLoan') {
+        //             loan_type.value = [
+        //                 { value: "SELA's / COOP", label: "SECOOP" },
+        //                 { value: "globe", label: "Globe" },
+        //                 { value: "hmo", label: "HMO" },
+        //                 { value: "aroe", label: "AROE" },
+        //             ];
+        //         }
+        // });
 
         watch(() => props.visible, (isOpen) => {
             if (isOpen) {
-                // console.log('Drawer opened, DataNeed =', props.DataNeed)
+                // console.log('Drawer opened, DataNeed =', props.addEditType)
                 
-                console.log(props.pageTitle + ' - ' + props.DataNeed + ' - ' + props.addEditType)
                 if (props.addEditType === "add") {
                     props.pageTitle = "Add " + props.DataNeed;
                 } else {
-                    rules.value = props.rules || {};
+                    // rules.value = props.rules || {};
+                    props.DataNeed = props.formData.DataNeed;
                 }
-                if(props.DataNeed === 'GovLoan') {
+                // console.log('DataNeed:', props.DataNeed);
+                // console.log('DataNeed:', props.formData.DataNeed);
+                props.formData.loan_name = props.DataNeed;
+                if(props.DataNeed == 'GovLoan' ||props.formData.DataNeed == 'GovLoan') {
                     loan_type.value = [
                         { value: "SSSsalary", label: "SSS Salary Loan" },
                         { value: "SSScalamity", label: "SSS Calamity Loan" },
                         { value: "PAGIBIGsalary", label: "Pag-IBIG Salary Loan" },
                         { value: "PAGIBIGcalamity", label: "Pag-IBIG Calamity Loan" },
                     ];
-                } else if(props.DataNeed === 'CompLoan') {
+                } else if(props.DataNeed === 'CompLoan' ||props.formData.DataNeed == 'CompLoan') {
                     loan_type.value = [
                         { value: "SELA's / COOP", label: "SECOOP" },
                         { value: "globe", label: "Globe" },
@@ -308,22 +469,58 @@ export default defineComponent({
 
 
         const ComputeMonthlyDeduction = () => {
-            if (props.formData.no_deductions && props.formData.amount) {
-                props.formData.monthly_deductions =
-                    props.formData.amount / props.formData.no_deductions;
+            if (props.formData.no_deductions && props.formData.total_amount_loan) {
+                props.formData.amount_per_payroll =
+                    (props.formData.total_amount_loan / props.formData.no_deductions).toFixed(4);
             } else {
-                props.formData.monthly_deductions = 0;
+                props.formData.amount_per_payroll = 0;
             }
         };
+        const onSubmit = () => {
+            const newData = {
+                ...props.formData,
+                start_month_specific: props.formData.start_month_specific
+                    ? props.formData.start_month_specific.format("MM")
+                    : null,
+                start_year_specific: props.formData.start_year_specific
+                    ? props.formData.start_year_specific.format("YYYY")
+                    : null,
+            }
 
+            addEditRequestAdmin({
+                url: props.url,
+                data: {
+                    ...newData,
+                },
+                successMessage: props.successMessage,
+                success: (res) => {
+                    emit("addEditSuccess", res.xid);
+                },
+            });
+            console.log(newData)
+            console.log(props.addEditType)
+            console.log(props.url)
+            console.log(props.successMessage)
+            console.log(props.pageTitle)
+            
+            
 
-        // console.log(dataNeed.value)
-        // loan_type.value = [
-        //     { value: "SSSsalary", label: "SSS Salary Loan" },
-        //     { value: "SSScalamity", label: "SSS Calamity Loan" },
-        //     { value: "PAGIBIGsalary", label: "Pag-IBIG Salary Loan" },
-        //     { value: "PAGIBIGcalamity", label: "Pag-IBIG Calamity Loan" },
-        // ];
+            // rules.value = {};
+            // addEditRequestAdmin(
+            //     props.url,
+            //     props.addEditType,
+            //     props.formData,
+            //     props.successMessage,
+            //     props.pageTitle
+            // ).then((response) => {
+            //     if (response.status === 200) {
+            //         emit("onSuccess", response.data);
+            //         onClose();
+            //     } else {
+            //         rules.value = response.data.errors || {};
+            //     }
+            // });
+        };
 
         return {
             loading,
@@ -334,6 +531,7 @@ export default defineComponent({
             onClose,
             userAdded,
             ComputeMonthlyDeduction,
+            onSubmit,
             drawerWidth: window.innerWidth <= 991 ? "90%" : "90%",
         };
     }

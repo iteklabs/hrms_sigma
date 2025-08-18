@@ -67,6 +67,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('companies', 'CompanyController', ['as' => 'api', 'only' => ['update']]);
         ApiRoute::resource('permissions', 'PermissionController', ['as' => 'api', 'only' => ['index']]);
         ApiRoute::resource('roles', 'RolesController', $options);
+        ApiRoute::resource('salary_deduction_loan', 'LoanDeductionController', $options);
 
         ApiRoute::get('attendances/summary-month', ['as' => 'api.attendances.summary-month', 'uses' => 'AttendanceController@attendanceSummaryByMonth']);
         

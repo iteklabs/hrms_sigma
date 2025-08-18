@@ -78,32 +78,55 @@
         />
         <a-row>
             <a-col :span="24">
-                <!-- Top-level tabs -->
-                <a-tabs v-model:activeKey="topTab" @change="setUrlData">
-                    <!-- Government Loan tab -->
-                    <a-tab-pane key="GL" :tab="`Government Loan`">
-                        <!-- Nested tabs inside Government Loan -->
-                        <a-tabs v-model:activeKey="govLoanTab">
-                            <a-tab-pane key="SSSsalary" tab="SSS Salary Loan">
-                                <a-table :columns="sssSalaryColumns" :data-source="sssData" row-key="id" />
-                            </a-tab-pane>
-                            <a-tab-pane key="SSScalamity" tab="SSS Calamity Loan">
-                                <a-table :columns="sssCalamityColumns" :data-source="sssData" row-key="id" />
-                            </a-tab-pane>
-                            <a-tab-pane key="PAGIBIGsalary" tab="Pag-IBIG Salary Loan">
-                                <a-table :columns="pagibigSalaryColumns" :data-source="pagibigData" row-key="id" />
-                            </a-tab-pane>
-                            <a-tab-pane key="PAGIBIGcalamity" tab="Pag-IBIG Calamity Loan">
-                                <a-table :columns="pagibigCalamityColumns" :data-source="pagibigData" row-key="id" />
-                            </a-tab-pane>
-                        </a-tabs>
-                    </a-tab-pane>
+                <a-table
+                    :columns="columns"
+                    :row-key="(record) => record.xid"
+                    :data-source="table.data"
+                    :pagination="table.pagination"
+                    :loading="table.loading"
+                    @change="handleTableChange"
+                    bordered
+                    size="middle"
+                    >
+                    <template #bodyCell="{ column, record }">
+                        <template v-if="column.dataIndex === 'user_id'">
+                            <a-button type="link" @click="openUserView(record)">
+                                <UserInfo :user="record.user" />
+                            </a-button>
+                        </template>
 
-                    <!-- Company Loan tab -->
-                    <a-tab-pane key="CL" tab="Company Loan">
-                        <a-table :columns="companyLoanColumns" :data-source="companyLoanData" row-key="id" />
-                    </a-tab-pane>
-                </a-tabs>
+                        <template v-if="column.dataIndex === 'action'">
+                                <a-space>
+                                    <a-button
+                                        v-if="
+                                            permsArray.includes('salary_adjustment_add_edit') ||
+                                            permsArray.includes('admin')
+                                        "
+                                        type="primary"
+                                        @click="editItem(editItemInit(record))"
+                                        style="margin-left: 4px"
+                                    >
+                                        <template #icon><EditOutlined /></template>
+                                    </a-button>
+
+                                    <a-button
+                                        v-if="
+                                            permsArray.includes('payrolls_delete') ||
+                                            permsArray.includes('admin')
+                                        "
+                                        type="primary"
+                                        @click="showDeleteConfirm(record.xid)"
+                                    >
+                                        <template #icon><DeleteOutlined /></template>
+                                    </a-button>
+
+                                </a-space>
+                                
+
+                                
+                            </template>
+                    </template>
+                </a-table>
             </a-col>
         </a-row>
     </admin-page-table-content>
@@ -112,12 +135,13 @@
 </template>
 
 <script>
-import { PlusOutlined } from "@ant-design/icons-vue";
-import { ref } from "vue";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons-vue";
+import { onMounted, ref } from "vue";
 import UserInfo from "../../../../common/components/user/UserInfo.vue";
 import common from "../../../../common/composable/common";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
 import AddEditSSS from "./AddEditSSS.vue";
+import fields from "./fields";
 
 import crud from "../../../../common/composable/crud";
 export default {
@@ -125,9 +149,9 @@ export default {
         AdminPageHeader,
         UserInfo,
         AddEditSSS,
+        EditOutlined,
         PlusOutlined,
-        
-
+        DeleteOutlined
     },
     setup() {
         const {
@@ -143,59 +167,58 @@ export default {
         const userId = ref(undefined);
         const crudVariables = crud();
         const dataNeed = ref('');
+        const extraFilters = ref({
+            status: "active",
+        });
+        const {
+            url,
+            initData,
+            columns,
+            addEditUrl,
+            hashableColumns,
+            filterableColumns
+        } = fields();
 
-        // Example columns
-        const sssSalaryColumns = [
-            { title: "User", dataIndex: "user_id" },
-            { title: "Voucher/SOA", dataIndex: "loan_id" },
-            { title: "Type of Loan", dataIndex: "type_loan" },
-            { title: "Amount", dataIndex: "amount" },
-            { title: "Action", dataIndex: "action" },
-        ];
-        const sssCalamityColumns = [
-            { title: "User", dataIndex: "user_id" },
-            { title: "Voucher/SOA", dataIndex: "loan_id" },
-            { title: "Type of Loan", dataIndex: "type_loan" },
-            { title: "Amount", dataIndex: "amount" },
-            { title: "Action", dataIndex: "action" },
-        ];
-        const pagibigSalaryColumns = [
-            { title: "User", dataIndex: "user_id" },
-            { title: "Voucher/SOA", dataIndex: "loan_id" },
-            { title: "Type of Loan", dataIndex: "type_loan" },
-            { title: "Amount", dataIndex: "amount" },
-            { title: "Action", dataIndex: "action" },
-        ];
+        onMounted(() => {
+            setUrlData();
+        });
 
-        const pagibigCalamityColumns = [
-            { title: "User", dataIndex: "user_id" },
-            { title: "Voucher/SOA", dataIndex: "loan_id" },
-            { title: "Type of Loan", dataIndex: "type_loan" },
-            { title: "Amount", dataIndex: "amount" },
-            { title: "Action", dataIndex: "action" },
-        ];
-        const companyLoanColumns = [
-            { title: "User", dataIndex: "user_id" },
-            { title: "Voucher/SOA", dataIndex: "loan_id" },
-            { title: "Type of Loan", dataIndex: "type_loan" },
-            { title: "Amount", dataIndex: "amount" },
-            { title: "Action", dataIndex: "action" },
-        ];
+        function editItemInit(record){
+            const NewData = { 
+                ...record,
+                start_year_specific: dayjs(record.start_year_specific, "YYYY"),
+                start_month_specific: dayjs(record.start_month_specific, "MM"),
+                DataNeed: record.loan_name,
+                loan_name: record.loan_name
+            };
+            return NewData;
+        }
 
-        // Example data
-        const sssData = [{ id: 1, loan_id: "SSS-001", amount: 5000 }];
-        const pagibigData = [{ id: 1, loan_id: "PAG-001", amount: 8000 }];
-        const companyLoanData = [{ id: 1, loan_id: "CL-001", amount: 10000 }];
 
 
             const addItemData = (type) => {
                 dataNeed.value = type; // 'GovLoan' or 'CompLoan'
-                // console.log(crudVariables.addItem())
                 crudVariables.addItem()
+                // crudVariables.addEditType = "add";
+                // crudVariables.addEditVisible = true;
+                // crudVariables.url = `salary_deduction_loan`;
                 // crud.addItem();
             };
         const setUrlData = () => {
-            // Sync tab state to URL if needed
+            crudVariables.tableUrl.value = {
+                url:url,
+                extraFilters,
+            }
+            crudVariables.table.filterableColumns = filterableColumns;
+            crudVariables.fetch({
+                page: 1,
+            });
+
+            crudVariables.crudUrl.value = addEditUrl;
+            crudVariables.langKey.value = "salary_deduction_loan";
+            crudVariables.initData.value = { ...initData };
+            crudVariables.formData.value = { ...initData };
+            crudVariables.hashableColumns.value = { ...hashableColumns };
         };
 
         const closeUser = () => {
@@ -206,14 +229,6 @@ export default {
         return {
             topTab,
             govLoanTab,
-            sssCalamityColumns,
-            pagibigSalaryColumns,
-            companyLoanColumns,
-            pagibigCalamityColumns,
-            sssData,
-            pagibigData,
-            companyLoanData,
-            sssSalaryColumns,
             setUrlData,
             permsArray,
             closeUser,
@@ -223,6 +238,8 @@ export default {
             dataNeed,
             addItemData,
             ...crudVariables,
+            columns,
+            editItemInit
         };
     },
 };

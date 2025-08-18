@@ -711,6 +711,50 @@ class Payrolls
                 if (!$payroll) {
                     $payroll = new Payroll();
                     $payroll->created_by = $user->id;
+                    $payroll->user_id = $allUser->id;
+                    $payroll->year = $year;
+                    $payroll->month = $month;
+                    $payroll->cut_off = $cut_off;
+                    $payroll->total_days = 0;
+                    $payroll->basic_salary = 0;
+                    $payroll->working_days = 0;
+
+                    $payroll->total_office_time = 0;
+                    $payroll->total_worked_time = 0;
+                    $payroll->half_days = 0;
+                    $payroll->late_days = 0;
+                    $payroll->paid_leaves = 0;
+                    $payroll->unpaid_leaves = 0;
+                    $payroll->holiday_count = 0;
+
+                    $payroll->present_days = 0;
+                    $payroll->salary_amount = 0;
+                    $payroll->net_salary = 0;
+                    $payroll->status = "draft";
+                    $payroll->updated_by = $user->id;
+                    $payroll->payment_date = null;
+                    $payroll->company_id = $company->id;
+
+                    $payroll->sss_share_er = 0;
+                    $payroll->sss_share_ee = 0;
+                    $payroll->sss_mpf_er = 0;
+                    $payroll->sss_ec_er = 0;
+                    $payroll->sss_mpf_ee = 0;
+                    $payroll->pagibig_share_er = 0;
+                    $payroll->pagibig_share_ee = 0;
+                    $payroll->philhealth_share_er = 0;
+                    $payroll->philhealth_share_ee = 0;
+                    $payroll->taxable_income = 0;
+                    $payroll->tax_withheld = 0;
+
+                    $payroll->night_differential_amount = 0;
+                    $payroll->legal_holiday_ot_amount  = 0;
+                    $payroll->legal_holiday_amount     = 0;
+                    $payroll->rest_day_ot_amount       = 0;
+                    $payroll->rest_day_amount          = 0;
+                    $payroll->regular_ot_amount        = 0;
+                    $payroll->save();
+
                 }
 
                     // $basicSalary = $allUser->basic_salary / 2 ?? 0;
@@ -738,6 +782,7 @@ class Payrolls
                     $EarnNonTax = 0;
                     $DeaductTax = 0;
                     $DeaductNonTax = 0;
+                    \Log::info($payroll);
                     if(count($SalarAdjustment) > 0){
                         if(count($SalarAdjustment['earn']) > 0){
                             foreach ($SalarAdjustment['earn'] as $key => $value) {

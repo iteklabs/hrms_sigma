@@ -11,7 +11,7 @@
     >
 
     <a-form layout="vertical">
-        <pre>{{ formData }}</pre>
+        <!-- <pre>{{ formData }}</pre> -->
         <a-row :gutter="16">
             <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
                 <a-form-item

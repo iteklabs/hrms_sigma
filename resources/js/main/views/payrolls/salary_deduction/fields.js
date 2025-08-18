@@ -17,16 +17,18 @@ const fields = (props) => {
         loan_type: '',
         user_id: undefined,
         total_amount_loan: 0,
-        no_deductions: 0,
         type_of_deduction: "monthly",
         sched_of_deduction: "A",
-        amount_per_payroll: 0,
         payroll_deductions: 0,
         start_year_specific: null,
         start_month_specific: null,
         start_batch_specific: "A",
         loan_name: "",
         DataNeed: "",
+        type_of_loan: "",
+        no_deductions: 0,
+        amount_per_payroll: 0,
+        payroll_deduction: 0,
     };
 
     const columns = [

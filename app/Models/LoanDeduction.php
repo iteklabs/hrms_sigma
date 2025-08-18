@@ -32,6 +32,7 @@ class LoanDeduction extends BaseModel
         'end_year_specific' => 'string',
         'end_month_specific' => 'string',
         'end_batch_specific' => 'string',
+        'no_deductions' => 'integer',
         'start_pause' => 'boolean',
         'status' => 'string',
         'remarks' => 'string',

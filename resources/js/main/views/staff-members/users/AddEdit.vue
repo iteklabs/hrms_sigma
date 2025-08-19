@@ -823,7 +823,7 @@
                 >
 
 
-                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                <!-- <a-col :xs="24" :sm="24" :md="24" :lg="24">
                     <a-form-item
                         :label="$t('user.main_shift_id')"
                         name="shift_id"
@@ -854,7 +854,7 @@
                             <ShiftAddButton @onAddSuccess="shiftAdded" />
                         </span>
                     </a-form-item>
-                </a-col>
+                </a-col> -->
 
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
                             <a-form-item
@@ -906,8 +906,19 @@
                         </template>
 
                         <template v-if="column.dataIndex === 'schedule_type'">
-                            {{ record.schedule_type === 'RVR' ? 'Reliever' : 'Overide Schedule' }}
-                            <!-- {{ record.date }} -->
+                            <!-- {{ record.schedule_type === 'RVR' ? 'Reliever' : 'Overide Schedule' }} -->
+                            <!-- {{ record.schedule_type }} -->
+                            <template v-if="record.schedule_type === 'RVR'">
+                                Reliever
+                            </template>
+
+                            <template v-if="record.schedule_type === 'OVD'">
+                                Overide Schedule
+                            </template>
+
+                            <template v-if="record.schedule_type === 'shift'">
+                                Main Shift
+                            </template>
                         </template>
 
                         <template v-if="column.dataIndex === 'time_in'">
@@ -1143,12 +1154,12 @@ export default defineComponent({
                     dataIndex: 'location_id',
                     key: 'location_id'
                 },
-                {
-                    title: 'Actions',
-                    dataIndex: 'actions',
-                    key: 'actions',
-                    scopedSlots: { customRender: 'actions' }
-                }
+                // {
+                //     title: 'Actions',
+                //     dataIndex: 'actions',
+                //     key: 'actions',
+                //     scopedSlots: { customRender: 'actions' }
+                // }
             ];
 
 

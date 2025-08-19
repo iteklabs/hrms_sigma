@@ -195,7 +195,7 @@
                         >
                             <span>{{ $t("menu.designations") }}</span>
                         </a-menu-item>
-                        <a-menu-item
+                        <!-- <a-menu-item
                             v-if="
                                 permsArray.includes('shifts_view') ||
                                 permsArray.includes('admin')
@@ -211,7 +211,7 @@
                             key="shifts"
                         >
                             <span>{{ $t("menu.shifts") }}</span>
-                        </a-menu-item>
+                        </a-menu-item> -->
                     </a-sub-menu>
                     <!-- <a-sub-menu
                         key="assets"

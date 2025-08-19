@@ -258,6 +258,7 @@
                         v-model:value="formData.sss_no"
                         :placeholder="$t('common.placeholder_default_text', [$t('basic_salary.sss_no')])"
                         style="width: 100%"
+                        maxlength="10"
                         @change="formatDataID('SSS')"
                     />
                 </a-form-item>
@@ -274,6 +275,7 @@
                             v-model:value="formData.philhealth_no"
                             :placeholder="$t('common.placeholder_default_text', [$t('basic_salary.philhealth_no')])"
                             style="width: 100%"
+                            maxlength="12"
                             @change="formatDataID('PhilHealth')"
                         />
                     </a-form-item>
@@ -288,6 +290,7 @@
                             v-model:value="formData.pagibig_no"
                             :placeholder="$t('common.placeholder_default_text', [$t('basic_salary.pagibig_no')])"
                             style="width: 100%"
+                            maxlength="12"
                             @change="formatDataID('pagibig')"
                         />
                     </a-form-item>
@@ -303,6 +306,7 @@
                             v-model:value="formData.tin_no"
                             :placeholder="$t('common.placeholder_default_text', [$t('basic_salary.tin_no')])"
                             style="width: 100%"
+                            maxlength="12"
                             @change="formatDataID('tin')"
                         />
                     </a-form-item>
@@ -310,14 +314,14 @@
         </a-row>
         <br>
 
-        <a-row :gutter="16" class="new-class">
+        <!-- <a-row :gutter="16" class="new-class">
             <a-col :xs="24" :sm="24" :md="4" :lg="4">{{
                 $t("basic_salary.fixed_benefits")
             }}</a-col>
-        </a-row>
+        </a-row> -->
 
 
-        <a-row :gutter="16">
+        <!-- <a-row :gutter="16">
             <a-col :xs="24" :sm="24" :md="24" :lg="24" class="column-text" style="flex: 1; text-align: left;">
                 <a-form-item
                     :label="$t('basic_salary.sss_fixed')"
@@ -372,7 +376,7 @@
                         />
                     </a-form-item>
                 </a-col>
-        </a-row>
+        </a-row> -->
 
         
 

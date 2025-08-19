@@ -1207,6 +1207,22 @@ export default defineComponent({
             schedule_location_id: null,
             xid: null // Reset xid for new entries
         });
+
+        const checkingLength = (value, Length, message) => {
+            console.log(value.length)
+            if(value.length !== Length){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: message,
+                });
+
+                return false;
+            }else{
+                return true;
+            }
+        };
+
         // console.log(props.formData.shift_id)
         const onSubmit = () => {
             var newFormData = {
@@ -1221,7 +1237,20 @@ export default defineComponent({
                 //     ? props.formData.shft_id_list.join(",")
                 //     : "",
             };
-            // console.log(newFormData)
+            const dataSSS = newFormData.sss_no ? newFormData.sss_no.replace(/-/g, '') : '';
+            const isGo = checkingLength(dataSSS, 10, 'SSS Number must be 10 characters long');
+            if(!isGo) return;
+            const dataPhilHealth = newFormData.philhealth_no ? newFormData.philhealth_no.replace(/-/g, '') : '';
+            const isGoPhilHealth = checkingLength(dataPhilHealth, 12, 'PhilHealth Number must be 12 characters long');
+            if(!isGoPhilHealth) return;
+            const dataPagibig = newFormData.pagibig_no ? newFormData.pagibig_no.replace(/-/g, '') : '';
+            const isGoPagibig = checkingLength(dataPagibig, 12, 'Pag-IBIG Number must be 12 characters long');
+            if(!isGoPagibig) return;
+            const dataTin = newFormData.tin_no ? newFormData.tin_no.replace(/-/g, '') : '';
+            const isGoTin = checkingLength(dataTin, 12, 'TIN Number must be 12 characters long add 000 if less than 12 characters');
+            if(!isGoTin) return;
+            // console.log(isGo)
+            // return;
             addEditRequestAdmin({
                 id: "add_edit_user_form",
                 url: props.url,
